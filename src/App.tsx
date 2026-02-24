@@ -612,28 +612,6 @@ function App() {
         }
     };
 
-    const handleMovieSelect = async (movie: { title: string; director: string; year: string; plot: string; posterUrl: string; actors?: string }) => {
-        // Parse actors list - take at least 6 if available
-        const actorsList = movie.actors ? movie.actors.split(',').map(a => a.trim()).slice(0, 6) : [];
-
-        // Update text details immediately (no image fetching)
-        setOptions(prev => ({
-            ...prev,
-            poster: {
-                ...prev.poster,
-                title: movie.title,
-                director: movie.director,
-                year: movie.year,
-                description: [movie.plot, ...prev.poster.description.slice(1)], // Update first desc, keep others
-                // Keep existing layout order, columns, and enabled states
-                listSection: {
-                    ...prev.poster.listSection,
-                    content: actorsList,
-                }
-            }
-        }));
-    };
-
     const handleProjectLoad = async (project: PosterProject) => {
         const { getAsset } = await import('./lib/storage');
 
@@ -688,7 +666,6 @@ function App() {
                     onExport={handleExport}
                     onCopy={handleCopyImage}
                     onUploadClick={() => document.getElementById('file-input')?.click()}
-                    onMovieSelect={handleMovieSelect}
                     imageDimensions={imageDimensions}
                     imageFile={imageFile}
                     onProjectLoad={handleProjectLoad}

@@ -14,7 +14,6 @@ interface ControlsProps {
     onExport: () => void;
     onCopy: () => void;
     onUploadClick: () => void;
-    onMovieSelect: (movie: { title: string; director: string; year: string; plot: string; posterUrl: string; actors?: string }) => void;
     imageDimensions: { width: number; height: number } | null;
     imageFile: File | null;
     onProjectLoad: (project: PosterProject) => void;
@@ -26,7 +25,6 @@ export const Controls: React.FC<ControlsProps> = ({
     onExport,
     onCopy,
     onUploadClick,
-    onMovieSelect,
     imageDimensions,
     imageFile,
     onProjectLoad
@@ -79,7 +77,7 @@ export const Controls: React.FC<ControlsProps> = ({
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
                 {activeTab === 'design' && (
-                    <DesignControls options={options} onOptionsChange={onOptionsChange} onMovieSelect={onMovieSelect} />
+                    <DesignControls options={options} onOptionsChange={onOptionsChange} />
                 )}
                 {activeTab === 'layout' && (
                     <LayoutControls options={options} onOptionsChange={onOptionsChange} imageDimensions={imageDimensions} />

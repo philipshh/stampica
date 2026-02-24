@@ -7,119 +7,13 @@ import { GridControls } from './GridControls';
 interface DesignControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
-    onMovieSelect: (movie: { title: string; director: string; year: string; plot: string; posterUrl: string; actors?: string }) => void;
 }
 
-export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange, onMovieSelect }) => {
-    const [searchQuery, setSearchQuery] = React.useState('');
-    const [searchResults, setSearchResults] = React.useState<any[]>([]);
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
-
-    const searchMovies = async () => {
-        if (!options.omdbApiKey) {
-            setError('Please enter an OMDb API key');
-            return;
-        }
-        if (!searchQuery.trim()) return;
-
-        setIsLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`https://www.omdbapi.com/?apikey=${options.omdbApiKey}&s=${encodeURIComponent(searchQuery)}`);
-            const data = await response.json();
-            if (data.Response === 'True') {
-                setSearchResults(data.Search);
-            } else {
-                setError(data.Error);
-                setSearchResults([]);
-            }
-        } catch (err) {
-            setError('Failed to fetch movies');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const selectMovie = async (imdbID: string) => {
-        setIsLoading(true);
-        try {
-            const response = await fetch(`https://www.omdbapi.com/?apikey=${options.omdbApiKey}&i=${imdbID}&plot=short`);
-            const data = await response.json();
-            if (data.Response === 'True') {
-                // TV shows often don't have a "Director". Fallback to Writer or first Actor.
-                let director = data.Director;
-                if (!director || director === 'N/A') {
-                    director = data.Writer && data.Writer !== 'N/A' ? data.Writer : (data.Actors ? data.Actors.split(',')[0] : 'N/A');
-                }
-
-                onMovieSelect({
-                    title: data.Title,
-                    director: director,
-                    year: data.Year,
-                    plot: data.Plot,
-                    posterUrl: data.Poster,
-                    actors: data.Actors
-                });
-                setSearchResults([]);
-                setSearchQuery('');
-            }
-        } catch (err) {
-            setError('Failed to fetch movie details');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleSurpriseMe = () => {
-        const curatedMovies = [
-            'tt0111161', 'tt0068646', 'tt0468569', 'tt0071562', 'tt0050083',
-            'tt0108052', 'tt0167260', 'tt0110912', 'tt0167261', 'tt0060196',
-            'tt0137523', 'tt0120737', 'tt0109830', 'tt1375666', 'tt0076759',
-            'tt0080684', 'tt0099685', 'tt0133093', 'tt0073486', 'tt0047478',
-        ];
-        const randomId = curatedMovies[Math.floor(Math.random() * curatedMovies.length)];
-        selectMovie(randomId);
-    };
-
-    const handleEngineChange = (engine: 'classic' | 'dg') => {
-        const dgSupported = ['atkinson', 'floyd', 'stucki', 'threshold'];
-        const classicSupported = ['none', 'atkinson', 'threshold'];
-        let algo = options.algorithm;
-        if (engine === 'dg' && !dgSupported.includes(algo)) {
-            algo = 'atkinson' as any;
-        } else if (engine === 'classic' && !classicSupported.includes(algo)) {
-            algo = 'atkinson' as any;
-        }
-        onOptionsChange({ ...options, engine, algorithm: algo as any });
-    };
+export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-200">
-            {/* Engine Selector - High Level Setting */}
-            <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Engine</label>
-                <div className="grid grid-cols-2 gap-1">
-                    <button
-                        onClick={() => handleEngineChange('classic')}
-                        className={`py-2 text-[10px] border transition-all uppercase ${(!options.engine || options.engine === 'classic')
-                            ? 'bg-white text-black border-white font-bold'
-                            : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
-                            }`}
-                    >
-                        Classic
-                    </button>
-                    <button
-                        onClick={() => handleEngineChange('dg')}
-                        className={`py-2 text-[10px] border transition-all uppercase ${options.engine === 'dg'
-                            ? 'bg-white text-black border-white font-bold'
-                            : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
-                            }`}
-                    >
-                        DitherGarden
-                    </button>
-                </div>
-            </div>
+
 
             {/* Image Mode Selector */}
             <div className="space-y-1">
@@ -147,7 +41,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
             {/* Design Mode Selector */}
             <div className="space-y-1">
                 <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Design Mode</label>
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-1 gap-1">
                     <button
                         onClick={() => onOptionsChange({
                             ...options,
@@ -166,93 +60,11 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                     >
                         Poster
                     </button>
-                    <button
-                        onClick={() => onOptionsChange({
-                            ...options,
-                            designMode: 'tshirt',
-                            poster: {
-                                ...options.poster,
-                                showHeader: false,
-                                showTitle: false,
-                                showFooter: false,
-                                listSection: { ...options.poster.listSection, enabled: false },
-                                iconSection: { ...options.poster.iconSection, enabled: false },
-                                imagePadding: 'none'
-                            }
-                        })}
-                        className={`py-2 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.designMode === 'tshirt' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
-                    >
-                        T-Shirt
-                    </button>
                 </div>
             </div>
 
             {options.designMode === 'poster' && (
                 <>
-                    {/* Movie Search Section */}
-                    <div className="p-3 bg-neutral-900/50 rounded-lg border border-neutral-800 space-y-3">
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider flex justify-between">
-                                <span>OMDb Key</span>
-                                <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer" className="text-neutral-500 hover:text-white transition-colors">Get ↗</a>
-                            </label>
-                            <input
-                                type="password"
-                                value={options.omdbApiKey || ''}
-                                onChange={(e) => onOptionsChange({ ...options, omdbApiKey: e.target.value })}
-                                placeholder="Key"
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-1.5 text-xs focus:outline-none focus:border-neutral-600 rounded"
-                            />
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider">Search Movie & TV shows</label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && searchMovies()}
-                                    placeholder="Movie or TV show title..."
-                                    className="flex-1 bg-neutral-900 border border-neutral-800 text-white px-2 py-1.5 text-xs focus:outline-none focus:border-neutral-600 rounded"
-                                />
-                                <button
-                                    onClick={searchMovies}
-                                    disabled={isLoading}
-                                    className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded hover:bg-neutral-200 disabled:opacity-50 transition-colors"
-                                >
-                                    {isLoading ? '...' : 'Search'}
-                                </button>
-                            </div>
-                            <button
-                                onClick={handleSurpriseMe}
-                                disabled={isLoading}
-                                className="w-full mt-2 px-3 py-1.5 bg-neutral-800 text-neutral-300 text-xs font-medium rounded hover:bg-neutral-700 hover:text-white disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <span>🎲</span> Surprise Me
-                            </button>
-                        </div>
-
-                        {error && <div className="text-[10px] text-red-400">{error}</div>}
-
-                        {searchResults.length > 0 && (
-                            <div className="max-h-40 overflow-y-auto custom-scrollbar border border-neutral-800 rounded bg-neutral-900">
-                                {searchResults.map((movie) => (
-                                    <button
-                                        key={movie.imdbID}
-                                        onClick={() => selectMovie(movie.imdbID)}
-                                        className="w-full text-left px-2 py-1.5 text-xs hover:bg-neutral-800 transition-colors flex justify-between items-center group"
-                                    >
-                                        <span className="truncate pr-2 text-neutral-300 group-hover:text-white">{movie.Title}</span>
-                                        <span className="text-neutral-500 text-[10px] flex-shrink-0">{movie.Year}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="h-px bg-neutral-800 my-4" />
-
                     {/* Text Fields */}
                     <div className="space-y-4">
                         <div className="space-y-1">
