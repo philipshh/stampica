@@ -49,9 +49,12 @@ const GridSlotImage: React.FC<{
 
 export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ processedImage, options, onUploadTrigger }, ref) => {
     const { title, year, description, paperColor, textColor, directorTextColor, titleFontSize, director, titleAlignment, footerLayout, imageScale, imageAlignX, imageAlignY, descriptionColumns, imageBackgroundColor } = options.poster;
+    const [scale, setScale] = React.useState(1);
 
-    // Calculate fixed dimensions based on aspect ratio
-    const BASE_WIDTH = 800;
+    // Base design width for scaling calculations
+    const BASE_WIDTH = 700;
+    
+    // Calculate fixed dimensions based on aspect ratio - consistent with export
     const getDimensions = () => {
         const fullDims = getPosterDimensions(options, options.poster.aspectRatio, 'high');
         const ratio = fullDims.height / fullDims.width;
@@ -63,14 +66,36 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
 
     const dimensions = getDimensions();
 
-    // Calculate padding based on size
-    const getPadding = () => {
+    // Monitor actual size and calculate scale factor
+    React.useEffect(() => {
+        if (!ref || typeof ref === 'function') return;
+        
+        const resizeObserver = new ResizeObserver((entries) => {
+            if (entries[0]) {
+                const actualWidth = entries[0].contentRect.width;
+                const scaleRatio = actualWidth / BASE_WIDTH;
+                setScale(scaleRatio);
+            }
+        });
+
+        if (ref.current) {
+            resizeObserver.observe(ref.current);
+        }
+
+        return () => resizeObserver.disconnect();
+    }, [ref]);
+
+    // Helper function to scale sizes consistently
+    const scaled = (baseValue: number) => baseValue * scale;
+
+    // Calculate padding based on size - in pixels at base width
+    const getBasePadding = () => {
         const { paddingSize } = options.poster;
         switch (paddingSize) {
-            case 'S': return '3%';
-            case 'M': return '5%';
-            case 'L': return '7%';
-            default: return '5%';
+            case 'S': return BASE_WIDTH * 0.03;
+            case 'M': return BASE_WIDTH * 0.05;
+            case 'L': return BASE_WIDTH * 0.07;
+            default: return BASE_WIDTH * 0.05;
         }
     };
 
@@ -99,16 +124,6 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
 
     const rectangleColors = getRectangleColors().slice(0, 4);
 
-    // Calculate padding value in pixels
-    const getPaddingValue = () => {
-        const { paddingSize } = options.poster;
-        switch (paddingSize) {
-            case 'S': return dimensions.width * 0.03;
-            case 'M': return dimensions.width * 0.05;
-            case 'L': return dimensions.width * 0.07;
-            default: return dimensions.width * 0.05;
-        }
-    };
 
     // Determine enabled sections for layout logic
     const enabledSections = options.poster.layoutOrder.filter(section => {
@@ -149,22 +164,22 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
             <div key="header" className="flex items-start justify-between">
                 <div className="flex gap-0">
                     {rectangleColors.map((color, i) => (
-                        <div key={i} className="w-8 h-2" style={{ backgroundColor: color }}></div>
+                        <div key={i} style={{ width: `${scaled(32)}px`, height: `${scaled(16)}px`, backgroundColor: color }}></div>
                     ))}
                 </div>
-                <div className="text-xs text-right" style={{ color: directorTextColor, letterSpacing: 'normal', fontWeight: 600 }}>
+                <div className="text-xs text-right" style={{ color: directorTextColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(12)}px` }}>
                     {director}
                 </div>
             </div>
         ) : null,
 
         title: options.poster.showTitle ? (
-            <div key="title" className="relative z-10 w-full flex flex-col" style={{ gap: `${options.poster.subtitleMargin}px` }}>
+            <div key="title" className="relative z-10 w-full flex flex-col" style={{ gap: `${scaled(options.poster.subtitleMargin)}px` }}>
                 <h1
                     className="leading-none break-words w-full"
                     style={{
                         color: options.poster.titleColor || textColor,
-                        fontSize: `${titleFontSize}px`,
+                        fontSize: `${scaled(titleFontSize)}px`,
                         textAlign: titleAlignment,
                         letterSpacing: '-0.05em',
                         fontWeight: 600,
@@ -178,7 +193,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                         className="leading-none break-words w-full"
                         style={{
                             color: options.poster.subtitleColor || textColor,
-                            fontSize: `${options.poster.subtitleFontSize || 32}px`,
+                            fontSize: `${scaled(options.poster.subtitleFontSize || 32)}px`,
                             textAlign: titleAlignment,
                             letterSpacing: '-0.02em',
                             fontWeight: 400,
@@ -193,11 +208,11 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
 
         image: options.poster.showImage ? (
             <div key="image" className="flex-1 relative overflow-hidden" style={{
-                borderRadius: options.poster.imageRoundedCorners === 'S' ? '16px' :
-                    options.poster.imageRoundedCorners === 'M' ? '40px' :
-                        options.poster.imageRoundedCorners === 'L' ? '64px' : '0px',
+                borderRadius: options.poster.imageRoundedCorners === 'S' ? `${16 * scale}px` :
+                    options.poster.imageRoundedCorners === 'M' ? `${40 * scale}px` :
+                        options.poster.imageRoundedCorners === 'L' ? `${64 * scale}px` : '0px',
                 // Image Padding Logic
-                marginLeft: options.poster.imagePadding === 'none' ? `-${getPaddingValue()}px` : 0,
+                marginLeft: options.poster.imagePadding === 'none' ? `-${getPaddingValue() * scale}px` : 0,
                 marginRight: options.poster.imagePadding === 'none' ? `-${getPaddingValue()}px` : 0,
                 marginTop: (options.poster.imagePadding === 'none' && enabledSections.indexOf('image') === 0) ? `-${getPaddingValue()}px` : 0,
                 marginBottom: (options.poster.imagePadding === 'none' && enabledSections.indexOf('image') === enabledSections.length - 1) ? `-${getPaddingValue()}px` : 0,
@@ -281,7 +296,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                         return Array.from({ length: columns }).map((_, colIndex) => (
                             <div key={colIndex} className="flex flex-col gap-1">
                                 {content.slice(colIndex * itemsPerColumn, (colIndex + 1) * itemsPerColumn).map((item, i) => (
-                                    <div key={i} className="text-sm leading-relaxed whitespace-pre-wrap" style={{ fontWeight: 400 }}>
+                                    <div key={i} className="leading-relaxed whitespace-pre-wrap" style={{ fontWeight: 400, fontSize: `${scaled(14)}px` }}>
                                         {item}
                                     </div>
                                 ))}
@@ -293,26 +308,26 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
         ) : null,
 
         footer: options.poster.showFooter ? (
-            <div key="footer" className={`flex pt-8 border-t border-current ${descriptionColumns > 1 ? 'flex-col' : `items-start ${footerLayout === 'reversed' ? 'flex-row-reverse' : 'justify-between'}`}`} style={{ borderTopWidth: '1px' }}>
+            <div key="footer" className={`flex border-t border-current ${descriptionColumns > 1 ? 'flex-col' : `items-start ${footerLayout === 'reversed' ? 'flex-row-reverse' : 'justify-between'}`}`} style={{ borderTopWidth: `${scaled(1)}px`, paddingTop: `${scaled(32)}px` }}>
                 {descriptionColumns === 1 ? (
                     <>
-                        <div className={`max-w-[60%] text-[0.6rem] leading-relaxed whitespace-pre-wrap ${footerLayout === 'reversed' ? 'text-right ml-auto' : 'text-left'}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600 }}>
+                        <div className={`max-w-[60%] leading-relaxed whitespace-pre-wrap ${footerLayout === 'reversed' ? 'text-right ml-auto' : 'text-left'}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(10)}px` }}>
                             {description[0] || ''}
                         </div>
-                        <div className={`text-4xl ${footerLayout === 'reversed' ? 'mr-auto' : 'ml-auto'}`} style={{ color: options.poster.yearColor || textColor, letterSpacing: '-0.05em', fontWeight: 600 }}>
+                        <div style={{ color: options.poster.yearColor || textColor, letterSpacing: '-0.05em', fontWeight: 600, fontSize: `${scaled(32)}px`, marginLeft: 'auto', textAlign: 'right' }}>
                             /{year || '24'}
                         </div>
                     </>
                 ) : (
                     <>
-                        <div className={`flex gap-10 text-[0.6rem] leading-relaxed w-full ${footerLayout === 'reversed' ? 'flex-row-reverse' : ''}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600 }}>
+                        <div className={`flex gap-10 leading-relaxed w-full ${footerLayout === 'reversed' ? 'flex-row-reverse' : ''}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(10)}px` }}>
                             {Array.from({ length: descriptionColumns }).map((_, index) => (
                                 <div key={index} className={`flex-1 ${footerLayout === 'reversed' ? 'text-right' : 'text-left'}`}>
                                     {description[index] || ''}
                                 </div>
                             ))}
                         </div>
-                        <div className={`text-4xl mt-2 ${footerLayout === 'reversed' ? 'text-left' : 'text-right'}`} style={{ color: options.poster.yearColor || textColor, letterSpacing: '-0.05em', fontWeight: 600 }}>
+                        <div style={{ color: options.poster.yearColor || textColor, letterSpacing: '-0.05em', fontWeight: 600, fontSize: `${scaled(32)}px`, marginTop: `${scaled(2)}px`, marginLeft: 'auto', textAlign: 'right' }}>
                             /{year || '24'}
                         </div>
                     </>
@@ -324,24 +339,25 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
             <div key="icons" className="w-full">
                 <div
                     className="grid grid-cols-4 gap-4 w-full"
-                    style={{ textAlign: options.poster.iconSection.alignment }}
+                    style={{ textAlign: options.poster.iconSection.alignment, gap: `${scaled(16)}px` }}
                 >
                     {options.poster.iconSection.items.map((item, i) => {
                         return (
                             <div key={i} className="flex flex-col gap-2 items-center" style={{
                                 alignItems: options.poster.iconSection.alignment === 'left' ? 'flex-start' :
-                                    options.poster.iconSection.alignment === 'right' ? 'flex-end' : 'center'
+                                    options.poster.iconSection.alignment === 'right' ? 'flex-end' : 'center',
+                                gap: `${scaled(8)}px`
                             }}>
                                 <div style={{ color: options.poster.iconSection.iconColor }}>
                                     <Icon
                                         icon={item.icon || 'material-symbols:help-outline'}
-                                        width={options.poster.iconSection.iconSize}
-                                        height={options.poster.iconSection.iconSize}
+                                        width={scaled(options.poster.iconSection.iconSize)}
+                                        height={scaled(options.poster.iconSection.iconSize)}
                                     />
                                 </div>
                                 <div
-                                    className="text-xs uppercase tracking-wider font-medium"
-                                    style={{ color: options.poster.iconSection.textColor }}
+                                    className="uppercase tracking-wider font-medium"
+                                    style={{ color: options.poster.iconSection.textColor, fontSize: `${scaled(12)}px` }}
                                 >
                                     {item.text}
                                 </div>
@@ -363,13 +379,13 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
             ref={ref}
             className="relative shadow-2xl overflow-hidden flex flex-col"
             style={{
-                width: `${dimensions.width}px`,
-                height: `${dimensions.height}px`,
+                width: '100%',
+                height: '100%',
                 backgroundColor: paperColor,
                 color: textColor,
-                padding: getPadding(),
+                padding: `${scaled(getBasePadding())}px`,
                 fontFamily: `${options.poster.bodyFont || 'Inter'}, sans-serif`,
-                gap: `${options.poster.gap}px`
+                gap: `${scaled(options.poster.gap)}px`
             }}
         >
             {orderedSections.filter(section => section !== null)}

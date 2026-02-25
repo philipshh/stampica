@@ -33,10 +33,10 @@ export const Controls: React.FC<ControlsProps> = ({
     const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'saved'>('design');
 
     return (
-        <div className="w-80 bg-black flex flex-col h-full text-xs tracking-wider font-mono border-r border-neutral-800">
-            <div className="p-6 border-b border-neutral-800">
+        <div className="w-full md:w-80 bg-black flex flex-col h-full text-xs tracking-wider font-mono md:border-r border-neutral-800">
+            <div className="p-4 md:p-6 border-b border-neutral-800 flex-shrink-0">
                 <div className="flex justify-center items-center mb-6">
-                    <img src="/logo.png" alt="Stampica" className="h-10 w-auto object-contain" />
+                    <img src="/logo.png" alt="Stampica" className="h-8 md:h-10 w-auto object-contain" />
                 </div>
 
                 {/* Tabs */}
@@ -68,7 +68,7 @@ export const Controls: React.FC<ControlsProps> = ({
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
                 {activeTab === 'design' && (
                     <DesignControls options={options} onOptionsChange={onOptionsChange} />
                 )}

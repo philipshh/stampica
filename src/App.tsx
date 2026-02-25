@@ -674,9 +674,9 @@ function App() {
     };
 
     return (
-        <div className="flex h-screen w-full bg-black text-white overflow-hidden font-sans">
-            {/* Sidebar Controls (Left) */}
-            <aside className="w-80 flex-shrink-0 z-20 h-full border-r border-neutral-800 bg-black">
+        <div className="flex w-full h-screen bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
+            {/* Sidebar Controls (Left) - Hidden on mobile, fixed width on desktop */}
+            <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 md:h-screen border-r border-neutral-800 bg-black md:flex-col">
                 <Controls
                     options={options}
                     onOptionsChange={setOptions}
@@ -689,10 +689,26 @@ function App() {
                 />
             </aside>
 
-            {/* Main Content Area (Right) - Preview */}
-            <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0]">
-                <div className="flex-1 relative flex items-start justify-center p-8 overflow-auto">
-                    <div className="relative border-[16px] border-black">
+            {/* Main Content Area - Stack vertically on mobile (50/50), flex-1 on desktop */}
+            <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0] md:h-screen">
+                {/* Preview Section - 50% height on mobile, full height on desktop */}
+                <div className="h-1/2 md:h-full md:flex-1 md:min-h-0 relative flex items-center justify-center p-4 md:p-8 bg-[#D0D0D0] md:overflow-auto overflow-hidden">
+                    <div style={{
+                        aspectRatio: options.poster.aspectRatio === 'A5' ? '148 / 210' : 
+                                   options.poster.aspectRatio === 'A4' ? '210 / 297' :
+                                   options.poster.aspectRatio === 'A3' ? '297 / 420' :
+                                   options.poster.aspectRatio === 'A2' ? '420 / 594' : '420 / 594',
+                        maxWidth: '700px',
+                        width: '100%',
+                        maxHeight: '100%',
+                        height: 'auto',
+                        border: '16px solid black',
+                        boxSizing: 'border-box',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden'
+                    }}>
                         {options.poster.enabled ? (
                             <PosterCanvas
                                 ref={posterRef}
@@ -703,6 +719,22 @@ function App() {
                         ) : (
                             <DitherCanvas processedImage={processedImage} />
                         )}
+                    </div>
+                </div>
+
+                {/* Mobile Controls - 50% height on mobile, hidden on desktop */}
+                <div className="flex md:hidden h-1/2 md:hidden min-h-0 bg-black border-t border-neutral-800 overflow-hidden">
+                    <div className="w-full overflow-y-auto">
+                        <Controls
+                            options={options}
+                            onOptionsChange={setOptions}
+                            onExport={handleExport}
+                            onCopy={handleCopyImage}
+                            onUploadClick={() => document.getElementById('file-input')?.click()}
+                            imageDimensions={imageDimensions}
+                            imageFile={imageFile}
+                            onProjectLoad={handleProjectLoad}
+                        />
                     </div>
                 </div>
             </main>

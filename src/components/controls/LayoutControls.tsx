@@ -269,31 +269,6 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         </div>
                     </div>
 
-                    {/* Footer Layout */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider">Footer layout</label>
-                        <div className="grid grid-cols-2 gap-1">
-                            <button
-                                onClick={() => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, footerLayout: 'standard' }
-                                })}
-                                className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.footerLayout === 'standard' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                            >
-                                Text / Year
-                            </button>
-                            <button
-                                onClick={() => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, footerLayout: 'reversed' }
-                                })}
-                                className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.footerLayout === 'reversed' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                            >
-                                Year / Text
-                            </button>
-                        </div>
-                    </div>
-
                     {/* Poster Sizes */}
                     <div className="space-y-1">
                         <label className="text-[10px] text-neutral-400 tracking-wider block uppercase">Poster Sizes</label>
