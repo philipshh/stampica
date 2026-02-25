@@ -1,8 +1,6 @@
 import React from 'react';
 import { DitherOptions } from '../../lib/dither';
 import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
-import { IconPicker } from './IconPicker';
-import { GridControls } from './GridControls';
 
 interface DesignControlsProps {
     options: DitherOptions;
@@ -13,55 +11,6 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-200">
-
-
-            {/* Image Mode Selector */}
-            <div className="space-y-1">
-                <label className="text-[10px] text-neutral-400 tracking-wider">Image Mode</label>
-                <div className="grid grid-cols-2 gap-1">
-                    <button
-                        onClick={() => onOptionsChange({ ...options, imageMode: 'single' })}
-                        className={`py-2 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.imageMode === 'single' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
-                    >
-                        Single Image
-                    </button>
-                    <button
-                        onClick={() => onOptionsChange({ ...options, imageMode: 'grid' })}
-                        className={`py-2 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.imageMode === 'grid' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
-                    >
-                        Multi-Image Grid
-                    </button>
-                </div>
-            </div>
-
-            {options.imageMode === 'grid' && (
-                <GridControls options={options} onOptionsChange={onOptionsChange} />
-            )}
-
-            {/* Design Mode Selector */}
-            <div className="space-y-1">
-                <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Design Mode</label>
-                <div className="grid grid-cols-1 gap-1">
-                    <button
-                        onClick={() => onOptionsChange({
-                            ...options,
-                            designMode: 'poster',
-                            poster: {
-                                ...options.poster,
-                                showHeader: true,
-                                showTitle: true,
-                                showFooter: true,
-                                listSection: { ...options.poster.listSection, enabled: false },
-                                iconSection: { ...options.poster.iconSection, enabled: false },
-                                imagePadding: 'same-as-poster'
-                            }
-                        })}
-                        className={`py-2 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.designMode === 'poster' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
-                    >
-                        Poster
-                    </button>
-                </div>
-            </div>
 
             {options.designMode === 'poster' && (
                 <>
@@ -237,69 +186,8 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             />
                         </div>
 
-                        {/* Image Settings */}
-                        <div className="space-y-4 pt-4 border-t border-neutral-800">
-                            <label className="text-[10px] text-neutral-400 tracking-wider font-bold">Image Settings</label>
-
-                            <div className="space-y-1">
-                                <label className="text-[10px] text-neutral-400 tracking-wider block">Scale</label>
-                                <div className="grid grid-cols-3 gap-1">
-                                    {(['fit', 'fill', 'original'] as const).map((scale) => (
-                                        <button
-                                            key={scale}
-                                            onClick={() => onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, imageScale: scale }
-                                            })}
-                                            className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageScale === scale ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                        >
-                                            {scale}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-400 tracking-wider block">Align X</label>
-                                    <div className="grid grid-cols-3 gap-1">
-                                        {(['left', 'center', 'right'] as const).map((align) => (
-                                            <button
-                                                key={align}
-                                                onClick={() => onOptionsChange({
-                                                    ...options,
-                                                    poster: { ...options.poster, imageAlignX: align }
-                                                })}
-                                                className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignX === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                            >
-                                                {align.charAt(0)}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-400 tracking-wider block">Align Y</label>
-                                    <div className="grid grid-cols-3 gap-1">
-                                        {(['top', 'center', 'bottom'] as const).map((align) => (
-                                            <button
-                                                key={align}
-                                                onClick={() => onOptionsChange({
-                                                    ...options,
-                                                    poster: { ...options.poster, imageAlignY: align }
-                                                })}
-                                                className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignY === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                            >
-                                                {align.charAt(0)}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
                         {/* List Content */}
-                        <div className="space-y-2 pt-2 border-t border-neutral-800">
+                        <div className="space-y-2 pt-4 border-t border-neutral-800">
                             <label className="text-[10px] text-neutral-400 tracking-wider flex justify-between items-center">
                                 <span>List Content</span>
                                 <div className="flex gap-2 items-center">
@@ -362,111 +250,6 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                 placeholder="Enter items (one per line)..."
                                 className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600 resize-none font-mono"
                             />
-                        </div>
-                    </div>
-                    {/* Icon Section */}
-                    <div className="space-y-4 pt-4 border-t border-neutral-800">
-                        <div className="flex justify-between items-center">
-                            <label className="text-[10px] text-neutral-400 tracking-wider font-bold">Icon Section</label>
-                        </div>
-
-                        {/* Icon Size */}
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider block">Icon Size</label>
-                            <div className="flex gap-1 items-center">
-                                {[24, 32, 48, 64].map((size) => (
-                                    <button
-                                        key={size}
-                                        onClick={() => onOptionsChange({
-                                            ...options,
-                                            poster: {
-                                                ...options.poster,
-                                                iconSection: { ...options.poster.iconSection, iconSize: size }
-                                            }
-                                        })}
-                                        className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.iconSection.iconSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                    >
-                                        {size}
-                                    </button>
-                                ))}
-                                <input
-                                    type="number"
-                                    value={options.poster.iconSection.iconSize}
-                                    onChange={(e) => onOptionsChange({
-                                        ...options,
-                                        poster: {
-                                            ...options.poster,
-                                            iconSection: { ...options.poster.iconSection, iconSize: parseInt(e.target.value) || 24 }
-                                        }
-                                    })}
-                                    className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Icon Alignment */}
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider block">Alignment</label>
-                            <div className="grid grid-cols-3 gap-1">
-                                {(['left', 'center', 'right'] as const).map((align) => (
-                                    <button
-                                        key={align}
-                                        onClick={() => onOptionsChange({
-                                            ...options,
-                                            poster: {
-                                                ...options.poster,
-                                                iconSection: { ...options.poster.iconSection, alignment: align }
-                                            }
-                                        })}
-                                        className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.iconSection.alignment === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                    >
-                                        {align}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Icon Items */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] text-neutral-400 tracking-wider block">Items (Icon + Text)</label>
-                            {options.poster.iconSection.items.map((item, index) => (
-                                <div key={index} className="flex gap-2">
-                                    <div className="w-1/3 relative">
-                                        <IconPicker
-                                            value={item.icon}
-                                            onChange={(newIcon) => {
-                                                const newItems = [...options.poster.iconSection.items];
-                                                newItems[index] = { ...item, icon: newIcon };
-                                                onOptionsChange({
-                                                    ...options,
-                                                    poster: {
-                                                        ...options.poster,
-                                                        iconSection: { ...options.poster.iconSection, items: newItems }
-                                                    }
-                                                });
-                                            }}
-                                            iconColor={options.poster.iconSection.iconColor}
-                                        />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        value={item.text}
-                                        onChange={(e) => {
-                                            const newItems = [...options.poster.iconSection.items];
-                                            newItems[index] = { ...item, text: e.target.value };
-                                            onOptionsChange({
-                                                ...options,
-                                                poster: {
-                                                    ...options.poster,
-                                                    iconSection: { ...options.poster.iconSection, items: newItems }
-                                                }
-                                            });
-                                        }}
-                                        className="flex-1 bg-neutral-900 border border-neutral-800 text-white px-2 py-1.5 text-[10px] focus:outline-none focus:border-neutral-600 rounded"
-                                        placeholder="Text"
-                                    />
-                                </div>
-                            ))}
                         </div>
                     </div>
                 </>
