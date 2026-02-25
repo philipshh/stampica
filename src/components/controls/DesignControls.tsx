@@ -63,7 +63,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-neutral-500">Title Size</label>
                                     <div className="flex gap-1 items-center">
-                                        {[24, 32, 40, 48, 56, 64].map((size) => (
+                                        {[40, 48, 56, 64].map((size) => (
                                             <button
                                                 key={size}
                                                 onClick={() => onOptionsChange({
@@ -104,7 +104,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-neutral-500">Subtitle Size</label>
                                     <div className="flex gap-1 items-center">
-                                        {[8, 16, 24, 32, 40, 48].map((size) => (
+                                        {[16, 24, 32, 40].map((size) => (
                                             <button
                                                 key={size}
                                                 onClick={() => onOptionsChange({
@@ -130,7 +130,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                 <div className="space-y-1 mt-2">
                                     <label className="text-[10px] text-neutral-500">Gap to Title</label>
                                     <div className="flex gap-1 items-center">
-                                        {[0, 8, 16, 24].map((size) => (
+                                        {[8, 16, 24].map((size) => (
                                             <button
                                                 key={size}
                                                 onClick={() => onOptionsChange({
@@ -147,7 +147,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                             value={options.poster.subtitleMargin}
                                             onChange={(e) => onOptionsChange({
                                                 ...options,
-                                                poster: { ...options.poster, subtitleMargin: parseInt(e.target.value) || 0 }
+                                                poster: { ...options.poster, subtitleMargin: parseInt(e.target.value) || 16 }
                                             })}
                                             className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
                                         />

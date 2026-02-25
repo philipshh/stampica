@@ -483,14 +483,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     onChange={(v) => updateOption('pointSize', v)}
                 />
 
-                <SliderField
-                    label="Preview Resolution"
-                    value={options.previewResolution}
-                    min={400}
-                    max={2400}
-                    step={100}
-                    onChange={(v) => updateOption('previewResolution', v)}
-                />
             </div>
 
             {/* Effects Section */}
@@ -538,7 +530,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                             <option value="texture-3">Smooth Paper</option>
                             <option value="folded">Folded Paper</option>
                             <option value="glue">Glued Paper</option>
-                            <option value="photocopy">Photocopy</option>
                         </select>
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-[10px]">▼</div>
                     </div>

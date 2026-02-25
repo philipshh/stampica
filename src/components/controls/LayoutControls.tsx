@@ -245,7 +245,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="space-y-1">
                         <label className="text-[10px] text-neutral-400 tracking-wider block">Layout Gap</label>
                         <div className="flex gap-1 items-center">
-                            {[8, 16, 24, 32, 40, 48].map((size) => (
+                            {[16, 24, 32, 40].map((size) => (
                                 <button
                                     key={size}
                                     onClick={() => onOptionsChange({
@@ -263,62 +263,6 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                 onChange={(e) => onOptionsChange({
                                     ...options,
                                     poster: { ...options.poster, gap: parseInt(e.target.value) || 0 }
-                                })}
-                                className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Title Size */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block">Title size</label>
-                        <div className="flex gap-1 items-center">
-                            {[24, 32, 40, 48, 56, 64].map((size) => (
-                                <button
-                                    key={size}
-                                    onClick={() => onOptionsChange({
-                                        ...options,
-                                        poster: { ...options.poster, titleFontSize: size }
-                                    })}
-                                    className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.titleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                            <input
-                                type="number"
-                                value={options.poster.titleFontSize}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, titleFontSize: parseInt(e.target.value) || 48 }
-                                })}
-                                className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Subtitle Size */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block">Subtitle size</label>
-                        <div className="flex gap-1 items-center">
-                            {[8, 16, 24, 32, 40, 48].map((size) => (
-                                <button
-                                    key={size}
-                                    onClick={() => onOptionsChange({
-                                        ...options,
-                                        poster: { ...options.poster, subtitleFontSize: size }
-                                    })}
-                                    className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                            <input
-                                type="number"
-                                value={options.poster.subtitleFontSize}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, subtitleFontSize: parseInt(e.target.value) || 16 }
                                 })}
                                 className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
                             />

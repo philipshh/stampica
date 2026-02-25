@@ -24,7 +24,7 @@ function App() {
         contrast: 0,
         gamma: 1,
         pointSize: 2,
-        previewResolution: 1600,
+        previewResolution: 2000,
         strictSwatches: true,
         paletteSteps: 4,
         colorPipeline: 'default',
