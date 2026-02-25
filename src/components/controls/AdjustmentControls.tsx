@@ -214,7 +214,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                 <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Algorithm</label>
                 <div className="grid grid-cols-3 gap-1">
                     {(() => {
-                        const dgAlgos = ['atkinson', 'floyd', 'stucki', 'threshold'];
+                        const dgAlgos = ['atkinson', 'floyd', 'threshold'];
                         const classicAlgos = ['none', 'atkinson', 'threshold'];
                         const list = options.engine === 'dg' ? dgAlgos : classicAlgos;
                         return list.map((algo) => (

@@ -2,6 +2,7 @@ import { DitherOptions } from './dither';
 
 export const getPosterDimensions = (options: DitherOptions, aspectRatio: string, resolution: 'high' | 'low' = 'high'): { width: number; height: number } => {
     const POSTER_SIZES = {
+        'A5': { width: 1748, height: 2480 },
         'A4': { width: 2480, height: 3508 },
         'A3': { width: 3508, height: 4961 },
         'A2': { width: 4961, height: 7016 }, // Default

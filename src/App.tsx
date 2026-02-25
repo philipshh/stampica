@@ -469,17 +469,17 @@ function App() {
                         ctx.drawImage(img, 0, 0, w, h);
                         const imageData = ctx.getImageData(0, 0, w, h);
 
-                        const worker = new Worker();
-                        worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
+                        const exportWorker = new Worker();
+                        exportWorker.onmessage = (e: MessageEvent<WorkerResponse>) => {
                             resolve(e.data.imageData);
-                            worker.terminate();
+                            exportWorker.terminate();
                             URL.revokeObjectURL(img.src);
                         };
-                        worker.onerror = (err) => {
-                            worker.terminate();
+                        exportWorker.onerror = (err) => {
+                            exportWorker.terminate();
                             reject(err);
                         };
-                        worker.postMessage({ imageData, options: ditherOptions });
+                        exportWorker.postMessage({ imageData, options: ditherOptions });
                     };
                     img.onerror = () => reject(new Error('Image failed to load in handleExport'));
                 }),
@@ -526,18 +526,29 @@ function App() {
         if (options.poster.enabled) {
             try {
                 const baseDimensions = getPosterDimensions(options, options.poster.aspectRatio, options.poster.resolution);
-                const upscale = options.poster.upscaleFactor || 1;
+                // Use native resolution for export (already 300 DPI), don't apply upscaleFactor
                 const dimensions = {
-                    width: baseDimensions.width * upscale,
-                    height: baseDimensions.height * upscale
+                    width: baseDimensions.width,
+                    height: baseDimensions.height
                 };
 
+                console.log('[EXPORT] Drawing poster with dimensions:', dimensions);
                 const canvas = await drawPosterToCanvas(exportOptions, finalImageData, dimensions);
+                console.log('[EXPORT] Canvas drawn, size:', canvas.width, 'x', canvas.height);
 
                 const link = document.createElement('a');
                 link.download = fileName;
-                link.href = canvas.toDataURL(`image/${format}`, format === 'jpeg' ? 1.0 : undefined);
-                link.click();
+                canvas.toBlob((blob) => {
+                    console.log('[EXPORT] Blob created:', blob ? `${blob.size} bytes` : 'null');
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    } else {
+                        alert('Failed to export poster - canvas blob is empty');
+                    }
+                }, `image/${format}`);
             } catch (error) {
                 console.error('Poster export failed:', error);
                 alert('Export failed: ' + error);
@@ -556,8 +567,14 @@ function App() {
                     ctx.putImageData(dataToExport, 0, 0);
                     const link = document.createElement('a');
                     link.download = fileName;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const url = URL.createObjectURL(blob);
+                            link.href = url;
+                            link.click();
+                            URL.revokeObjectURL(url);
+                        }
+                    }, 'image/png');
                 }
             }
         }
@@ -673,9 +690,9 @@ function App() {
             </aside>
 
             {/* Main Content Area (Right) - Preview */}
-            <main className="flex-1 flex flex-col relative min-w-0 bg-neutral-950">
+            <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0]">
                 <div className="flex-1 relative flex items-start justify-center p-8 overflow-auto">
-                    <div className="relative">
+                    <div className="relative border-[16px] border-black">
                         {options.poster.enabled ? (
                             <PosterCanvas
                                 ref={posterRef}

@@ -297,8 +297,15 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     {/* Poster Sizes */}
                     <div className="space-y-1">
                         <label className="text-[10px] text-neutral-400 tracking-wider block uppercase">Poster Sizes</label>
-                        <div className="grid grid-cols-5 gap-1">
-                            {(['A4', 'A3', 'A2', 'A1', 'A0', '18x24', '24x36', '27x40', 'custom'] as const).map((size) => (
+                        <div className="grid grid-cols-4 gap-1">
+                            {(['A5', 'A4', 'A3', 'A2'] as const).map((size) => {
+                                const cmLabels: { [key: string]: string } = {
+                                    'A5': '14.8x21',
+                                    'A4': '21x29.7',
+                                    'A3': '29.7x42',
+                                    'A2': '42x59.4'
+                                };
+                                return (
                                 <button
                                     key={size}
                                     onClick={() => {
@@ -316,11 +323,14 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                             }
                                         })
                                     }}
-                                    className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.aspectRatio === size ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
+                                    className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[8px] uppercase flex flex-col items-center justify-center ${options.poster.aspectRatio === size ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
+                                    title={`${size} (${cmLabels[size]})`}
                                 >
-                                    {size === 'custom' ? 'Cust' : size}
+                                    <div>{size}</div>
+                                    <div className="text-[7px] opacity-70">{cmLabels[size]}</div>
                                 </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
