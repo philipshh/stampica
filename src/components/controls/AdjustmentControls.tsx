@@ -207,46 +207,8 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         { id: 'rgb', label: 'RGB' }
     ];
 
-    const handleEngineChange = (engine: 'classic' | 'dg') => {
-        const dgSupported = ['atkinson', 'floyd', 'stucki', 'threshold'];
-        const classicSupported = ['none', 'atkinson', 'threshold'];
-
-        let algo = options.algorithm;
-        if (engine === 'dg' && !dgSupported.includes(algo)) {
-            algo = 'atkinson' as any;
-        } else if (engine === 'classic' && !classicSupported.includes(algo)) {
-            algo = 'atkinson' as any;
-        }
-        onOptionsChange({ ...options, engine, algorithm: algo as any });
-    };
-
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-200">
-            {/* Engine Selection */}
-            <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Engine</label>
-                <div className="grid grid-cols-2 gap-1">
-                    <button
-                        onClick={() => handleEngineChange('classic')}
-                        className={`py-2 text-[10px] border transition-all uppercase ${(!options.engine || options.engine === 'classic')
-                            ? 'bg-white text-black border-white font-bold'
-                            : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
-                            }`}
-                    >
-                        Classic
-                    </button>
-                    <button
-                        onClick={() => handleEngineChange('dg')}
-                        className={`py-2 text-[10px] border transition-all uppercase ${options.engine === 'dg'
-                            ? 'bg-white text-black border-white font-bold'
-                            : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
-                            }`}
-                    >
-                        DitherGarden
-                    </button>
-                </div>
-            </div>
-
             {/* Dither Algorithm Selection */}
             <div className="space-y-2">
                 <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Algorithm</label>
@@ -501,36 +463,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     onChange={(v) => updateOption('threshold', v)}
                 />
 
-                <div className="space-y-1">
-                    <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Color pipeline</label>
-                    <div className="relative">
-                        <select
-                            value={options.colorPipeline}
-                            onChange={(e) => updateOption('colorPipeline', e.target.value as any)}
-                            className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-xs appearance-none uppercase focus:outline-none focus:border-neutral-600"
-                        >
-                            <option value="default">Default</option>
-                            <option value="smooth">Smoother Transitions</option>
-                            <option value="linear">Precise Linear Pattern</option>
-                        </select>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-[10px]">▼</div>
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                    <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Strict swatches</label>
-                    <button
-                        onClick={() => updateOption('strictSwatches', !options.strictSwatches)}
-                        className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${options.strictSwatches ? 'bg-white' : 'bg-neutral-800'
-                            }`}
-                    >
-                        <span
-                            className={`inline-block h-3 w-3 transform rounded-full bg-black transition-transform ${options.strictSwatches ? 'translate-x-6' : 'translate-x-1'
-                                }`}
-                        />
-                    </button>
-                </div>
-
                 {!options.strictSwatches && options.colorMode !== 'rgb' && (
                     <SliderField
                         label="Palette Steps"
@@ -588,90 +520,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     </button>
                 </div>
 
-                {/* Accent Color (DG Engine Only) */}
-                {options.engine === 'dg' && (
-                    <div className="space-y-3 pt-2 border-t border-neutral-800">
-                        <div className="flex items-center justify-between">
-                            <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Accent Color</label>
-                            <button
-                                onClick={() => updateOption('accent', {
-                                    enabled: !options.accent?.enabled,
-                                    color: options.accent?.color || { r: 255, g: 42, b: 42 },
-                                    detectHex: options.accent?.detectHex || '#ff0000',
-                                    hueTolerance: options.accent?.hueTolerance || 45,
-                                    minSaturation: options.accent?.minSaturation || 0.0,
-                                    minValue: options.accent?.minValue || 0.0,
-                                    edgeBoost: options.accent?.edgeBoost ?? true,
-                                    edgeThreshold: options.accent?.edgeThreshold || 22,
-                                    strength: options.accent?.strength || 1
-                                })}
-                                className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${options.accent?.enabled ? 'bg-white' : 'bg-neutral-800'
-                                    }`}
-                            >
-                                <span
-                                    className={`inline-block h-3 w-3 transform rounded-full bg-black transition-transform ${options.accent?.enabled ? 'translate-x-6' : 'translate-x-1'
-                                        }`}
-                                />
-                            </button>
-                        </div>
-
-                        {options.accent?.enabled && (
-                            <div className="space-y-3">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-400 tracking-wider block">Accent Color</label>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="color"
-                                            value={`#${((options.accent.color.r << 16) | (options.accent.color.g << 8) | options.accent.color.b).toString(16).padStart(6, '0')}`}
-                                            onChange={(e) => {
-                                                const hex = e.target.value;
-                                                const r = parseInt(hex.slice(1, 3), 16);
-                                                const g = parseInt(hex.slice(3, 5), 16);
-                                                const b = parseInt(hex.slice(5, 7), 16);
-                                                updateOption('accent', {
-                                                    ...options.accent!,
-                                                    color: { r, g, b }
-                                                });
-                                            }}
-                                            className="w-8 h-8 bg-transparent cursor-pointer border-none p-0"
-                                        />
-                                        <span className="text-[10px] text-neutral-500 uppercase">
-                                            #{((options.accent.color.r << 16) | (options.accent.color.g << 8) | options.accent.color.b).toString(16).padStart(6, '0')}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-400 tracking-wider block">Detect Color</label>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="color"
-                                            value={options.accent.detectHex}
-                                            onChange={(e) => updateOption('accent', {
-                                                ...options.accent!,
-                                                detectHex: e.target.value
-                                            })}
-                                            className="w-8 h-8 bg-transparent cursor-pointer border-none p-0"
-                                        />
-                                        <span className="text-[10px] text-neutral-500 uppercase">{options.accent.detectHex}</span>
-                                    </div>
-                                </div>
-
-                                <SliderField
-                                    label="Hue Tolerance"
-                                    value={options.accent.hueTolerance}
-                                    min={0}
-                                    max={180}
-                                    step={1}
-                                    onChange={(v) => updateOption('accent', {
-                                        ...options.accent!,
-                                        hueTolerance: v
-                                    })}
-                                />
-                            </div>
-                        )}
-                    </div>
-                )}
             </div>
 
             {/* Paper Texture Section */}

@@ -3,7 +3,6 @@ import { DitherOptions } from '../lib/dither';
 import { DesignControls } from './controls/DesignControls';
 import { LayoutControls } from './controls/LayoutControls';
 import { AdjustmentControls } from './controls/AdjustmentControls';
-import { ColorControls } from './controls/ColorControls';
 import { ProjectControls } from './controls/ProjectControls';
 import { PosterProject } from '../lib/storage';
 import { Download, Upload, Copy } from 'lucide-react';
@@ -31,7 +30,7 @@ export const Controls: React.FC<ControlsProps> = ({
 }) => {
 
 
-    const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'colors' | 'saved'>('design');
+    const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'saved'>('design');
 
     return (
         <div className="w-80 bg-black flex flex-col h-full text-xs tracking-wider font-mono border-r border-neutral-800">
@@ -41,7 +40,7 @@ export const Controls: React.FC<ControlsProps> = ({
                 </div>
 
                 {/* Tabs */}
-                <div className="grid grid-cols-5 border border-neutral-800 rounded p-1 gap-1">
+                <div className="grid grid-cols-4 border border-neutral-800 rounded p-1 gap-1">
                     <button
                         onClick={() => setActiveTab('design')}
                         className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'design' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
@@ -61,12 +60,6 @@ export const Controls: React.FC<ControlsProps> = ({
                         Effects
                     </button>
                     <button
-                        onClick={() => setActiveTab('colors')}
-                        className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'colors' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    >
-                        Colors
-                    </button>
-                    <button
                         onClick={() => setActiveTab('saved')}
                         className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'saved' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
                     >
@@ -84,9 +77,6 @@ export const Controls: React.FC<ControlsProps> = ({
                 )}
                 {activeTab === 'adjust' && (
                     <AdjustmentControls options={options} onOptionsChange={onOptionsChange} />
-                )}
-                {activeTab === 'colors' && (
-                    <ColorControls options={options} onOptionsChange={onOptionsChange} />
                 )}
                 {activeTab === 'saved' && (
                     <ProjectControls
