@@ -16,6 +16,7 @@ type PosterSize = (typeof SIZES)[number];
 interface CheckoutLocationState {
   options?: DitherOptions;
   imageFile?: File;
+  processedImage?: ImageData;
   previewBlob?: Blob;
   defaultSize?: string;
 }
@@ -82,13 +83,17 @@ export function Checkout() {
         ).catch(() => null);
       }
 
-      if (state.options && state.imageFile) {
-        const hiresBlob = await exportPosterHiResBlob(state.options, state.imageFile);
+      if (state.options) {
+        const hiresBlob = await exportPosterHiResBlob(
+          state.options,
+          state.imageFile ?? null,
+          state.processedImage ?? null,
+        );
         if (hiresBlob) {
-          hiresFileUrl = await uploadPosterFile(
-            hiresBlob,
-            `${orderId}_hires.png`,
-          ).catch(() => null);
+          hiresFileUrl = await uploadPosterFile(hiresBlob, `${orderId}_hires.png`).catch((err) => {
+            console.error('Hi-res upload failed:', err);
+            return null;
+          });
         }
       }
 

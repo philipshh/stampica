@@ -206,12 +206,12 @@ function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number)
     });
 }
 
-/** Low-res JPEG preview (~800px wide) — fast, using already-processed ImageData */
+/** Low-res JPEG preview — renders the poster at low resolution using current processedImage (may be null for text-only posters) */
 export async function exportPosterPreviewBlob(
     options: DitherOptions,
     processedImage: ImageData | null,
 ): Promise<Blob | null> {
-    if (!options.poster.enabled || !processedImage) return null;
+    if (!options.poster.enabled) return null;
     try {
         const previewOptions: DitherOptions = {
             ...options,
@@ -225,21 +225,25 @@ export async function exportPosterPreviewBlob(
     }
 }
 
-/** Hi-res PNG — re-processes the image at full export resolution using the original file */
+/** Hi-res PNG — re-processes the image at full export resolution.
+ *  If imageFile is available, re-renders at full print resolution.
+ *  Falls back to the current processedImage for text-only posters. */
 export async function exportPosterHiResBlob(
     options: DitherOptions,
     imageFile: File | null,
+    processedImage?: ImageData | null,
 ): Promise<Blob | null> {
-    if (!options.poster.enabled || !imageFile) return null;
+    if (!options.poster.enabled) return null;
     try {
         const hiResOptions: DitherOptions = {
             ...options,
             poster: { ...options.poster, resolution: 'high' },
         };
         const dimensions = getPosterDimensions(hiResOptions, hiResOptions.poster.aspectRatio, 'high');
-        const resolution = Math.max(dimensions.width, dimensions.height);
-        const processedData = await getDitheredImageData(imageFile, hiResOptions, resolution);
-        const canvas = await drawPosterToCanvas(hiResOptions, processedData, dimensions);
+        const imageData = imageFile
+            ? await getDitheredImageData(imageFile, hiResOptions, Math.max(dimensions.width, dimensions.height))
+            : (processedImage ?? null);
+        const canvas = await drawPosterToCanvas(hiResOptions, imageData, dimensions);
         return await canvasToBlob(canvas, 'image/png');
     } catch {
         return null;

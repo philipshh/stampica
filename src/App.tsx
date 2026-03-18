@@ -424,7 +424,7 @@ function App() {
     async function handleOrderPoster() {
         const previewBlob = await exportPosterPreviewBlob(options, processedImage);
         navigate('/checkout', {
-            state: { options, imageFile, previewBlob, defaultSize: options.poster.aspectRatio },
+            state: { options, imageFile, processedImage, previewBlob, defaultSize: options.poster.aspectRatio },
         });
     }
 
