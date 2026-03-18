@@ -98,6 +98,7 @@ export function OrderTracking() {
             />
           ))}
         </div>
+        <div className="h-8" />
       </div>
     </div>
   );
@@ -169,6 +170,11 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
                   })}
                 </div>
               </div>
+              {currentStep >= 0 && (
+                <p className="sm:hidden mt-3 text-xs text-white font-medium">
+                  {STATUS_STEPS[currentStep].label}
+                </p>
+              )}
             </>
           )}
 

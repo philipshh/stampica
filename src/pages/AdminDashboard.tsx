@@ -115,6 +115,7 @@ export function AdminDashboard() {
             <p className="text-neutral-500 text-sm py-8 text-center">No orders found</p>
           )}
         </div>
+        <div className="h-8" />
       </div>
     </div>
   );
