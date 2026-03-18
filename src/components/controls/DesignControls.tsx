@@ -17,7 +17,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                     {/* Text Fields */}
                     <div className="space-y-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider">Director</label>
+                            <label className="text-[10px] text-neutral-400">Director</label>
                             <input
                                 type="text"
                                 value={options.poster.director}
@@ -25,12 +25,12 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                     ...options,
                                     poster: { ...options.poster, director: e.target.value }
                                 })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600"
+                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
                             />
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider flex justify-between items-center">
+                            <label className="text-[10px] text-neutral-400 flex justify-between items-center">
                                 <span>Title</span>
                                 <div className="flex gap-1">
                                     {(['left', 'center', 'right'] as const).map((align) => (
@@ -57,12 +57,10 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                     ...options,
                                     poster: { ...options.poster, title: e.target.value }
                                 })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600"
+                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
                             />
-                            <div className="mt-2">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-500">Title Size</label>
-                                    <div className="flex gap-1 items-center">
+                            <div className="mt-1">
+                                <div className="flex gap-1 items-center">
                                         {[40, 48, 56, 64].map((size) => (
                                             <button
                                                 key={size}
@@ -70,7 +68,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                                     ...options,
                                                     poster: { ...options.poster, titleFontSize: size }
                                                 })}
-                                                className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.titleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                                className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.titleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                             >
                                                 {size}
                                             </button>
@@ -84,13 +82,12 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                             })}
                                             className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
                                         />
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider">Subtitle</label>
+                            <label className="text-[10px] text-neutral-400">Subtitle</label>
                             <input
                                 type="text"
                                 value={options.poster.subtitle}
@@ -98,12 +95,10 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                     ...options,
                                     poster: { ...options.poster, subtitle: e.target.value }
                                 })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600"
+                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
                             />
-                            <div className="mt-2">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-500">Subtitle Size</label>
-                                    <div className="flex gap-1 items-center">
+                            <div className="mt-1">
+                                <div className="flex gap-1 items-center">
                                         {[16, 24, 32, 40].map((size) => (
                                             <button
                                                 key={size}
@@ -111,7 +106,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                                     ...options,
                                                     poster: { ...options.poster, subtitleFontSize: size }
                                                 })}
-                                                className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                                className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                             >
                                                 {size}
                                             </button>
@@ -125,10 +120,9 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                             })}
                                             className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
                                         />
-                                    </div>
                                 </div>
                                 <div className="space-y-1 mt-2">
-                                    <label className="text-[10px] text-neutral-500">Gap to Title</label>
+                                    <label className="text-[10px] text-neutral-400">Gap to title</label>
                                     <div className="flex gap-1 items-center">
                                         {[8, 16, 24].map((size) => (
                                             <button
@@ -137,7 +131,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                                     ...options,
                                                     poster: { ...options.poster, subtitleMargin: size }
                                                 })}
-                                                className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleMargin === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                                className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleMargin === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                             >
                                                 {size}
                                             </button>
@@ -157,7 +151,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider">Year</label>
+                            <label className="text-[10px] text-neutral-400">Year</label>
                             <input
                                 type="text"
                                 value={options.poster.year}
@@ -165,12 +159,12 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                     ...options,
                                     poster: { ...options.poster, year: e.target.value }
                                 })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600"
+                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] text-neutral-400 tracking-wider">Description</label>
+                            <label className="text-[10px] text-neutral-400">Description</label>
                             <textarea
                                 value={options.poster.description[0] || ''}
                                 onChange={(e) => {
@@ -182,14 +176,14 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                                 }}
                                 rows={3}
                                 placeholder="Description..."
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600 resize-none"
+                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600 resize-none"
                             />
                         </div>
 
                         {/* List Content */}
                         <div className="space-y-2 pt-4 border-t border-neutral-800">
-                            <label className="text-[10px] text-neutral-400 tracking-wider flex justify-between items-center">
-                                <span>List Content</span>
+                            <label className="text-[10px] text-neutral-400 flex justify-between items-center">
+                                <span>List content</span>
                                 <div className="flex gap-2 items-center">
                                     {/* Columns Selector */}
                                     <div className="flex items-center gap-1 bg-neutral-900 rounded border border-neutral-800 px-1 h-6">

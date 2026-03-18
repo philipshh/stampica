@@ -139,7 +139,9 @@ function App() {
     const posterRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number>();
     const canvasWrapperRef = useRef<HTMLDivElement>(null);
+    const innerCanvasRef = useRef<HTMLDivElement>(null);
     const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
+    const [innerCanvasSize, setInnerCanvasSize] = useState({ w: 0, h: 0 });
 
     const imageDimensions = useImageDimensions(imageFile);
     const workerRef = useDitherWorker(setProcessedImage);
@@ -162,13 +164,25 @@ function App() {
 
     usePasteHandler(options.imageMode, setImageFile, handleGridFile);
 
-    // Track canvas wrapper size for fit mode aspect-ratio calculation
+    // Track canvas wrapper size (outer, including toolbar)
     useEffect(() => {
         const el = canvasWrapperRef.current;
         if (!el) return;
         const ro = new ResizeObserver(entries => {
             const { width, height } = entries[0].contentRect;
             setContainerSize({ w: width, h: height });
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
+
+    // Track inner canvas area size (below toolbar, before padding) for accurate fit calculation
+    useEffect(() => {
+        const el = innerCanvasRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(entries => {
+            const { width, height } = entries[0].contentRect;
+            setInnerCanvasSize({ w: width, h: height });
         });
         ro.observe(el);
         return () => ro.disconnect();
@@ -351,6 +365,7 @@ function App() {
     const aspectRatioValue = ASPECT_RATIO_VALUES[options.poster.aspectRatio] ?? '420 / 594';
 
     const [zoom, setZoom] = useState<number | 'fit'>('fit');
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const handleZoomOut = () => setZoom(prev => {
         if (prev === 'fit') return 'fit';
@@ -366,6 +381,7 @@ function App() {
 
     const posterContent = options.poster.enabled ? (
         <PosterCanvas
+            key={refreshKey}
             ref={posterRef}
             processedImage={processedImage}
             options={options}
@@ -375,12 +391,13 @@ function App() {
         <DitherCanvas processedImage={processedImage} />
     );
 
-    // Compute fit dimensions using measured container size
+    // Compute fit dimensions using inner canvas area size (below toolbar, contentRect excludes padding)
     const arParts = aspectRatioValue.split('/').map(s => parseFloat(s.trim()));
     const posterAR = (arParts[0] || 420) / (arParts[1] || 594);
-    // Subtract toolbar height (~36px) and canvas padding (p-4 mobile=32px, p-8 desktop=64px; use 64px to be safe)
-    const availW = Math.max(0, containerSize.w - 64);
-    const availH = Math.max(0, containerSize.h - 36 - 64);
+    // innerCanvasSize is the stable wrapper below the toolbar; subtract only the canvas padding (p-4 mobile / p-8 desktop)
+    const canvasPad = innerCanvasSize.w < 560 ? 32 : 64;
+    const availW = Math.max(0, innerCanvasSize.w - canvasPad);
+    const availH = Math.max(0, innerCanvasSize.h - canvasPad);
     let fitWidth = containerSize.w > 0 ? Math.min(700, availW) : 700;
     if (availH > 0 && fitWidth / posterAR > availH) {
         fitWidth = availH * posterAR;
@@ -413,6 +430,7 @@ function App() {
                     imageDimensions={imageDimensions}
                     imageFile={imageFile}
                     onProjectLoad={handleProjectLoad}
+                    isAdmin={true}
                 />
             </aside>
 
@@ -454,24 +472,34 @@ function App() {
                                 </button>
                             </>
                         )}
+                        <div className="w-px h-3 bg-black/25 mx-0.5" />
+                        <button
+                            onClick={() => setRefreshKey(k => k + 1)}
+                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 transition-colors cursor-pointer text-sm"
+                            title="Refresh preview"
+                        >
+                            ↺
+                        </button>
                     </div>
 
-                    {/* Canvas area */}
-                    {zoom === 'fit' ? (
-                        <div className="flex-1 min-h-0 bg-[#D0D0D0] p-4 md:p-8 flex items-center justify-center overflow-hidden">
-                            <div style={{ ...posterFrameBase, width: `${fitWidth}px`, border: `${fitBorder}px solid black` }}>
-                                {posterContent}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex-1 min-h-0 bg-[#D0D0D0] overflow-auto p-4 md:p-8">
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100%', minWidth: 'max-content' }}>
-                                <div style={{ ...posterFrameBase, width: `${700 * (zoom as number)}px`, border: `${zoomBorder}px solid black`, flexShrink: 0 }}>
+                    {/* Stable wrapper — measured for accurate fit calculation (no toolbar, no padding) */}
+                    <div ref={innerCanvasRef} className="flex-1 min-h-0">
+                        {zoom === 'fit' ? (
+                            <div className="w-full h-full bg-[#D0D0D0] p-4 md:p-8 flex items-center justify-center overflow-hidden">
+                                <div style={{ ...posterFrameBase, width: `${fitWidth}px`, border: `${fitBorder}px solid black` }}>
                                     {posterContent}
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="w-full h-full bg-[#D0D0D0] overflow-auto p-4 md:p-8">
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100%', minWidth: 'max-content' }}>
+                                    <div style={{ ...posterFrameBase, width: `${700 * (zoom as number)}px`, border: `${zoomBorder}px solid black`, flexShrink: 0 }}>
+                                        {posterContent}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Mobile controls — flex-1 so it takes equal space as canvas on mobile, hidden on desktop */}
@@ -485,6 +513,7 @@ function App() {
                         imageDimensions={imageDimensions}
                         imageFile={imageFile}
                         onProjectLoad={handleProjectLoad}
+                        isAdmin={true}
                     />
                 </div>
             </main>

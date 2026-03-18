@@ -16,6 +16,7 @@ interface ControlsProps {
     imageDimensions: { width: number; height: number } | null;
     imageFile: File | null;
     onProjectLoad: (project: PosterProject) => void;
+    isAdmin?: boolean;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -26,14 +27,15 @@ export const Controls: React.FC<ControlsProps> = ({
     onUploadClick,
     imageDimensions,
     imageFile,
-    onProjectLoad
+    onProjectLoad,
+    isAdmin = false
 }) => {
 
 
     const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'saved'>('design');
 
     return (
-        <div className="w-full md:w-80 bg-black flex flex-col h-full text-xs tracking-wider font-mono md:border-r border-neutral-800">
+        <div className="w-full md:w-80 bg-black flex flex-col h-full text-xs md:border-r border-neutral-800" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
             {/* Header: logo (desktop only) + tabs */}
             <div className="px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4 border-b border-neutral-800 flex-shrink-0">
                 <div className="hidden md:flex justify-center items-center mb-6">
@@ -75,29 +77,31 @@ export const Controls: React.FC<ControlsProps> = ({
             </div>
 
             {/* Footer Actions */}
-            {/* Desktop: vertical stack */}
-            <div className="hidden md:block p-6 border-t border-neutral-800 space-y-3 bg-black flex-shrink-0">
-                <button
-                    onClick={onExport}
-                    className="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
-                >
-                    <Download className="w-4 h-4" />
-                    Download
-                </button>
-                <button
-                    onClick={onCopy}
-                    className="w-full bg-neutral-900 text-white font-bold py-4 uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
-                >
-                    <Copy className="w-4 h-4" />
-                    Copy Image
-                </button>
+            {/* Desktop: single row */}
+            <div className="hidden md:flex items-center gap-2 p-4 border-t border-neutral-800 bg-black flex-shrink-0">
                 <button
                     onClick={onUploadClick}
-                    className="relative w-full bg-neutral-900 text-white font-bold py-4 uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 z-10"
+                    className="flex-1 bg-neutral-900 text-white font-bold py-3 rounded uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 text-xs"
                 >
                     <Upload className="w-4 h-4" />
                     Upload Image
                 </button>
+                <button
+                    onClick={onCopy}
+                    className="w-10 h-10 rounded bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors flex items-center justify-center flex-shrink-0"
+                    title="Copy Image"
+                >
+                    <Copy className="w-4 h-4" />
+                </button>
+                {isAdmin && (
+                    <button
+                        onClick={onExport}
+                        className="w-10 h-10 rounded bg-white text-black hover:bg-neutral-200 transition-colors flex items-center justify-center flex-shrink-0"
+                        title="Download"
+                    >
+                        <Download className="w-4 h-4" />
+                    </button>
+                )}
             </div>
 
             {/* Mobile: compact horizontal row */}

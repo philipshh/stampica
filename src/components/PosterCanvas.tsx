@@ -155,7 +155,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                         <div key={i} style={{ width: `${scaled(32)}px`, height: `${scaled(8)}px`, backgroundColor: color }}></div>
                     ))}
                 </div>
-                <div className="text-xs text-right" style={{ color: directorTextColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(12)}px` }}>
+                <div style={{ color: directorTextColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(12)}px`, lineHeight: 1.4, textAlign: 'right' }}>
                     {director}
                 </div>
             </div>
@@ -270,9 +270,10 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
         list: options.poster.listSection.enabled ? (
             <div key="list" className="w-full" style={{ color: options.poster.listColor || textColor }}>
                 <div
-                    className={`grid gap-5 w-full`}
+                    className="grid w-full"
                     style={{
                         gridTemplateColumns: `repeat(${options.poster.listSection.columns || 1}, 1fr)`,
+                        gap: `${scaled(20)}px`,
                         textAlign: options.poster.listSection.alignment || 'left'
                     }}
                 >
@@ -282,9 +283,9 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                         const itemsPerColumn = Math.ceil(content.length / columns);
 
                         return Array.from({ length: columns }).map((_, colIndex) => (
-                            <div key={colIndex} className="flex flex-col gap-1">
+                            <div key={colIndex} className="flex flex-col" style={{ gap: `${scaled(4)}px` }}>
                                 {content.slice(colIndex * itemsPerColumn, (colIndex + 1) * itemsPerColumn).map((item, i) => (
-                                    <div key={i} className="leading-relaxed whitespace-pre-wrap" style={{ fontWeight: 400, fontSize: `${scaled(14)}px` }}>
+                                    <div key={i} className="whitespace-pre-wrap" style={{ fontWeight: 400, fontSize: `${scaled(14)}px`, lineHeight: 1.6 }}>
                                         {item}
                                     </div>
                                 ))}
@@ -299,7 +300,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
             <div key="footer" className={`flex border-t border-current ${descriptionColumns > 1 ? 'flex-col' : `items-start ${footerLayout === 'reversed' ? 'flex-row-reverse' : 'justify-between'}`}`} style={{ borderTopWidth: `${scaled(1)}px`, paddingTop: `${scaled(32)}px` }}>
                 {descriptionColumns === 1 ? (
                     <>
-                        <div className={`max-w-[60%] leading-relaxed whitespace-pre-wrap ${footerLayout === 'reversed' ? 'text-right ml-auto' : 'text-left'}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(10)}px` }}>
+                        <div className={`max-w-[60%] whitespace-pre-wrap ${footerLayout === 'reversed' ? 'text-right ml-auto' : 'text-left'}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(10)}px`, lineHeight: 1.6 }}>
                             {description[0] || ''}
                         </div>
                         <div style={{ color: options.poster.yearColor || textColor, letterSpacing: '-0.05em', fontWeight: 600, fontSize: `${scaled(32)}px`, marginLeft: 'auto', textAlign: 'right' }}>
@@ -308,7 +309,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                     </>
                 ) : (
                     <>
-                        <div className={`flex gap-10 leading-relaxed w-full ${footerLayout === 'reversed' ? 'flex-row-reverse' : ''}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(10)}px` }}>
+                        <div className={`flex w-full ${footerLayout === 'reversed' ? 'flex-row-reverse' : ''}`} style={{ color: options.poster.descriptionColor || textColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(10)}px`, lineHeight: 1.6, gap: `${scaled(40)}px` }}>
                             {Array.from({ length: descriptionColumns }).map((_, index) => (
                                 <div key={index} className={`flex-1 ${footerLayout === 'reversed' ? 'text-right' : 'text-left'}`}>
                                     {description[index] || ''}

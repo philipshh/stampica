@@ -51,6 +51,18 @@ body {
   background: #555;
 }
 
+/* Rounded corners for all form inputs, selects, textareas */
+input:not([type="range"]):not([type="checkbox"]):not([type="file"]),
+select,
+textarea {
+  border-radius: 4px;
+}
+
+input[type="color"] {
+  padding: 0;
+  overflow: hidden;
+}
+
 /* Range Slider Styling */
 input[type=range] {
   -webkit-appearance: none;

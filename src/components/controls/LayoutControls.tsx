@@ -85,9 +85,9 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
             <div className="space-y-4">
                 {/* Layout Reordering */}
                 <div className="space-y-2">
-                    <label className="text-[10px] text-neutral-400 tracking-wider block">Layout Order</label>
+                    <label className="text-[10px] text-neutral-400 block">Layout order</label>
                     <div className="space-y-1">
-                        {options.poster.layoutOrder.map((section, index) => (
+                        {options.poster.layoutOrder.filter(s => s !== 'icons').map((section, index) => (
                             <div
                                 key={section}
                                 draggable
@@ -128,11 +128,11 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                     ...options,
                                     poster: {
                                         ...options.poster,
-                                        layoutOrder: ['header', 'image', 'title', 'icons', 'list', 'footer']
+                                        layoutOrder: ['header', 'image', 'title', 'list', 'footer']
                                     }
                                 });
                             }}
-                            className="px-3 py-2 border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white transition-colors uppercase text-[10px]"
+                            className="px-3 py-2 rounded border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white transition-colors uppercase text-[10px]"
                         >
                             Reset
                         </button>
@@ -143,7 +143,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 <div className="p-3 bg-neutral-900/50 rounded-lg border border-neutral-800 space-y-3 animate-in fade-in slide-in-from-top-1">
                     {/* Padding Size */}
                     <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block">Poster padding</label>
+                        <label className="text-[10px] text-neutral-400 block">Poster padding</label>
                         <div className="grid grid-cols-3 gap-1">
                             {(['S', 'M', 'L'] as const).map((size) => (
                                 <button
@@ -152,7 +152,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                         ...options,
                                         poster: { ...options.poster, paddingSize: size }
                                     })}
-                                    className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.paddingSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                    className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.paddingSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                 >
                                     {size}
                                 </button>
@@ -162,14 +162,14 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
 
                     {/* Image Padding */}
                     <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block">Image padding</label>
+                        <label className="text-[10px] text-neutral-400 block">Image padding</label>
                         <div className="grid grid-cols-2 gap-1">
                             <button
                                 onClick={() => onOptionsChange({
                                     ...options,
                                     poster: { ...options.poster, imagePadding: 'none' }
                                 })}
-                                className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imagePadding === 'none' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imagePadding === 'none' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                             >
                                 None
                             </button>
@@ -178,7 +178,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                     ...options,
                                     poster: { ...options.poster, imagePadding: 'same-as-poster' }
                                 })}
-                                className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imagePadding === 'same-as-poster' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imagePadding === 'same-as-poster' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                             >
                                 Same as Poster
                             </button>
@@ -186,7 +186,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     </div>
                     {/* Image Scale */}
                     <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block">Image scale</label>
+                        <label className="text-[10px] text-neutral-400 block">Image scale</label>
                         <div className="grid grid-cols-3 gap-1">
                             {(['fit', 'fill', 'original'] as const).map((scale) => (
                                 <button
@@ -195,7 +195,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                         ...options,
                                         poster: { ...options.poster, imageScale: scale }
                                     })}
-                                    className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageScale === scale ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                    className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageScale === scale ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                 >
                                     {scale}
                                 </button>
@@ -206,7 +206,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     {/* Image Alignment */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider block">Image Align X</label>
+                            <label className="text-[10px] text-neutral-400 block">Image align X</label>
                             <div className="grid grid-cols-3 gap-1">
                                 {(['left', 'center', 'right'] as const).map((align) => (
                                     <button
@@ -215,7 +215,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                             ...options,
                                             poster: { ...options.poster, imageAlignX: align }
                                         })}
-                                        className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignX === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                        className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignX === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                     >
                                         {align.charAt(0)}
                                     </button>
@@ -223,7 +223,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 tracking-wider block">Image Align Y</label>
+                            <label className="text-[10px] text-neutral-400 block">Image align Y</label>
                             <div className="grid grid-cols-3 gap-1">
                                 {(['top', 'center', 'bottom'] as const).map((align) => (
                                     <button
@@ -232,7 +232,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                             ...options,
                                             poster: { ...options.poster, imageAlignY: align }
                                         })}
-                                        className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignY === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                        className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignY === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                     >
                                         {align.charAt(0)}
                                     </button>
@@ -243,7 +243,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
 
                     {/* Layout Gap */}
                     <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block">Layout Gap</label>
+                        <label className="text-[10px] text-neutral-400 block">Layout gap</label>
                         <div className="flex gap-1 items-center">
                             {[16, 24, 32, 40].map((size) => (
                                 <button
@@ -252,7 +252,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                         ...options,
                                         poster: { ...options.poster, gap: size }
                                     })}
-                                    className={`flex-1 py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.gap === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
+                                    className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.gap === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
                                 >
                                     {size}
                                 </button>
@@ -271,7 +271,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
 
                     {/* Poster Sizes */}
                     <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 tracking-wider block uppercase">Poster Sizes</label>
+                        <label className="text-[10px] text-neutral-400 block">Poster sizes</label>
                         <div className="grid grid-cols-4 gap-1">
                             {(['A5', 'A4', 'A3', 'A2'] as const).map((size) => {
                                 const cmLabels: { [key: string]: string } = {
@@ -298,7 +298,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                             }
                                         })
                                     }}
-                                    className={`py-1 border border-neutral-800 hover:border-neutral-600 transition-colors text-[8px] uppercase flex flex-col items-center justify-center ${options.poster.aspectRatio === size ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
+                                    className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[8px] uppercase flex flex-col items-center justify-center ${options.poster.aspectRatio === size ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
                                     title={`${size} (${cmLabels[size]})`}
                                 >
                                     <div>{size}</div>
@@ -313,7 +313,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="space-y-3 pt-3 border-t border-neutral-800 animate-in fade-in slide-in-from-top-1">
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-500 uppercase tracking-tighter">Width (px)</label>
+                                    <label className="text-[10px] text-neutral-400">Width (px)</label>
                                     <input
                                         type="number"
                                         value={options.poster.customDimensions?.width || 2000}
@@ -334,7 +334,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-500 uppercase tracking-tighter">Height (px)</label>
+                                    <label className="text-[10px] text-neutral-400">Height (px)</label>
                                     <input
                                         type="number"
                                         value={options.poster.customDimensions?.height || 2000}
@@ -371,7 +371,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                         className="sr-only peer"
                                     />
                                     <div className="w-6 h-3 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-2 after:w-2 after:transition-all peer-checked:bg-white/20 relative"></div>
-                                    <span className="text-[10px] text-neutral-400 uppercase">Lock Aspect Ratio</span>
+                                    <span className="text-[10px] text-neutral-400">Lock aspect ratio</span>
                                 </label>
 
                                 <button

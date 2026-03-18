@@ -16,14 +16,22 @@ const SliderField: React.FC<{
     step: number;
     onChange: (val: number) => void;
     suffix?: string;
-}> = ({ label, value, min, max, step, onChange, suffix = '' }) => {
+    defaultValue?: number;
+}> = ({ label, value, min, max, step, onChange, suffix = '', defaultValue }) => {
     const handleMinus = () => onChange(Math.max(min, value - step));
     const handlePlus = () => onChange(Math.min(max, value + step));
+    const canReset = defaultValue !== undefined && value !== defaultValue;
 
     return (
         <div className="space-y-1">
-            <div className="flex justify-between text-[10px] text-neutral-400 tracking-wider">
-                <label>{label}</label>
+            <div className="flex justify-between text-[10px] text-neutral-400">
+                <label
+                    className={defaultValue !== undefined ? 'cursor-pointer hover:text-white transition-colors select-none' : ''}
+                    onClick={() => defaultValue !== undefined && onChange(defaultValue)}
+                    title={defaultValue !== undefined ? `Reset to default (${defaultValue})` : undefined}
+                >
+                    {label}{canReset && <span className="ml-1 text-neutral-600">↺</span>}
+                </label>
                 <span className="text-neutral-500 font-mono">{Math.round(value * 100) / 100}{suffix}</span>
             </div>
             <div className="flex items-center gap-3">
@@ -41,6 +49,7 @@ const SliderField: React.FC<{
                     value={value}
                     onChange={(e) => onChange(Number(e.target.value))}
                     className="flex-1 h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-white"
+                    style={{ touchAction: 'pan-y' }}
                 />
                 <button
                     onClick={handlePlus}
@@ -59,25 +68,54 @@ const ThemeSelect: React.FC<{
     onSelect: (themeName: string) => void;
 }> = ({ currentValue, themes, onSelect }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const [dropStyle, setDropStyle] = useState<React.CSSProperties>({});
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        if (!isOpen) return;
+        const handleClick = (e: MouseEvent) => {
+            if (
+                !triggerRef.current?.contains(e.target as Node) &&
+                !dropdownRef.current?.contains(e.target as Node)
+            ) {
                 setIsOpen(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        const handleScroll = (e: Event) => {
+            if (dropdownRef.current?.contains(e.target as Node)) return;
+            setIsOpen(false);
+        };
+        document.addEventListener('mousedown', handleClick);
+        document.addEventListener('scroll', handleScroll, true);
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+            document.removeEventListener('scroll', handleScroll, true);
+        };
+    }, [isOpen]);
+
+    const open = () => {
+        if (!triggerRef.current) return setIsOpen(v => !v);
+        const r = triggerRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - r.bottom - 8;
+        const spaceAbove = r.top - 8;
+        const dropH = Math.min(240, themes.length * 32 + 8);
+        const goDown = spaceBelow >= dropH || spaceBelow >= spaceAbove;
+        setDropStyle(goDown
+            ? { position: 'fixed', left: r.left, width: r.width, top: r.bottom + 4, maxHeight: Math.min(240, spaceBelow), zIndex: 9999 }
+            : { position: 'fixed', left: r.left, width: r.width, bottom: window.innerHeight - r.top + 4, maxHeight: Math.min(240, spaceAbove), zIndex: 9999 }
+        );
+        setIsOpen(v => !v);
+    };
 
     const selectedTheme = themes.find(t => t.name === currentValue);
 
     return (
-        <div className="relative w-full" ref={containerRef}>
+        <div className="relative w-full">
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-[10px] uppercase flex items-center justify-between hover:border-neutral-600 transition-colors"
+                ref={triggerRef}
+                onClick={open}
+                className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-[10px] rounded uppercase flex items-center justify-between hover:border-neutral-600 transition-colors"
             >
                 <div className="flex items-center gap-2 overflow-hidden">
                     {selectedTheme && (
@@ -93,14 +131,15 @@ const ThemeSelect: React.FC<{
             </button>
 
             {isOpen && (
-                <div className="absolute bottom-full left-0 w-full mb-1 bg-neutral-900 border border-neutral-800 z-50 max-h-60 overflow-y-auto shadow-2xl p-1 space-y-0.5">
+                <div
+                    ref={dropdownRef}
+                    style={dropStyle}
+                    className="bg-neutral-900 border border-neutral-800 rounded overflow-y-auto shadow-2xl p-1 space-y-0.5"
+                >
                     {themes.map((theme) => (
                         <button
                             key={theme.name}
-                            onClick={() => {
-                                onSelect(theme.name);
-                                setIsOpen(false);
-                            }}
+                            onClick={() => { onSelect(theme.name); setIsOpen(false); }}
                             className="w-full px-2 py-1.5 text-[10px] uppercase text-left hover:bg-neutral-800 flex items-center gap-2 transition-colors rounded-sm"
                         >
                             <div className="flex -space-x-1 flex-shrink-0">
@@ -211,7 +250,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-200">
             {/* Dither Algorithm Selection */}
             <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Algorithm</label>
+                <label className="text-[10px] text-neutral-400">Algorithm</label>
                 <div className="grid grid-cols-3 gap-1">
                     {(() => {
                         const dgAlgos = ['atkinson', 'floyd', 'threshold'];
@@ -221,7 +260,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                             <button
                                 key={algo}
                                 onClick={() => updateOption('algorithm', algo as any)}
-                                className={`py-2 text-[10px] border transition-all uppercase ${options.algorithm === algo
+                                className={`py-2 text-[10px] rounded border transition-all uppercase ${options.algorithm === algo
                                     ? 'bg-white text-black border-white'
                                     : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
                                     }`}
@@ -235,13 +274,13 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
             {/* Color Mode Selection */}
             <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Color mode</label>
+                <label className="text-[10px] text-neutral-400">Color mode</label>
                 <div className="grid grid-cols-5 gap-1">
                     {colorModes.map((mode) => (
                         <button
                             key={mode.id}
                             onClick={() => updateOption('colorMode', mode.id as any)}
-                            className={`py-2 text-[10px] border transition-all uppercase ${options.colorMode === mode.id
+                            className={`py-2 text-[10px] rounded border transition-all uppercase ${options.colorMode === mode.id
                                 ? 'bg-white text-black border-white'
                                 : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
                                 }`}
@@ -254,41 +293,30 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
             {/* Dither Palette Section - Moved right below color mode */}
             {(options.colorMode === 'duotone' || options.colorMode === 'tritone' || options.colorMode === 'quadtone') && (
-                <div className="space-y-4 pt-2 border-t border-neutral-800">
+                <div className="space-y-3 pt-2 border-t border-neutral-800">
                     <div className="flex justify-between items-center">
-                        <label className="text-[10px] text-neutral-400 tracking-wider">PALETTE</label>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleRandomizeColors}
-                                className="text-[10px] text-neutral-500 hover:text-white transition-colors"
-                                title="Randomize Colors"
-                            >
-                                🎲
-                            </button>
-                            <button
-                                onClick={savePreset}
-                                className="text-neutral-500 hover:text-white transition-colors"
-                                title="Save Preset"
-                            >
-                                <Save className="w-3 h-3" />
-                            </button>
-                        </div>
+                        <label className="text-[10px] text-neutral-400">Palette</label>
+                        <button
+                            onClick={savePreset}
+                            className="text-neutral-500 hover:text-white transition-colors"
+                            title="Save Preset"
+                        >
+                            <Save className="w-3 h-3" />
+                        </button>
                     </div>
 
-                    {/* Theme Selector - Shared across modes */}
-                    <div className="mb-4">
-                        <ThemeSelect
-                            currentValue={options.selectedThemeName || ""}
-                            themes={
-                                options.colorMode === 'duotone' ? DUOTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.highlight] })) :
-                                    options.colorMode === 'tritone' ? TRITONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.mid, t.highlight] })) :
-                                        QUADTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.midShadow, t.midHighlight, t.highlight] }))
-                            }
-                            onSelect={handleThemeSelect}
-                        />
-                    </div>
+                    {/* Theme Selector */}
+                    <ThemeSelect
+                        currentValue={options.selectedThemeName || ""}
+                        themes={
+                            options.colorMode === 'duotone' ? DUOTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.highlight] })) :
+                                options.colorMode === 'tritone' ? TRITONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.mid, t.highlight] })) :
+                                    QUADTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.midShadow, t.midHighlight, t.highlight] }))
+                        }
+                        onSelect={handleThemeSelect}
+                    />
 
-                    {/* Compact Color Grid */}
+                    {/* Color Grid */}
                     <div className="grid grid-cols-4 gap-2">
                         {options.colorMode === 'duotone' && (
                             <>
@@ -412,6 +440,22 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                         )}
                     </div>
 
+                    {/* Shuffle + Reset row */}
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            onClick={handleRandomizeColors}
+                            className="px-3 py-2 bg-neutral-800 text-neutral-300 text-[10px] rounded uppercase tracking-wider font-medium hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-2"
+                        >
+                            <span>🎲</span> Shuffle
+                        </button>
+                        <button
+                            onClick={handleResetColors}
+                            className="px-3 py-2 rounded border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white transition-colors uppercase text-[10px]"
+                        >
+                            Reset
+                        </button>
+                    </div>
+
                     {/* Presets Dropdown */}
                     {presets.length > 0 && (
                         <div className="space-y-1">
@@ -429,7 +473,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                                             }
                                         }
                                     }}
-                                    className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-[10px] appearance-none uppercase focus:outline-none focus:border-neutral-600"
+                                    className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-[10px] rounded appearance-none uppercase focus:outline-none focus:border-neutral-600"
                                     value=""
                                 >
                                     <option value="" disabled>Saved Presets</option>
@@ -443,12 +487,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                         </div>
                     )}
 
-                    <button
-                        onClick={handleResetColors}
-                        className="w-full py-2 border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white transition-colors uppercase text-[10px]"
-                    >
-                        Reset Colors
-                    </button>
                 </div>
             )}
 
@@ -460,12 +498,13 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     min={0}
                     max={255}
                     step={1}
+                    defaultValue={128}
                     onChange={(v) => updateOption('threshold', v)}
                 />
 
                 {!options.strictSwatches && options.colorMode !== 'rgb' && (
                     <SliderField
-                        label="Palette Steps"
+                        label="Palette steps"
                         value={options.paletteSteps}
                         min={2}
                         max={16}
@@ -480,6 +519,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     min={1}
                     max={16}
                     step={1}
+                    defaultValue={2}
                     onChange={(v) => updateOption('pointSize', v)}
                 />
 
@@ -487,14 +527,14 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
             {/* Effects Section */}
             <div className="space-y-4 pt-4 border-t border-neutral-800">
-                <SliderField label="Brightness" value={options.brightness} min={-100} max={100} step={1} onChange={(v) => updateOption('brightness', v)} />
-                <SliderField label="Contrast" value={options.contrast} min={-100} max={100} step={1} onChange={(v) => updateOption('contrast', v)} />
-                <SliderField label="Gamma" value={options.gamma} min={0.1} max={3} step={0.1} onChange={(v) => updateOption('gamma', v)} />
+                <SliderField label="Brightness" value={options.brightness} min={-100} max={100} step={1} defaultValue={0} onChange={(v) => updateOption('brightness', v)} />
+                <SliderField label="Contrast" value={options.contrast} min={-100} max={100} step={1} defaultValue={0} onChange={(v) => updateOption('contrast', v)} />
+                <SliderField label="Gamma" value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={(v) => updateOption('gamma', v)} />
 
                 <div className="grid grid-cols-2 gap-2">
                     <button
                         onClick={() => updateOption('invert', !options.invert)}
-                        className={`py-2 border border-neutral-800 hover:border-neutral-600 transition-colors uppercase text-[10px] ${options.invert ? 'bg-neutral-800 text-white' : 'text-neutral-400'}`}
+                        className={`py-2 rounded border border-neutral-800 hover:border-neutral-600 transition-colors uppercase text-[10px] ${options.invert ? 'bg-neutral-800 text-white' : 'text-neutral-400'}`}
                     >
                         Invert
                     </button>
@@ -506,7 +546,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                             gamma: 1,
                             invert: false
                         })}
-                        className="py-2 border border-neutral-800 text-neutral-400 hover:border-neutral-600 transition-colors uppercase text-[10px]"
+                        className="py-2 rounded border border-neutral-800 text-neutral-400 hover:border-neutral-600 transition-colors uppercase text-[10px]"
                     >
                         Reset Effects
                     </button>
@@ -517,12 +557,12 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
             {/* Paper Texture Section */}
             <div className="space-y-4 pt-4 border-t border-neutral-800">
                 <div className="space-y-1">
-                    <label className="text-[10px] text-neutral-400 tracking-wider uppercase">Paper Texture</label>
+                    <label className="text-[10px] text-neutral-400">Paper texture</label>
                     <div className="relative">
                         <select
                             value={options.paperTexture}
                             onChange={(e) => updateOption('paperTexture', e.target.value as any)}
-                            className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-xs appearance-none uppercase focus:outline-none focus:border-neutral-600"
+                            className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-xs rounded appearance-none uppercase focus:outline-none focus:border-neutral-600"
                         >
                             <option value="none">None</option>
                             <option value="texture-1">Crumpled Paper</option>
@@ -537,7 +577,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
                 {options.paperTexture !== 'none' && (
                     <SliderField
-                        label="Texture Opacity"
+                        label="Texture opacity"
                         value={options.paperTextureOpacity}
                         min={0}
                         max={100}
