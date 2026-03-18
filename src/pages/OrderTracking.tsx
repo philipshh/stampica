@@ -119,10 +119,10 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
           <img
             src={order.preview_url}
             alt="Poster"
-            className="w-14 object-contain rounded-lg flex-shrink-0 border border-neutral-200 dark:border-neutral-700 self-start"
+            className="w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start"
           />
         ) : (
-          <div className="w-14 aspect-[1/1.41] bg-neutral-100 dark:bg-neutral-800 rounded-lg flex-shrink-0" />
+          <div className="w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0" />
         )}
 
         <div className="flex-1 min-w-0">

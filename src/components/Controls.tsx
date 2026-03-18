@@ -36,19 +36,14 @@ export const Controls: React.FC<ControlsProps> = ({
 
     return (
         <div className="w-full md:w-80 bg-black flex flex-col h-full text-xs md:border-r border-neutral-800" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
-            {/* Header: logo (desktop only) + tabs */}
-            <div className="px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4 border-b border-neutral-800 flex-shrink-0">
-                <div className="hidden md:flex justify-center items-center mb-6">
-                    <img src="/logo.png" alt="Stampica" className="h-10 w-auto object-contain" />
-                </div>
-
-                {/* Tabs */}
-                <div className="grid grid-cols-4 border border-neutral-800 rounded p-1 gap-1">
+            {/* Tabs */}
+            <div className="px-3 pt-3 pb-2 border-b border-neutral-800 flex-shrink-0">
+                <div className="grid grid-cols-4 bg-neutral-900 rounded-lg p-1 gap-1">
                     {(['design', 'layout', 'adjust', 'saved'] as const).map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === tab ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
+                            className={`py-2 text-center uppercase transition-all rounded-md text-[10px] tracking-wide font-medium ${activeTab === tab ? 'bg-neutral-700 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}`}
                         >
                             {tab === 'adjust' ? 'Effects' : tab}
                         </button>

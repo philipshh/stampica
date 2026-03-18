@@ -42,8 +42,8 @@ export function TopBar() {
   return (
     <header className="h-11 flex-shrink-0 flex items-center justify-between px-4 bg-neutral-950 border-b border-neutral-800 z-50">
       {/* Logo */}
-      <Link to="/" className="font-bold text-sm tracking-tight text-white hover:text-neutral-200 transition-colors">
-        Stampica
+      <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+        <img src="/logo.png" alt="Stampica" className="h-7 w-auto object-contain" />
       </Link>
 
       {/* Nav + auth */}
