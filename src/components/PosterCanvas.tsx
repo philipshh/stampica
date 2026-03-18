@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { DitherOptions } from '../lib/dither';
-import { getPosterDimensions } from '../lib/posterRenderer';
+
 import { Icon } from '@iconify/react';
 
 
@@ -54,18 +54,6 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
     // Base design width for scaling calculations
     const BASE_WIDTH = 700;
     
-    // Calculate fixed dimensions based on aspect ratio - consistent with export
-    const getDimensions = () => {
-        const fullDims = getPosterDimensions(options, options.poster.aspectRatio, 'high');
-        const ratio = fullDims.height / fullDims.width;
-        return {
-            width: BASE_WIDTH,
-            height: Math.round(BASE_WIDTH * ratio)
-        };
-    };
-
-    const dimensions = getDimensions();
-
     // Monitor actual size and calculate scale factor
     React.useEffect(() => {
         if (!ref || typeof ref === 'function') return;
@@ -164,7 +152,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
             <div key="header" className="flex items-start justify-between">
                 <div className="flex gap-0">
                     {rectangleColors.map((color, i) => (
-                        <div key={i} style={{ width: `${scaled(32)}px`, height: `${scaled(16)}px`, backgroundColor: color }}></div>
+                        <div key={i} style={{ width: `${scaled(32)}px`, height: `${scaled(8)}px`, backgroundColor: color }}></div>
                     ))}
                 </div>
                 <div className="text-xs text-right" style={{ color: directorTextColor, letterSpacing: 'normal', fontWeight: 600, fontSize: `${scaled(12)}px` }}>
@@ -212,11 +200,11 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                     options.poster.imageRoundedCorners === 'M' ? `${40 * scale}px` :
                         options.poster.imageRoundedCorners === 'L' ? `${64 * scale}px` : '0px',
                 // Image Padding Logic
-                marginLeft: options.poster.imagePadding === 'none' ? `-${getPaddingValue() * scale}px` : 0,
-                marginRight: options.poster.imagePadding === 'none' ? `-${getPaddingValue()}px` : 0,
-                marginTop: (options.poster.imagePadding === 'none' && enabledSections.indexOf('image') === 0) ? `-${getPaddingValue()}px` : 0,
-                marginBottom: (options.poster.imagePadding === 'none' && enabledSections.indexOf('image') === enabledSections.length - 1) ? `-${getPaddingValue()}px` : 0,
-                width: options.poster.imagePadding === 'none' ? `calc(100% + ${getPaddingValue() * 2}px)` : '100%',
+                marginLeft: options.poster.imagePadding === 'none' ? `-${getBasePadding() * scale}px` : 0,
+                marginRight: options.poster.imagePadding === 'none' ? `-${getBasePadding()}px` : 0,
+                marginTop: (options.poster.imagePadding === 'none' && enabledSections.indexOf('image') === 0) ? `-${getBasePadding()}px` : 0,
+                marginBottom: (options.poster.imagePadding === 'none' && enabledSections.indexOf('image') === enabledSections.length - 1) ? `-${getBasePadding()}px` : 0,
+                width: options.poster.imagePadding === 'none' ? `calc(100% + ${getBasePadding() * 2}px)` : '100%',
                 flexGrow: (options.poster.imagePadding === 'none' && enabledSections.length === 1) ? 1 : undefined
             }}>
                 {/* Background Color Layer */}
@@ -254,7 +242,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                         style={{
                             gridTemplateRows: `repeat(${options.grid.layout.rows}, 1fr)`,
                             gridTemplateColumns: `repeat(${options.grid.layout.cols}, 1fr)`,
-                            gap: `${getPaddingValue()}px`, // Change: gap now exactly matches poster padding
+                            gap: `${getBasePadding()}px`, // Change: gap now exactly matches poster padding
                             minHeight: '200px'
                         }}
                     >

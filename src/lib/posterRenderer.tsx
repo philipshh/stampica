@@ -143,8 +143,6 @@ export async function drawPosterToCanvas(
 
     // --- DRAWING ---
 
-    // --- DRAWING ---
-
     let currentY = padding;
 
     // Helper: Check if section is enabled

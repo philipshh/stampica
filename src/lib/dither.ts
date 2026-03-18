@@ -4,7 +4,7 @@ export type DitherAlgorithm =
     | 'threshold'
     | 'floyd'
     | 'stucki';
-export type AspectRatio = 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
+export type AspectRatio = 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
 export type PaddingSize = 'S' | 'M' | 'L';
 export type ImagePadding = 'none' | 'same-as-poster';
 export type LayoutOrder = string[]; // e.g. ['header', 'title', 'image', 'list', 'footer']
@@ -84,7 +84,7 @@ export interface DitherOptions {
     colorPipeline: 'default' | 'smooth' | 'linear';
     invert: boolean;
     colorMode: 'monochrome' | 'duotone' | 'tritone' | 'quadtone' | 'rgb';
-    // Engine selection: 'classic' uses the existing pipeline, 'dg' uses DitherGarden
+    // Engine selection: 'classic' uses the classic pipeline, 'dg' uses the built-in dither engine
     engine?: 'classic' | 'dg';
     selectedThemeName?: string;
     // Accent color for DG engine (mask-based from original image)
@@ -186,4 +186,15 @@ export interface WorkerMessage {
 export interface WorkerResponse {
     imageData: ImageData;
     jobId?: string;
+}
+
+export interface WorkerErrorResponse {
+    error: string;
+    fallback?: string;
+    jobId?: string;
+}
+
+// Stored project type — extends DitherOptions with DB-side asset references
+export interface StoredDitherOptions extends DitherOptions {
+    assetId?: string;
 }

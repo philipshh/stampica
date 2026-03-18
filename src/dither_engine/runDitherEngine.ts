@@ -7,7 +7,7 @@ import { stuckiDither } from './stucki.js';
 // @ts-ignore
 import { thresholdDither } from './threshold.js';
 
-export async function runDitherGarden(imageData: ImageData, algorithm: string, colorMode: string, palette: string[], threshold?: number): Promise<ImageData> {
+export async function runDitherEngine(imageData: ImageData, algorithm: string, colorMode: string, palette: string[], threshold?: number): Promise<ImageData> {
     // Normalize algorithm key
     const algo = (algorithm || 'atkinson').toLowerCase();
 

@@ -1,6 +1,6 @@
-import { WorkerMessage } from './dither';
-import { runDitherGarden } from '../dg_engine/runDitherGarden';
-import { buildAccentMask, applyAccentWithMask } from './colorUtils';
+import { WorkerMessage, WorkerErrorResponse } from './dither';
+import { runDitherEngine } from '../dither_engine/runDitherEngine';
+import { buildAccentMask, applyAccentWithMask, rgbToHex } from './colorUtils';
 
 // Helper to get luminance
 const getLuminance = (r: number, g: number, b: number) => {
@@ -159,17 +159,11 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
     const height = workingImage.height;
     const data = workingImage.data;
 
-    // 2. If DG engine requested, route to DitherGarden implementation (black box)
+    // 2. If DG engine requested, route to the built-in dither engine
     if (options.engine === 'dg') {
         try {
             // Build hex palette array from numeric palette
-            const hexPalette = palette.map(c => {
-                const toHex = (n: number) => {
-                    const h = Math.max(0, Math.min(255, Math.round(n))).toString(16);
-                    return h.length === 1 ? '0' + h : h;
-                };
-                return `#${toHex(c[0])}${toHex(c[1])}${toHex(c[2])}`;
-            });
+            const hexPalette = palette.map(c => rgbToHex(c[0], c[1], c[2]));
 
             // Build accent mask from the adjusted & pixelated image (same resolution as dither input)
             let accentMask: Uint8Array | null = null;
@@ -186,7 +180,7 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
             }
 
             // Pass the already-adjusted & downscaled/pixelated image to DG runner directly (no post-dither effects)
-            const dgResult: ImageData = await runDitherGarden(workingImage, algorithm, options.colorMode === 'rgb' ? 'color' : options.colorMode, hexPalette, options.threshold);
+            const dgResult: ImageData = await runDitherEngine(workingImage, algorithm, options.colorMode === 'rgb' ? 'color' : options.colorMode, hexPalette, options.threshold);
 
             // Apply accent with mask if enabled (after DG dithering)
             let finalResult = dgResult;
@@ -203,9 +197,10 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
             // Safety check for empty jobs
             finish(outData, finalResult.width, finalResult.height, imageData.width, imageData.height, pointSize, e.data.jobId);
             return;
-        } catch (err: any) {
+        } catch (err: unknown) {
             // Report error back to main thread for UI handling
-            self.postMessage({ error: `DG engine failed: ${err && err.message ? err.message : String(err)}`, fallback: 'classic', jobId: e.data.jobId } as any);
+            const errMsg = err instanceof Error ? err.message : String(err);
+            self.postMessage({ error: `DG engine failed: ${errMsg}`, fallback: 'classic', jobId: e.data.jobId } satisfies WorkerErrorResponse);
             return;
         }
     }
@@ -346,8 +341,10 @@ function finish(data: Uint8ClampedArray, width: number, height: number, original
                 upscaledData[dstI + 3] = data[srcI + 3];
             }
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         self.postMessage({ imageData: new ImageData(upscaledData as any, originalWidth, originalHeight), jobId });
     } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         self.postMessage({ imageData: new ImageData(data as any, width, height), jobId });
     }
 }

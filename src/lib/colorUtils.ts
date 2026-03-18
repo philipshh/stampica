@@ -1,5 +1,5 @@
 
-import { QuadtoneTheme, TritoneTheme, DuotoneTheme } from './dither';
+import { QuadtoneTheme, TritoneTheme, DuotoneTheme, DitherOptions } from './dither';
 
 export const generateRandomColor = (): string => {
     const letters = '0123456789ABCDEF';
@@ -491,4 +491,45 @@ export const DUOTONE_THEMES: DuotoneTheme[] = QUADTONE_THEMES.map(theme => ({
     shadow: theme.shadow,
     highlight: theme.highlight
 }));
+
+export function computePaletteFromColorMode(options: DitherOptions): [number, number, number][] {
+    switch (options.colorMode) {
+        case 'monochrome':
+            return [
+                hexToRgb(options.monochromeColors.dark),
+                hexToRgb(options.monochromeColors.light)
+            ];
+        case 'duotone':
+            return [
+                hexToRgb(options.duotoneColors.color1),
+                hexToRgb(options.duotoneColors.color2)
+            ];
+        case 'tritone':
+            return [
+                hexToRgb(options.tritoneColors.color1),
+                hexToRgb(options.tritoneColors.color2),
+                hexToRgb(options.tritoneColors.color3)
+            ];
+        case 'quadtone':
+            return [
+                hexToRgb(options.quadtoneColors.color1),
+                hexToRgb(options.quadtoneColors.color2),
+                hexToRgb(options.quadtoneColors.color3),
+                hexToRgb(options.quadtoneColors.color4)
+            ];
+        case 'rgb':
+            return [
+                [0, 0, 0],
+                [255, 0, 0],
+                [0, 255, 0],
+                [0, 0, 255],
+                [255, 255, 0],
+                [255, 0, 255],
+                [0, 255, 255],
+                [255, 255, 255]
+            ];
+        default:
+            return [[0, 0, 0], [255, 255, 255]];
+    }
+}
 
