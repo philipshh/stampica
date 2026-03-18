@@ -20,7 +20,7 @@ export const getPosterDimensions = (options: DitherOptions, aspectRatio: string,
             height: options.poster.customDimensions.height || 2000
         };
     } else {
-        size = POSTER_SIZES[aspectRatio as keyof typeof POSTER_SIZES] || POSTER_SIZES['A2'];
+        size = POSTER_SIZES[aspectRatio as keyof typeof POSTER_SIZES] || POSTER_SIZES['A4'];
     }
 
     if (resolution === 'low') {

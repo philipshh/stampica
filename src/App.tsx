@@ -87,7 +87,7 @@ const DEFAULT_OPTIONS: DitherOptions = {
         imageAlignY: 'center',
         exportFormat: 'png',
         resolution: 'high',
-        aspectRatio: 'A2',
+        aspectRatio: 'A4',
         customDimensions: { width: 2000, height: 2000, keepRatio: true },
         upscaleFactor: 4,
         paddingSize: 'M',

@@ -272,19 +272,18 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     {/* Poster Sizes */}
                     <div className="space-y-1">
                         <label className="text-[10px] text-neutral-400 block">Poster sizes</label>
-                        <div className="grid grid-cols-4 gap-1">
-                            {(['A5', 'A4', 'A3', 'A2'] as const).map((size) => {
+                        <div className="grid grid-cols-3 gap-1">
+                            {(['A5', 'A4', 'A3'] as const).map((size) => {
                                 const cmLabels: { [key: string]: string } = {
                                     'A5': '14.8x21',
                                     'A4': '21x29.7',
                                     'A3': '29.7x42',
-                                    'A2': '42x59.4'
                                 };
                                 return (
                                 <button
                                     key={size}
                                     onClick={() => {
-                                        const baseDims = getPosterDimensions(options, options.poster.aspectRatio || 'A2', options.poster.resolution || 'high');
+                                        const baseDims = getPosterDimensions(options, options.poster.aspectRatio || 'A4', options.poster.resolution || 'high');
                                         onOptionsChange({
                                             ...options,
                                             poster: {
