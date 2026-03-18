@@ -9,6 +9,11 @@ import { exportPoster, copyPosterToClipboard } from './lib/posterExport';
 import { useImageDimensions } from './hooks/useImageDimensions';
 import { useDitherWorker } from './hooks/useDitherWorker';
 import { usePasteHandler } from './hooks/usePasteHandler';
+import { useAuth } from './contexts/AuthContext';
+import { Checkout } from './pages/Checkout';
+import { OrderTracking } from './pages/OrderTracking';
+
+type AppPage = 'editor' | 'checkout' | 'tracking';
 
 const ASPECT_RATIO_VALUES: Record<string, string> = {
     A5: '148 / 210',
@@ -132,6 +137,9 @@ const DEFAULT_OPTIONS: DitherOptions = {
 };
 
 function App() {
+    const { user, logout } = useAuth();
+    const [page, setPage] = useState<AppPage>('editor');
+    const [lastOrderNumber, setLastOrderNumber] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
     const [options, setOptions] = useState<DitherOptions>(DEFAULT_OPTIONS);
@@ -174,7 +182,7 @@ function App() {
         });
         ro.observe(el);
         return () => ro.disconnect();
-    }, []);
+    }, [page]);
 
     // Track inner canvas area size (below toolbar, before padding) for accurate fit calculation
     useEffect(() => {
@@ -186,7 +194,7 @@ function App() {
         });
         ro.observe(el);
         return () => ro.disconnect();
-    }, []);
+    }, [page]);
 
     // Sync palette when color mode or custom colors change
     useEffect(() => {
@@ -417,6 +425,29 @@ function App() {
         overflow: 'hidden',
     };
 
+    if (page === 'checkout') {
+        return (
+            <Checkout
+                onBack={() => setPage('editor')}
+                onOrderPlaced={(orderNumber) => {
+                    setLastOrderNumber(orderNumber);
+                    setPage('tracking');
+                }}
+                designData={options as unknown as Record<string, unknown>}
+                defaultSize={options.poster.aspectRatio}
+            />
+        );
+    }
+
+    if (page === 'tracking') {
+        return (
+            <OrderTracking
+                onBack={() => setPage('editor')}
+                highlightOrderNumber={lastOrderNumber ?? undefined}
+            />
+        );
+    }
+
     return (
         <div className="flex w-full h-screen bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
             {/* Sidebar — hidden on mobile, fixed width on desktop */}
@@ -440,46 +471,78 @@ function App() {
                 <div ref={canvasWrapperRef} className="flex-1 min-h-0 flex flex-col overflow-hidden">
 
                     {/* Zoom toolbar */}
-                    <div className="flex-shrink-0 flex items-center justify-center gap-2 py-1.5 px-4 bg-[#BEBEBE] border-b border-black/10 text-black select-none">
-                        <button
-                            onClick={handleZoomOut}
-                            disabled={zoom === 'fit' || zoom <= 0.25}
-                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
-                            title="Zoom out"
-                        >
-                            −
-                        </button>
-                        <span className="text-xs font-medium min-w-[42px] text-center tabular-nums">
-                            {zoom === 'fit' ? 'Fit' : `${Math.round((zoom as number) * 100)}%`}
-                        </span>
-                        <button
-                            onClick={handleZoomIn}
-                            disabled={typeof zoom === 'number' && zoom >= 3}
-                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
-                            title="Zoom in"
-                        >
-                            +
-                        </button>
-                        {zoom !== 'fit' && (
-                            <>
-                                <div className="w-px h-3 bg-black/25 mx-0.5" />
+                    <div className="flex-shrink-0 flex items-center justify-between gap-2 py-1.5 px-4 bg-[#BEBEBE] border-b border-black/10 text-black select-none">
+                        {/* Left: zoom controls */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleZoomOut}
+                                disabled={zoom === 'fit' || zoom <= 0.25}
+                                className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
+                                title="Zoom out"
+                            >
+                                −
+                            </button>
+                            <span className="text-xs font-medium min-w-[42px] text-center tabular-nums">
+                                {zoom === 'fit' ? 'Fit' : `${Math.round((zoom as number) * 100)}%`}
+                            </span>
+                            <button
+                                onClick={handleZoomIn}
+                                disabled={typeof zoom === 'number' && zoom >= 3}
+                                className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
+                                title="Zoom in"
+                            >
+                                +
+                            </button>
+                            {zoom !== 'fit' && (
+                                <>
+                                    <div className="w-px h-3 bg-black/25 mx-0.5" />
+                                    <button
+                                        onClick={() => setZoom('fit')}
+                                        className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer"
+                                        title="Fit to screen"
+                                    >
+                                        Fit
+                                    </button>
+                                </>
+                            )}
+                            <div className="w-px h-3 bg-black/25 mx-0.5" />
+                            <button
+                                onClick={() => setRefreshKey(k => k + 1)}
+                                className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 transition-colors cursor-pointer text-sm"
+                                title="Refresh preview"
+                            >
+                                ↺
+                            </button>
+                        </div>
+
+                        {/* Right: order + auth */}
+                        <div className="flex items-center gap-2">
+                            {user && (
                                 <button
-                                    onClick={() => setZoom('fit')}
-                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer"
-                                    title="Fit to screen"
+                                    onClick={() => setPage('tracking')}
+                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer text-black/60"
+                                    title="View your orders"
                                 >
-                                    Fit
+                                    Orders
                                 </button>
-                            </>
-                        )}
-                        <div className="w-px h-3 bg-black/25 mx-0.5" />
-                        <button
-                            onClick={() => setRefreshKey(k => k + 1)}
-                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 transition-colors cursor-pointer text-sm"
-                            title="Refresh preview"
-                        >
-                            ↺
-                        </button>
+                            )}
+                            <button
+                                onClick={() => setPage('checkout')}
+                                className="text-xs font-semibold px-3 py-1 rounded bg-black text-white hover:bg-black/80 transition-colors cursor-pointer"
+                                title="Order this poster"
+                            >
+                                Order poster
+                            </button>
+                            {user ? (
+                                <button
+                                    onClick={logout}
+                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer text-black/60"
+                                    title={`Signed in as ${user.email}`}
+                                >
+                                    Sign out
+                                </button>
+                            ) : null}
+                        </div>
                     </div>
 
                     {/* Stable wrapper — measured for accurate fit calculation (no toolbar, no padding) */}
