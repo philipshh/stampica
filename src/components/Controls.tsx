@@ -34,41 +34,28 @@ export const Controls: React.FC<ControlsProps> = ({
 
     return (
         <div className="w-full md:w-80 bg-black flex flex-col h-full text-xs tracking-wider font-mono md:border-r border-neutral-800">
-            <div className="p-4 md:p-6 border-b border-neutral-800 flex-shrink-0">
-                <div className="flex justify-center items-center mb-6">
-                    <img src="/logo.png" alt="Stampica" className="h-8 md:h-10 w-auto object-contain" />
+            {/* Header: logo (desktop only) + tabs */}
+            <div className="px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4 border-b border-neutral-800 flex-shrink-0">
+                <div className="hidden md:flex justify-center items-center mb-6">
+                    <img src="/logo.png" alt="Stampica" className="h-10 w-auto object-contain" />
                 </div>
 
                 {/* Tabs */}
                 <div className="grid grid-cols-4 border border-neutral-800 rounded p-1 gap-1">
-                    <button
-                        onClick={() => setActiveTab('design')}
-                        className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'design' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    >
-                        Design
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('layout')}
-                        className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'layout' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    >
-                        Layout
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('adjust')}
-                        className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'adjust' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    >
-                        Effects
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('saved')}
-                        className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === 'saved' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
-                    >
-                        Saved
-                    </button>
+                    {(['design', 'layout', 'adjust', 'saved'] as const).map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`py-2 text-center uppercase transition-colors rounded-sm text-[8px] ${activeTab === tab ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500 hover:text-neutral-300'}`}
+                        >
+                            {tab === 'adjust' ? 'Effects' : tab}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
+            {/* Scrollable content */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
                 {activeTab === 'design' && (
                     <DesignControls options={options} onOptionsChange={onOptionsChange} />
                 )}
@@ -88,7 +75,8 @@ export const Controls: React.FC<ControlsProps> = ({
             </div>
 
             {/* Footer Actions */}
-            <div className="p-6 border-t border-neutral-800 space-y-3 bg-black">
+            {/* Desktop: vertical stack */}
+            <div className="hidden md:block p-6 border-t border-neutral-800 space-y-3 bg-black flex-shrink-0">
                 <button
                     onClick={onExport}
                     className="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
@@ -111,6 +99,33 @@ export const Controls: React.FC<ControlsProps> = ({
                     Upload Image
                 </button>
             </div>
-        </div >
+
+            {/* Mobile: compact horizontal row */}
+            <div className="flex md:hidden border-t border-neutral-800 flex-shrink-0">
+                <button
+                    onClick={onUploadClick}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors"
+                >
+                    <Upload className="w-4 h-4" />
+                    <span className="text-[8px] uppercase tracking-widest">Upload</span>
+                </button>
+                <div className="w-px bg-neutral-800" />
+                <button
+                    onClick={onCopy}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors"
+                >
+                    <Copy className="w-4 h-4" />
+                    <span className="text-[8px] uppercase tracking-widest">Copy</span>
+                </button>
+                <div className="w-px bg-neutral-800" />
+                <button
+                    onClick={onExport}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white text-black hover:bg-neutral-200 transition-colors"
+                >
+                    <Download className="w-4 h-4" />
+                    <span className="text-[8px] uppercase tracking-widest font-bold">Download</span>
+                </button>
+            </div>
+        </div>
     );
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
@@ -16,6 +16,8 @@ const ASPECT_RATIO_VALUES: Record<string, string> = {
     A3: '297 / 420',
     A2: '420 / 594',
 };
+
+const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
 const DEFAULT_OPTIONS: DitherOptions = {
     algorithm: 'atkinson',
@@ -136,6 +138,8 @@ function App() {
 
     const posterRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number>();
+    const canvasWrapperRef = useRef<HTMLDivElement>(null);
+    const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
 
     const imageDimensions = useImageDimensions(imageFile);
     const workerRef = useDitherWorker(setProcessedImage);
@@ -157,6 +161,18 @@ function App() {
     };
 
     usePasteHandler(options.imageMode, setImageFile, handleGridFile);
+
+    // Track canvas wrapper size for fit mode aspect-ratio calculation
+    useEffect(() => {
+        const el = canvasWrapperRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(entries => {
+            const { width, height } = entries[0].contentRect;
+            setContainerSize({ w: width, h: height });
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
     // Sync palette when color mode or custom colors change
     useEffect(() => {
@@ -334,6 +350,56 @@ function App() {
 
     const aspectRatioValue = ASPECT_RATIO_VALUES[options.poster.aspectRatio] ?? '420 / 594';
 
+    const [zoom, setZoom] = useState<number | 'fit'>('fit');
+
+    const handleZoomOut = () => setZoom(prev => {
+        if (prev === 'fit') return 'fit';
+        const idx = ZOOM_STEPS.findIndex(z => z >= prev);
+        return ZOOM_STEPS[Math.max(0, idx - 1)];
+    });
+
+    const handleZoomIn = () => setZoom(prev => {
+        if (prev === 'fit') return 1;
+        const idx = ZOOM_STEPS.findIndex(z => z >= prev);
+        return ZOOM_STEPS[Math.min(ZOOM_STEPS.length - 1, idx + 1)];
+    });
+
+    const posterContent = options.poster.enabled ? (
+        <PosterCanvas
+            ref={posterRef}
+            processedImage={processedImage}
+            options={options}
+            onUploadTrigger={() => document.getElementById('file-input')?.click()}
+        />
+    ) : (
+        <DitherCanvas processedImage={processedImage} />
+    );
+
+    // Compute fit dimensions using measured container size
+    const arParts = aspectRatioValue.split('/').map(s => parseFloat(s.trim()));
+    const posterAR = (arParts[0] || 420) / (arParts[1] || 594);
+    // Subtract toolbar height (~36px) and canvas padding (p-4 mobile=32px, p-8 desktop=64px; use 64px to be safe)
+    const availW = Math.max(0, containerSize.w - 64);
+    const availH = Math.max(0, containerSize.h - 36 - 64);
+    let fitWidth = containerSize.w > 0 ? Math.min(700, availW) : 700;
+    if (availH > 0 && fitWidth / posterAR > availH) {
+        fitWidth = availH * posterAR;
+    }
+    fitWidth = Math.max(50, Math.round(fitWidth));
+
+    const BASE_BORDER = 16;
+    const fitBorder = Math.max(2, Math.round(BASE_BORDER * fitWidth / 700));
+    const zoomBorder = typeof zoom === 'number' ? Math.max(2, Math.round(BASE_BORDER * zoom)) : fitBorder;
+
+    const posterFrameBase: React.CSSProperties = {
+        aspectRatio: aspectRatioValue,
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+    };
+
     return (
         <div className="flex w-full h-screen bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
             {/* Sidebar — hidden on mobile, fixed width on desktop */}
@@ -351,51 +417,75 @@ function App() {
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0] md:h-screen">
-                {/* Preview — 50% on mobile, full on desktop */}
-                <div className="h-1/2 md:h-full md:flex-1 md:min-h-0 relative flex items-center justify-center p-4 md:p-8 bg-[#D0D0D0] md:overflow-auto overflow-hidden">
-                    <div
-                        style={{
-                            aspectRatio: aspectRatioValue,
-                            maxWidth: '700px',
-                            width: '100%',
-                            maxHeight: '100%',
-                            height: 'auto',
-                            border: '16px solid black',
-                            boxSizing: 'border-box',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        {options.poster.enabled ? (
-                            <PosterCanvas
-                                ref={posterRef}
-                                processedImage={processedImage}
-                                options={options}
-                                onUploadTrigger={() => document.getElementById('file-input')?.click()}
-                            />
-                        ) : (
-                            <DitherCanvas processedImage={processedImage} />
+            <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0] overflow-hidden">
+                {/* Preview — flex-1 so it shares space evenly with controls on mobile, fills full on desktop */}
+                <div ref={canvasWrapperRef} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+
+                    {/* Zoom toolbar */}
+                    <div className="flex-shrink-0 flex items-center justify-center gap-2 py-1.5 px-4 bg-[#BEBEBE] border-b border-black/10 text-black select-none">
+                        <button
+                            onClick={handleZoomOut}
+                            disabled={zoom === 'fit' || zoom <= 0.25}
+                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
+                            title="Zoom out"
+                        >
+                            −
+                        </button>
+                        <span className="text-xs font-medium min-w-[42px] text-center tabular-nums">
+                            {zoom === 'fit' ? 'Fit' : `${Math.round((zoom as number) * 100)}%`}
+                        </span>
+                        <button
+                            onClick={handleZoomIn}
+                            disabled={typeof zoom === 'number' && zoom >= 3}
+                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
+                            title="Zoom in"
+                        >
+                            +
+                        </button>
+                        {zoom !== 'fit' && (
+                            <>
+                                <div className="w-px h-3 bg-black/25 mx-0.5" />
+                                <button
+                                    onClick={() => setZoom('fit')}
+                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer"
+                                    title="Fit to screen"
+                                >
+                                    Fit
+                                </button>
+                            </>
                         )}
                     </div>
+
+                    {/* Canvas area */}
+                    {zoom === 'fit' ? (
+                        <div className="flex-1 min-h-0 bg-[#D0D0D0] p-4 md:p-8 flex items-center justify-center overflow-hidden">
+                            <div style={{ ...posterFrameBase, width: `${fitWidth}px`, border: `${fitBorder}px solid black` }}>
+                                {posterContent}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex-1 min-h-0 bg-[#D0D0D0] overflow-auto p-4 md:p-8">
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100%', minWidth: 'max-content' }}>
+                                <div style={{ ...posterFrameBase, width: `${700 * (zoom as number)}px`, border: `${zoomBorder}px solid black`, flexShrink: 0 }}>
+                                    {posterContent}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* Mobile controls — 50% on mobile, hidden on desktop */}
-                <div className="flex md:hidden h-1/2 min-h-0 bg-black border-t border-neutral-800 overflow-hidden">
-                    <div className="w-full overflow-y-auto">
-                        <Controls
-                            options={options}
-                            onOptionsChange={setOptions}
-                            onExport={handleExport}
-                            onCopy={handleCopyImage}
-                            onUploadClick={() => document.getElementById('file-input')?.click()}
-                            imageDimensions={imageDimensions}
-                            imageFile={imageFile}
-                            onProjectLoad={handleProjectLoad}
-                        />
-                    </div>
+                {/* Mobile controls — flex-1 so it takes equal space as canvas on mobile, hidden on desktop */}
+                <div className="flex-1 min-h-0 flex md:hidden bg-black border-t border-neutral-800 overflow-hidden">
+                    <Controls
+                        options={options}
+                        onOptionsChange={setOptions}
+                        onExport={handleExport}
+                        onCopy={handleCopyImage}
+                        onUploadClick={() => document.getElementById('file-input')?.click()}
+                        imageDimensions={imageDimensions}
+                        imageFile={imageFile}
+                        onProjectLoad={handleProjectLoad}
+                    />
                 </div>
             </main>
 
