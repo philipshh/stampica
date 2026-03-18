@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -68,23 +67,23 @@ export function AdminDashboard() {
     fetchOrders();
   }
 
+  async function deleteOrder(id: string) {
+    await fetch(`${API_BASE}/api/admin/orders/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    fetchOrders();
+  }
+
   const filtered = filterStatus === 'all' ? orders : orders.filter((o) => o.status === filterStatus);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-neutral-400 hover:text-white transition-colors">
-              <ArrowLeft size={18} />
-            </Link>
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <span className="text-sm text-neutral-500">{orders.length} orders</span>
-          </div>
-          <Link to="/create" className="text-sm px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-neutral-100 transition-colors">
-            Open editor
-          </Link>
+        <div className="flex items-center gap-3 mb-8">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <span className="text-sm text-neutral-500">{orders.length} orders</span>
         </div>
 
         {/* Status filter */}
@@ -110,7 +109,7 @@ export function AdminDashboard() {
         {/* Orders table */}
         <div className="space-y-3">
           {filtered.map((order) => (
-            <OrderRow key={order.id} order={order} onUpdate={updateOrder} />
+            <OrderRow key={order.id} order={order} onUpdate={updateOrder} onDelete={deleteOrder} />
           ))}
           {!isLoading && filtered.length === 0 && (
             <p className="text-neutral-500 text-sm py-8 text-center">No orders found</p>
@@ -124,12 +123,25 @@ export function AdminDashboard() {
 function OrderRow({
   order,
   onUpdate,
+  onDelete,
 }: {
   order: Order;
   onUpdate: (id: string, patch: { status?: OrderStatus; trackingNumber?: string }) => void;
+  onDelete: (id: string) => void;
 }) {
   const [tracking, setTracking] = useState(order.tracking_number ?? '');
   const [expanded, setExpanded] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDownload(url: string, filename: string) {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
 
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
@@ -178,6 +190,19 @@ function OrderRow({
         </div>
 
         <button
+          onClick={() => {
+            if (!deleting && confirm(`Delete order #${order.order_number}? This cannot be undone.`)) {
+              setDeleting(true);
+              onDelete(order.id);
+            }
+          }}
+          className="text-neutral-600 hover:text-red-400 transition-colors p-1"
+          title="Delete order"
+        >
+          <Trash2 size={15} />
+        </button>
+
+        <button
           onClick={() => setExpanded((v) => !v)}
           className="text-neutral-400 hover:text-white transition-colors p-1"
         >
@@ -223,14 +248,12 @@ function OrderRow({
 
           {/* Hi-res download for print shop */}
           {order.poster_url ? (
-            <a
-              href={order.poster_url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => handleDownload(order.poster_url!, `poster-${order.order_number}.png`)}
               className="inline-flex items-center gap-2 text-sm text-white bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg transition-colors font-medium"
             >
               ↓ Download hi-res print file
-            </a>
+            </button>
           ) : (
             <p className="text-xs text-neutral-600">No hi-res file attached</p>
           )}

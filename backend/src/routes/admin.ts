@@ -105,4 +105,24 @@ router.patch('/orders/:id', requireAdmin, async (req: Request, res: Response) =>
   }
 });
 
+// DELETE /api/admin/orders/:id – permanently delete an order
+router.delete('/orders/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const supabase = getSupabase();
+
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[admin/orders/delete]', err);
+    res.status(500).json({ error: 'Failed to delete order' });
+  }
+});
+
 export default router;

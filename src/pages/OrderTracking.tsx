@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { ArrowLeft, Package, Printer, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Package, Printer, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -62,22 +62,14 @@ export function OrderTracking() {
   }, [token]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 md:p-8">
+    <div className="min-h-full bg-neutral-950 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        <Link
-          to="/create"
-          className="flex items-center gap-2 text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mb-6 text-sm"
-        >
-          <ArrowLeft size={16} />
-          Back to editor
-        </Link>
-
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Your orders</h1>
+          <h1 className="text-2xl font-bold text-white">Your orders</h1>
           {!user && (
             <button
               onClick={() => navigate('/checkout')}
-              className="text-sm text-neutral-500 hover:text-neutral-800 transition-colors"
+              className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               Sign in to view orders
             </button>
@@ -85,7 +77,7 @@ export function OrderTracking() {
         </div>
 
         {isLoading && <div className="text-neutral-400 text-sm py-12 text-center">Loading…</div>}
-        {error && <div className="text-red-500 bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl text-sm">{error}</div>}
+        {error && <div className="text-red-400 bg-red-900/20 px-4 py-3 rounded-xl text-sm">{error}</div>}
 
         {!isLoading && !error && orders.length === 0 && (
           <div className="text-center py-16 text-neutral-400">

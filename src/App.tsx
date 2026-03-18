@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
@@ -10,7 +10,7 @@ import { exportPoster, copyPosterToClipboard, exportPosterPreviewBlob } from './
 import { useImageDimensions } from './hooks/useImageDimensions';
 import { useDitherWorker } from './hooks/useDitherWorker';
 import { usePasteHandler } from './hooks/usePasteHandler';
-import { useAuth } from './contexts/AuthContext';
+
 
 const ASPECT_RATIO_VALUES: Record<string, string> = {
     A5: '148 / 210',
@@ -134,7 +134,7 @@ const DEFAULT_OPTIONS: DitherOptions = {
 };
 
 function App() {
-    const { user, logout } = useAuth();
+
     const navigate = useNavigate();
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
@@ -429,9 +429,9 @@ function App() {
     }
 
     return (
-        <div className="flex w-full h-screen bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
+        <div className="flex w-full flex-1 bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
             {/* Sidebar — hidden on mobile, fixed width on desktop */}
-            <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 md:h-screen border-r border-neutral-800 bg-black md:flex-col">
+            <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 border-r border-neutral-800 bg-black md:flex-col">
                 <Controls
                     options={options}
                     onOptionsChange={setOptions}
@@ -495,17 +495,8 @@ function App() {
                             </button>
                         </div>
 
-                        {/* Right: order + auth */}
+                        {/* Right: order */}
                         <div className="flex items-center gap-2">
-                            {user && (
-                                <Link
-                                    to="/orders"
-                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors text-black/60"
-                                    title="View your orders"
-                                >
-                                    Orders
-                                </Link>
-                            )}
                             <button
                                 onClick={handleOrderPoster}
                                 className="text-xs font-semibold px-3 py-1 rounded bg-black text-white hover:bg-black/80 transition-colors cursor-pointer"
@@ -513,15 +504,6 @@ function App() {
                             >
                                 Order poster
                             </button>
-                            {user ? (
-                                <button
-                                    onClick={logout}
-                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer text-black/60"
-                                    title={`Signed in as ${user.email}`}
-                                >
-                                    Sign out
-                                </button>
-                            ) : null}
                         </div>
                     </div>
 
