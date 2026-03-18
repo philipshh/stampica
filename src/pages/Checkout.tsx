@@ -187,7 +187,7 @@ export function Checkout() {
         {previewUrl && (
           <div className="mb-6 flex justify-center">
             <img src={previewUrl} alt="Your poster"
-              className="max-h-56 rounded-xl border border-neutral-800 object-contain shadow-lg" />
+              className="w-4/5 rounded-xl border border-neutral-800 object-contain shadow-lg" />
           </div>
         )}
 
@@ -221,7 +221,7 @@ export function Checkout() {
                         <div className={`text-[10px] mt-0.5 ${form.size === s ? 'text-black/60' : 'text-neutral-500'}`}>
                           {SIZE_INFO[s].dims}
                         </div>
-                        <div className={`text-xs font-semibold mt-1 ${form.size === s ? 'text-black/80' : 'text-neutral-400'}`}>
+                        <div className={`text-base font-bold mt-1.5 ${form.size === s ? 'text-black' : 'text-neutral-200'}`}>
                           €{SIZE_INFO[s].price}
                         </div>
                       </button>
@@ -238,9 +238,10 @@ export function Checkout() {
                     <span className="w-8 text-center font-semibold text-white">{form.quantity}</span>
                     <button type="button" onClick={() => update('quantity', Math.min(20, form.quantity + 1))}
                       className="w-9 h-9 rounded-lg border border-neutral-700 flex items-center justify-center text-lg font-medium text-white hover:bg-neutral-800 transition-colors">+</button>
-                    <span className="ml-2 text-sm text-neutral-500">
-                      Total: <span className="text-white font-semibold">€{totalPrice}</span>
-                    </span>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 mt-1 border-t border-neutral-800">
+                    <span className="text-sm text-neutral-400">Total</span>
+                    <span className="text-2xl font-bold text-white">€{totalPrice}</span>
                   </div>
                 </div>
               </div>

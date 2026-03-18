@@ -108,10 +108,8 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
   const isCancelled = order.status === 'cancelled';
 
   return (
-    <div className={`bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border transition-all overflow-hidden ${
-      highlight
-        ? 'border-neutral-900 dark:border-white ring-2 ring-neutral-900/10 dark:ring-white/10'
-        : 'border-neutral-200 dark:border-neutral-800'
+    <div className={`bg-neutral-900 rounded-2xl border transition-all overflow-hidden ${
+      highlight ? 'border-white ring-2 ring-white/10' : 'border-neutral-800'
     }`}>
       <div className="flex gap-4 p-5">
         {/* Poster thumbnail */}
@@ -144,32 +142,51 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
               <XCircle size={16} /> Cancelled
             </div>
           ) : (
-            <div className="relative">
-              <div className="absolute top-4 left-4 right-4 h-0.5 bg-neutral-100 dark:bg-neutral-800 -z-0">
-                <div
-                  className="h-full bg-neutral-900 dark:bg-white transition-all duration-700"
-                  style={{ width: currentStep >= 0 ? `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` : '0%' }}
-                />
-              </div>
-              <div className="relative z-10 flex justify-between">
-                {STATUS_STEPS.map((step, idx) => {
-                  const done = idx <= currentStep;
+            <>
+              {/* Mobile: current status only */}
+              <div className="sm:hidden flex items-center gap-2">
+                {(() => {
+                  const step = STATUS_STEPS[currentStep] ?? STATUS_STEPS[0];
                   const Icon = step.icon;
                   return (
-                    <div key={step.status} className="flex flex-col items-center gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                        done ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
-                      }`}>
-                        <Icon size={14} />
+                    <>
+                      <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+                        <Icon size={13} className="text-neutral-900" />
                       </div>
-                      <span className={`text-xs text-center leading-tight max-w-[56px] ${
-                        done ? 'text-neutral-900 dark:text-white font-medium' : 'text-neutral-400'
-                      }`}>{step.label}</span>
-                    </div>
+                      <span className="text-sm font-medium text-white">{step.label}</span>
+                    </>
                   );
-                })}
+                })()}
               </div>
-            </div>
+
+              {/* Desktop: full stepper */}
+              <div className="hidden sm:block relative">
+                <div className="absolute top-4 left-4 right-4 h-0.5 bg-neutral-800 -z-0">
+                  <div
+                    className="h-full bg-white transition-all duration-700"
+                    style={{ width: currentStep >= 0 ? `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` : '0%' }}
+                  />
+                </div>
+                <div className="relative z-10 flex justify-between">
+                  {STATUS_STEPS.map((step, idx) => {
+                    const done = idx <= currentStep;
+                    const Icon = step.icon;
+                    return (
+                      <div key={step.status} className="flex flex-col items-center gap-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          done ? 'bg-white text-neutral-900' : 'bg-neutral-800 text-neutral-400'
+                        }`}>
+                          <Icon size={14} />
+                        </div>
+                        <span className={`text-xs text-center leading-tight max-w-[56px] ${
+                          done ? 'text-white font-medium' : 'text-neutral-500'
+                        }`}>{step.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
           )}
 
           {order.tracking_number && (
