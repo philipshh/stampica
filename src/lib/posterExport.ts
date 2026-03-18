@@ -193,3 +193,55 @@ export async function copyPosterToClipboard(
         }
     }
 }
+
+// ── Blob exports for order attachments ───────────────────────────────────────
+
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob(
+            (blob) => (blob ? resolve(blob) : reject(new Error('Canvas to blob failed'))),
+            type,
+            quality,
+        );
+    });
+}
+
+/** Low-res JPEG preview (~800px wide) — fast, using already-processed ImageData */
+export async function exportPosterPreviewBlob(
+    options: DitherOptions,
+    processedImage: ImageData | null,
+): Promise<Blob | null> {
+    if (!options.poster.enabled || !processedImage) return null;
+    try {
+        const previewOptions: DitherOptions = {
+            ...options,
+            poster: { ...options.poster, resolution: 'low' },
+        };
+        const dimensions = getPosterDimensions(previewOptions, previewOptions.poster.aspectRatio, 'low');
+        const canvas = await drawPosterToCanvas(previewOptions, processedImage, dimensions);
+        return await canvasToBlob(canvas, 'image/jpeg', 0.75);
+    } catch {
+        return null;
+    }
+}
+
+/** Hi-res PNG — re-processes the image at full export resolution using the original file */
+export async function exportPosterHiResBlob(
+    options: DitherOptions,
+    imageFile: File | null,
+): Promise<Blob | null> {
+    if (!options.poster.enabled || !imageFile) return null;
+    try {
+        const hiResOptions: DitherOptions = {
+            ...options,
+            poster: { ...options.poster, resolution: 'high' },
+        };
+        const dimensions = getPosterDimensions(hiResOptions, hiResOptions.poster.aspectRatio, 'high');
+        const resolution = Math.max(dimensions.width, dimensions.height);
+        const processedData = await getDitheredImageData(imageFile, hiResOptions, resolution);
+        const canvas = await drawPosterToCanvas(hiResOptions, processedData, dimensions);
+        return await canvasToBlob(canvas, 'image/png');
+    } catch {
+        return null;
+    }
+}

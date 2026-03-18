@@ -36,12 +36,14 @@ function generateOrderNumber(): string {
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const { user } = res.locals;
-    const { size, quantity, shippingAddress, phone, designData } = req.body as {
+    const { size, quantity, shippingAddress, phone, designData, previewUrl, posterUrl } = req.body as {
       size: string;
       quantity: number;
       shippingAddress: string;
       phone: string;
       designData: Record<string, unknown>;
+      previewUrl?: string;
+      posterUrl?: string;
     };
 
     if (!size || !quantity || !shippingAddress || !phone) {
@@ -63,6 +65,8 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
         status: 'pending',
         shipping_address: shippingAddress,
         phone,
+        preview_url: previewUrl ?? null,
+        poster_url: posterUrl ?? null,
       })
       .select()
       .single();

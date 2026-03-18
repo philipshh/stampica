@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
 import { DitherOptions, WorkerResponse, WorkerErrorResponse, Slot, StoredDitherOptions } from './lib/dither';
 import { PosterProject } from './lib/storage';
 import { computePaletteFromColorMode, interpolateColors, rgbToHex } from './lib/colorUtils';
-import { exportPoster, copyPosterToClipboard } from './lib/posterExport';
+import { exportPoster, copyPosterToClipboard, exportPosterPreviewBlob } from './lib/posterExport';
 import { useImageDimensions } from './hooks/useImageDimensions';
 import { useDitherWorker } from './hooks/useDitherWorker';
 import { usePasteHandler } from './hooks/usePasteHandler';
 import { useAuth } from './contexts/AuthContext';
-import { Checkout } from './pages/Checkout';
-import { OrderTracking } from './pages/OrderTracking';
-
-type AppPage = 'editor' | 'checkout' | 'tracking';
 
 const ASPECT_RATIO_VALUES: Record<string, string> = {
     A5: '148 / 210',
@@ -138,14 +135,13 @@ const DEFAULT_OPTIONS: DitherOptions = {
 
 function App() {
     const { user, logout } = useAuth();
-    const [page, setPage] = useState<AppPage>('editor');
-    const [lastOrderNumber, setLastOrderNumber] = useState<string | null>(null);
+    const navigate = useNavigate();
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
     const [options, setOptions] = useState<DitherOptions>(DEFAULT_OPTIONS);
 
     const posterRef = useRef<HTMLDivElement>(null);
-    const timerRef = useRef<number>();
+    const timerRef = useRef<ReturnType<typeof setTimeout>>();
     const canvasWrapperRef = useRef<HTMLDivElement>(null);
     const innerCanvasRef = useRef<HTMLDivElement>(null);
     const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
@@ -182,7 +178,7 @@ function App() {
         });
         ro.observe(el);
         return () => ro.disconnect();
-    }, [page]);
+    }, []);
 
     // Track inner canvas area size (below toolbar, before padding) for accurate fit calculation
     useEffect(() => {
@@ -194,7 +190,7 @@ function App() {
         });
         ro.observe(el);
         return () => ro.disconnect();
-    }, [page]);
+    }, []);
 
     // Sync palette when color mode or custom colors change
     useEffect(() => {
@@ -425,27 +421,11 @@ function App() {
         overflow: 'hidden',
     };
 
-    if (page === 'checkout') {
-        return (
-            <Checkout
-                onBack={() => setPage('editor')}
-                onOrderPlaced={(orderNumber) => {
-                    setLastOrderNumber(orderNumber);
-                    setPage('tracking');
-                }}
-                designData={options as unknown as Record<string, unknown>}
-                defaultSize={options.poster.aspectRatio}
-            />
-        );
-    }
-
-    if (page === 'tracking') {
-        return (
-            <OrderTracking
-                onBack={() => setPage('editor')}
-                highlightOrderNumber={lastOrderNumber ?? undefined}
-            />
-        );
+    async function handleOrderPoster() {
+        const previewBlob = await exportPosterPreviewBlob(options, processedImage);
+        navigate('/checkout', {
+            state: { options, imageFile, previewBlob, defaultSize: options.poster.aspectRatio },
+        });
     }
 
     return (
@@ -518,16 +498,16 @@ function App() {
                         {/* Right: order + auth */}
                         <div className="flex items-center gap-2">
                             {user && (
-                                <button
-                                    onClick={() => setPage('tracking')}
-                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer text-black/60"
+                                <Link
+                                    to="/orders"
+                                    className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors text-black/60"
                                     title="View your orders"
                                 >
                                     Orders
-                                </button>
+                                </Link>
                             )}
                             <button
-                                onClick={() => setPage('checkout')}
+                                onClick={handleOrderPoster}
                                 className="text-xs font-semibold px-3 py-1 rounded bg-black text-white hover:bg-black/80 transition-colors cursor-pointer"
                                 title="Order this poster"
                             >

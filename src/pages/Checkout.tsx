@@ -1,18 +1,22 @@
 import { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { OrderConfirmation } from '../components/OrderConfirmation';
+import { exportPosterHiResBlob } from '../lib/posterExport';
+import { uploadPosterFile } from '../lib/supabase';
+import type { DitherOptions } from '../lib/dither';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 const SIZES = ['A5', 'A4', 'A3', 'A2', 'A1', 'A0', '18×24"', '24×36"', '27×40"'] as const;
 type PosterSize = (typeof SIZES)[number];
 
-interface CheckoutProps {
-  onBack: () => void;
-  onOrderPlaced: (orderNumber: string) => void;
-  designData?: Record<string, unknown>;
+interface CheckoutLocationState {
+  options?: DitherOptions;
+  imageFile?: File;
+  previewBlob?: Blob;
   defaultSize?: string;
 }
 
@@ -27,10 +31,14 @@ interface FormState {
   phone: string;
 }
 
-export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: CheckoutProps) {
+export function Checkout() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = (location.state ?? {}) as CheckoutLocationState;
+
   const { user, token } = useAuth();
   const [form, setForm] = useState<FormState>({
-    size: (defaultSize as PosterSize) ?? 'A4',
+    size: (state.defaultSize as PosterSize) ?? (state.options?.poster.aspectRatio as PosterSize) ?? 'A4',
     quantity: 1,
     name: user?.name ?? '',
     address: '',
@@ -42,6 +50,11 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
+
+  // Create a preview URL from the blob passed via router state
+  const previewUrl = state.previewBlob
+    ? URL.createObjectURL(state.previewBlob)
+    : null;
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -56,6 +69,28 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
 
     try {
       const shippingAddress = `${form.name}, ${form.address}, ${form.city} ${form.postalCode}, ${form.country}`;
+      const orderId = Date.now().toString(36);
+
+      // Upload poster files to Supabase Storage
+      let previewFileUrl: string | null = null;
+      let hiresFileUrl: string | null = null;
+
+      if (state.previewBlob) {
+        previewFileUrl = await uploadPosterFile(
+          state.previewBlob,
+          `${orderId}_preview.jpg`,
+        ).catch(() => null);
+      }
+
+      if (state.options && state.imageFile) {
+        const hiresBlob = await exportPosterHiResBlob(state.options, state.imageFile);
+        if (hiresBlob) {
+          hiresFileUrl = await uploadPosterFile(
+            hiresBlob,
+            `${orderId}_hires.png`,
+          ).catch(() => null);
+        }
+      }
 
       const res = await fetch(`${API_BASE}/api/orders`, {
         method: 'POST',
@@ -68,17 +103,16 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
           quantity: form.quantity,
           shippingAddress,
           phone: form.phone,
-          designData: designData ?? {},
+          designData: state.options ?? {},
+          previewUrl: previewFileUrl,
+          posterUrl: hiresFileUrl,
         }),
       });
 
       const data = (await res.json()) as { order?: { order_number: string }; error?: string };
-
       if (!res.ok) throw new Error(data.error ?? 'Failed to place order');
 
-      const orderNumber = data.order!.order_number;
-      setConfirmedOrderNumber(orderNumber);
-      onOrderPlaced(orderNumber);
+      setConfirmedOrderNumber(data.order!.order_number);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -90,10 +124,8 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
     return (
       <OrderConfirmation
         orderNumber={confirmedOrderNumber}
-        onClose={onBack}
-        onTrackOrder={() => {
-          // Handled by parent via onOrderPlaced
-        }}
+        onClose={() => navigate('/create')}
+        onTrackOrder={() => navigate('/orders')}
       />
     );
   }
@@ -101,13 +133,13 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4 md:p-8">
       <div className="max-w-lg mx-auto">
-        <button
-          onClick={onBack}
+        <Link
+          to="/create"
           className="flex items-center gap-2 text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors mb-6 text-sm"
         >
           <ArrowLeft size={16} />
           Back to editor
-        </button>
+        </Link>
 
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl bg-neutral-900 dark:bg-white flex items-center justify-center">
@@ -116,11 +148,20 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Order your poster</h1>
         </div>
 
+        {/* Poster preview */}
+        {previewUrl && (
+          <div className="mb-6 flex justify-center">
+            <img
+              src={previewUrl}
+              alt="Your poster"
+              className="max-h-64 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 object-contain"
+            />
+          </div>
+        )}
+
         {!user ? (
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 text-center shadow-sm border border-neutral-200 dark:border-neutral-800">
-            <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-              Sign in to place your order
-            </p>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-4">Sign in to place your order</p>
             <div className="flex justify-center">
               <GoogleLoginButton />
             </div>
@@ -130,12 +171,9 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
             {/* Size + Quantity */}
             <section className="bg-white dark:bg-neutral-900 rounded-2xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-800">
               <h2 className="font-semibold text-neutral-900 dark:text-white mb-4">Print details</h2>
-
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-                    Size
-                  </label>
+                  <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">Size</label>
                   <div className="grid grid-cols-3 gap-2">
                     {SIZES.map((s) => (
                       <button
@@ -153,29 +191,14 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
                     ))}
                   </div>
                 </div>
-
                 <div>
-                  <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-                    Quantity
-                  </label>
+                  <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">Quantity</label>
                   <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => update('quantity', Math.max(1, form.quantity - 1))}
-                      className="w-9 h-9 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-lg font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                    >
-                      −
-                    </button>
-                    <span className="w-8 text-center font-semibold text-neutral-900 dark:text-white">
-                      {form.quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => update('quantity', Math.min(20, form.quantity + 1))}
-                      className="w-9 h-9 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-lg font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                    >
-                      +
-                    </button>
+                    <button type="button" onClick={() => update('quantity', Math.max(1, form.quantity - 1))}
+                      className="w-9 h-9 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-lg font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">−</button>
+                    <span className="w-8 text-center font-semibold text-neutral-900 dark:text-white">{form.quantity}</span>
+                    <button type="button" onClick={() => update('quantity', Math.min(20, form.quantity + 1))}
+                      className="w-9 h-9 rounded-lg border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-lg font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">+</button>
                   </div>
                 </div>
               </div>
@@ -184,54 +207,20 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
             {/* Shipping */}
             <section className="bg-white dark:bg-neutral-900 rounded-2xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-800">
               <h2 className="font-semibold text-neutral-900 dark:text-white mb-4">Shipping details</h2>
-
               <div className="space-y-3">
-                <Field
-                  label="Full name"
-                  value={form.name}
-                  onChange={(v) => update('name', v)}
-                  required
-                />
-                <Field
-                  label="Street address"
-                  value={form.address}
-                  onChange={(v) => update('address', v)}
-                  required
-                />
+                <Field label="Full name" value={form.name} onChange={(v) => update('name', v)} required />
+                <Field label="Street address" value={form.address} onChange={(v) => update('address', v)} required />
                 <div className="grid grid-cols-2 gap-3">
-                  <Field
-                    label="City"
-                    value={form.city}
-                    onChange={(v) => update('city', v)}
-                    required
-                  />
-                  <Field
-                    label="Postal code"
-                    value={form.postalCode}
-                    onChange={(v) => update('postalCode', v)}
-                    required
-                  />
+                  <Field label="City" value={form.city} onChange={(v) => update('city', v)} required />
+                  <Field label="Postal code" value={form.postalCode} onChange={(v) => update('postalCode', v)} required />
                 </div>
-                <Field
-                  label="Country"
-                  value={form.country}
-                  onChange={(v) => update('country', v)}
-                  required
-                />
-                <Field
-                  label="Phone number"
-                  value={form.phone}
-                  onChange={(v) => update('phone', v)}
-                  type="tel"
-                  required
-                />
+                <Field label="Country" value={form.country} onChange={(v) => update('country', v)} required />
+                <Field label="Phone number" value={form.phone} onChange={(v) => update('phone', v)} type="tel" required />
               </div>
             </section>
 
             {error && (
-              <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl">
-                {error}
-              </p>
+              <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 px-4 py-3 rounded-xl">{error}</p>
             )}
 
             <button
@@ -239,7 +228,7 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
               disabled={isSubmitting}
               className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-semibold py-4 rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity text-base"
             >
-              {isSubmitting ? 'Placing order…' : 'Place order'}
+              {isSubmitting ? 'Uploading & placing order…' : 'Place order'}
             </button>
           </form>
         )}
@@ -248,27 +237,14 @@ export function Checkout({ onBack, onOrderPlaced, designData, defaultSize }: Che
   );
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  required,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
+function Field({ label, value, onChange, type = 'text', required }: {
+  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean;
 }) {
   return (
     <div>
       <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-1">{label}</label>
       <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
+        type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required}
         className="w-full px-3 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white transition"
       />
     </div>
