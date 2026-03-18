@@ -5,13 +5,14 @@ import { LayoutControls } from './controls/LayoutControls';
 import { AdjustmentControls } from './controls/AdjustmentControls';
 import { ProjectControls } from './controls/ProjectControls';
 import { PosterProject } from '../lib/storage';
-import { Download, Upload, Copy } from 'lucide-react';
+import { Download, Upload, Copy, ShoppingCart } from 'lucide-react';
 
 interface ControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
     onExport: () => void;
     onCopy: () => void;
+    onOrder: () => void;
     onUploadClick: () => void;
     imageDimensions: { width: number; height: number } | null;
     imageFile: File | null;
@@ -24,6 +25,7 @@ export const Controls: React.FC<ControlsProps> = ({
     onOptionsChange,
     onExport,
     onCopy,
+    onOrder,
     onUploadClick,
     imageDimensions,
     imageFile,
@@ -71,35 +73,49 @@ export const Controls: React.FC<ControlsProps> = ({
                 )}
             </div>
 
-            {/* Footer Actions */}
-            {/* Desktop: single row */}
-            <div className="hidden md:flex items-center gap-2 p-4 border-t border-neutral-800 bg-black flex-shrink-0">
-                <button
-                    onClick={onUploadClick}
-                    className="flex-1 bg-neutral-900 text-white font-bold py-3 rounded uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 text-xs"
-                >
-                    <Upload className="w-4 h-4" />
-                    Upload Image
-                </button>
-                <button
-                    onClick={onCopy}
-                    className="w-10 h-10 rounded bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors flex items-center justify-center flex-shrink-0"
-                    title="Copy Image"
-                >
-                    <Copy className="w-4 h-4" />
-                </button>
-                {isAdmin && (
+            {/* Footer Actions — Desktop */}
+            <div className="hidden md:flex flex-col gap-2 p-3 border-t border-neutral-800 bg-black flex-shrink-0">
+                {/* Primary actions */}
+                <div className="flex gap-2">
                     <button
-                        onClick={onExport}
-                        className="w-10 h-10 rounded bg-white text-black hover:bg-neutral-200 transition-colors flex items-center justify-center flex-shrink-0"
-                        title="Download"
+                        onClick={onUploadClick}
+                        className="flex-1 bg-neutral-900 text-white font-bold py-2.5 rounded-lg hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                     >
-                        <Download className="w-4 h-4" />
+                        <Upload className="w-3.5 h-3.5" />
+                        Upload
                     </button>
+                    <button
+                        onClick={onOrder}
+                        className="flex-1 bg-white text-black font-bold py-2.5 rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
+                    >
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        Order
+                    </button>
+                </div>
+                {/* Admin-only actions */}
+                {isAdmin && (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={onCopy}
+                            className="flex-1 bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider"
+                            title="Copy image"
+                        >
+                            <Copy className="w-3.5 h-3.5" />
+                            Copy
+                        </button>
+                        <button
+                            onClick={onExport}
+                            className="flex-1 bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider"
+                            title="Download hi-res"
+                        >
+                            <Download className="w-3.5 h-3.5" />
+                            Download
+                        </button>
+                    </div>
                 )}
             </div>
 
-            {/* Mobile: compact horizontal row */}
+            {/* Footer Actions — Mobile */}
             <div className="flex md:hidden border-t border-neutral-800 flex-shrink-0">
                 <button
                     onClick={onUploadClick}
@@ -110,20 +126,32 @@ export const Controls: React.FC<ControlsProps> = ({
                 </button>
                 <div className="w-px bg-neutral-800" />
                 <button
-                    onClick={onCopy}
-                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors"
-                >
-                    <Copy className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest">Copy</span>
-                </button>
-                <div className="w-px bg-neutral-800" />
-                <button
-                    onClick={onExport}
+                    onClick={onOrder}
                     className="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white text-black hover:bg-neutral-200 transition-colors"
                 >
-                    <Download className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest font-bold">Download</span>
+                    <ShoppingCart className="w-4 h-4" />
+                    <span className="text-[8px] uppercase tracking-widest font-bold">Order</span>
                 </button>
+                {isAdmin && (
+                    <>
+                        <div className="w-px bg-neutral-800" />
+                        <button
+                            onClick={onCopy}
+                            className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors"
+                        >
+                            <Copy className="w-4 h-4" />
+                            <span className="text-[8px] uppercase tracking-widest">Copy</span>
+                        </button>
+                        <div className="w-px bg-neutral-800" />
+                        <button
+                            onClick={onExport}
+                            className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span className="text-[8px] uppercase tracking-widest">Save</span>
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );

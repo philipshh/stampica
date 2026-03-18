@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
@@ -136,6 +137,7 @@ const DEFAULT_OPTIONS: DitherOptions = {
 function App() {
 
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
     const [options, setOptions] = useState<DitherOptions>(DEFAULT_OPTIONS);
@@ -437,78 +439,66 @@ function App() {
                     onOptionsChange={setOptions}
                     onExport={handleExport}
                     onCopy={handleCopyImage}
+                    onOrder={handleOrderPoster}
                     onUploadClick={() => document.getElementById('file-input')?.click()}
                     imageDimensions={imageDimensions}
                     imageFile={imageFile}
                     onProjectLoad={handleProjectLoad}
-                    isAdmin={true}
+                    isAdmin={user?.role === 'admin'}
                 />
             </aside>
 
             {/* Main content */}
             <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0] overflow-hidden">
-                {/* Preview — flex-1 so it shares space evenly with controls on mobile, fills full on desktop */}
-                <div ref={canvasWrapperRef} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                {/* Canvas area */}
+                <div ref={canvasWrapperRef} className="flex-1 min-h-0 relative overflow-hidden">
 
-                    {/* Zoom toolbar */}
-                    <div className="flex-shrink-0 flex items-center justify-between gap-2 py-1.5 px-4 bg-[#BEBEBE] border-b border-black/10 text-black select-none">
-                        {/* Left: zoom controls */}
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleZoomOut}
-                                disabled={zoom === 'fit' || zoom <= 0.25}
-                                className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
-                                title="Zoom out"
-                            >
-                                −
-                            </button>
-                            <span className="text-xs font-medium min-w-[42px] text-center tabular-nums">
-                                {zoom === 'fit' ? 'Fit' : `${Math.round((zoom as number) * 100)}%`}
-                            </span>
-                            <button
-                                onClick={handleZoomIn}
-                                disabled={typeof zoom === 'number' && zoom >= 3}
-                                className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 disabled:opacity-30 text-sm font-bold transition-colors cursor-pointer disabled:cursor-default"
-                                title="Zoom in"
-                            >
-                                +
-                            </button>
-                            {zoom !== 'fit' && (
-                                <>
-                                    <div className="w-px h-3 bg-black/25 mx-0.5" />
-                                    <button
-                                        onClick={() => setZoom('fit')}
-                                        className="text-xs font-medium px-2 py-0.5 rounded hover:bg-black/10 transition-colors cursor-pointer"
-                                        title="Fit to screen"
-                                    >
-                                        Fit
-                                    </button>
-                                </>
-                            )}
-                            <div className="w-px h-3 bg-black/25 mx-0.5" />
-                            <button
-                                onClick={() => setRefreshKey(k => k + 1)}
-                                className="w-6 h-6 flex items-center justify-center rounded hover:bg-black/10 transition-colors cursor-pointer text-sm"
-                                title="Refresh preview"
-                            >
-                                ↺
-                            </button>
-                        </div>
-
-                        {/* Right: order */}
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleOrderPoster}
-                                className="text-xs font-semibold px-3 py-1 rounded bg-black text-white hover:bg-black/80 transition-colors cursor-pointer"
-                                title="Order this poster"
-                            >
-                                Order poster
-                            </button>
-                        </div>
+                    {/* Floating zoom controls — top left */}
+                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-black/75 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg select-none">
+                        <button
+                            onClick={handleZoomOut}
+                            disabled={zoom === 'fit' || zoom <= 0.25}
+                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 disabled:opacity-30 text-sm font-bold text-white transition-colors cursor-pointer disabled:cursor-default"
+                            title="Zoom out"
+                        >
+                            −
+                        </button>
+                        <span className="text-xs font-medium min-w-[36px] text-center tabular-nums text-white">
+                            {zoom === 'fit' ? 'Fit' : `${Math.round((zoom as number) * 100)}%`}
+                        </span>
+                        <button
+                            onClick={handleZoomIn}
+                            disabled={typeof zoom === 'number' && zoom >= 3}
+                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 disabled:opacity-30 text-sm font-bold text-white transition-colors cursor-pointer disabled:cursor-default"
+                            title="Zoom in"
+                        >
+                            +
+                        </button>
+                        {zoom !== 'fit' && (
+                            <>
+                                <div className="w-px h-3 bg-white/20 mx-0.5" />
+                                <button
+                                    onClick={() => setZoom('fit')}
+                                    className="text-xs font-medium px-2 py-0.5 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                                    title="Fit to screen"
+                                >
+                                    Fit
+                                </button>
+                            </>
+                        )}
                     </div>
 
-                    {/* Stable wrapper — measured for accurate fit calculation (no toolbar, no padding) */}
-                    <div ref={innerCanvasRef} className="flex-1 min-h-0">
+                    {/* Floating refresh — bottom right */}
+                    <button
+                        onClick={() => setRefreshKey(k => k + 1)}
+                        className="absolute bottom-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/75 backdrop-blur-sm text-white hover:bg-black/90 transition-colors shadow-lg cursor-pointer text-sm"
+                        title="Refresh preview"
+                    >
+                        ↺
+                    </button>
+
+                    {/* Stable wrapper — measured for accurate fit calculation */}
+                    <div ref={innerCanvasRef} className="w-full h-full">
                         {zoom === 'fit' ? (
                             <div className="w-full h-full bg-[#D0D0D0] p-4 md:p-8 flex items-center justify-center overflow-hidden">
                                 <div style={{ ...posterFrameBase, width: `${fitWidth}px`, border: `${fitBorder}px solid black` }}>
@@ -534,11 +524,12 @@ function App() {
                         onOptionsChange={setOptions}
                         onExport={handleExport}
                         onCopy={handleCopyImage}
+                        onOrder={handleOrderPoster}
                         onUploadClick={() => document.getElementById('file-input')?.click()}
                         imageDimensions={imageDimensions}
                         imageFile={imageFile}
                         onProjectLoad={handleProjectLoad}
-                        isAdmin={true}
+                        isAdmin={user?.role === 'admin'}
                     />
                 </div>
             </main>
