@@ -454,7 +454,7 @@ function App() {
                 <div ref={canvasWrapperRef} className="flex-1 min-h-0 relative overflow-hidden">
 
                     {/* Floating zoom controls — top left */}
-                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-black/75 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg select-none">
+                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-black/75 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg select-none">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom === 'fit' || zoom <= 0.25}
@@ -491,7 +491,7 @@ function App() {
                     {/* Floating refresh — bottom right */}
                     <button
                         onClick={() => setRefreshKey(k => k + 1)}
-                        className="absolute bottom-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/75 backdrop-blur-sm text-white hover:bg-black/90 transition-colors shadow-lg cursor-pointer text-sm"
+                        className="absolute bottom-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/75 backdrop-blur-sm text-white hover:bg-black/90 transition-colors shadow-lg cursor-pointer text-sm"
                         title="Refresh preview"
                     >
                         ↺

@@ -9,35 +9,51 @@ interface LayoutControlsProps {
     imageDimensions: { width: number; height: number } | null;
 }
 
-export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange, imageDimensions }) => {
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
+            <div className="px-4 py-3 border-b border-neutral-800">
+                <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>
+            </div>
+            <div className="p-4 space-y-4">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+        <div className="space-y-1.5">
+            <label className="text-xs text-neutral-500 block">{label}</label>
+            {children}
+        </div>
+    );
+}
+
+const segBtn = (active: boolean) =>
+    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`;
+
+export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange }) => {
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
     const handleDragStart = (e: React.DragEvent, index: number) => {
         setDraggedItem(index);
         e.dataTransfer.effectAllowed = 'move';
-        // Transparent drag image or default
     };
 
     const handleDragOver = (e: React.DragEvent, index: number) => {
         e.preventDefault();
-        if (draggedItem === null) return;
-        if (draggedItem !== index) {
-            const newOrder = [...options.poster.layoutOrder];
-            const item = newOrder[draggedItem];
-            newOrder.splice(draggedItem, 1);
-            newOrder.splice(index, 0, item);
-
-            onOptionsChange({
-                ...options,
-                poster: { ...options.poster, layoutOrder: newOrder }
-            });
-            setDraggedItem(index);
-        }
+        if (draggedItem === null || draggedItem === index) return;
+        const newOrder = [...options.poster.layoutOrder];
+        const item = newOrder[draggedItem];
+        newOrder.splice(draggedItem, 1);
+        newOrder.splice(index, 0, item);
+        onOptionsChange({ ...options, poster: { ...options.poster, layoutOrder: newOrder } });
+        setDraggedItem(index);
     };
 
-    const handleDragEnd = () => {
-        setDraggedItem(null);
-    };
+    const handleDragEnd = () => setDraggedItem(null);
 
     const toggleSection = (section: string) => {
         const poster = { ...options.poster };
@@ -46,12 +62,8 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
             case 'title': poster.showTitle = !poster.showTitle; break;
             case 'image': poster.showImage = !poster.showImage; break;
             case 'footer': poster.showFooter = !poster.showFooter; break;
-            case 'list':
-                poster.listSection = { ...poster.listSection, enabled: !poster.listSection.enabled };
-                break;
-            case 'icons':
-                poster.iconSection = { ...poster.iconSection, enabled: !poster.iconSection.enabled };
-                break;
+            case 'list': poster.listSection = { ...poster.listSection, enabled: !poster.listSection.enabled }; break;
+            case 'icons': poster.iconSection = { ...poster.iconSection, enabled: !poster.iconSection.enabled }; break;
         }
         onOptionsChange({ ...options, poster });
     };
@@ -68,351 +80,141 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
         }
     };
 
-    const getSectionLabel = (section: string) => {
-        switch (section) {
-            case 'header': return 'Header';
-            case 'title': return 'Title';
-            case 'image': return 'Image';
-            case 'footer': return 'Footer';
-            case 'list': return 'List';
-            case 'icons': return 'Icons';
-            default: return section;
-        }
-    };
+    const getSectionLabel = (section: string) =>
+        ({ header: 'Header', title: 'Title', image: 'Image', footer: 'Footer', list: 'List', icons: 'Icons' }[section] ?? section);
+
+    const p = options.poster;
+    const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-200">
-            <div className="space-y-4">
-                {/* Layout Reordering */}
-                <div className="space-y-2">
-                    <label className="text-[10px] text-neutral-400 block">Layout order</label>
-                    <div className="space-y-1">
-                        {options.poster.layoutOrder.filter(s => s !== 'icons').map((section, index) => (
-                            <div
-                                key={section}
-                                draggable
-                                onDragStart={(e) => handleDragStart(e, index)}
-                                onDragOver={(e) => handleDragOver(e, index)}
-                                onDragEnd={handleDragEnd}
-                                className={`flex items-center gap-2 p-2 bg-neutral-900 border border-neutral-800 rounded group cursor-move ${draggedItem === index ? 'opacity-50' : ''}`}
-                            >
-                                <GripVertical className="w-4 h-4 text-neutral-600 group-hover:text-neutral-400" />
-                                <span className="flex-1 text-xs uppercase text-neutral-300">{getSectionLabel(section)}</span>
-                                <button
-                                    onClick={() => toggleSection(section)}
-                                    className="text-neutral-500 hover:text-white transition-colors"
-                                >
-                                    {isSectionEnabled(section) ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Shuffle and Reset Buttons */}
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                        <button
-                            onClick={() => {
-                                const shuffled = [...options.poster.layoutOrder].sort(() => Math.random() - 0.5);
-                                onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, layoutOrder: shuffled }
-                                });
-                            }}
-                            className="px-3 py-2 bg-neutral-800 text-neutral-300 text-[10px] uppercase tracking-wider font-medium rounded hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-2"
+        <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
+            <SectionCard title="Layout order">
+                <div className="space-y-1.5">
+                    {p.layoutOrder.filter(s => s !== 'icons').map((section, index) => (
+                        <div
+                            key={section}
+                            draggable
+                            onDragStart={e => handleDragStart(e, index)}
+                            onDragOver={e => handleDragOver(e, index)}
+                            onDragEnd={handleDragEnd}
+                            className={`flex items-center gap-2 px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg group cursor-move transition-opacity ${draggedItem === index ? 'opacity-40' : ''}`}
                         >
-                            <span>🎲</span> Shuffle
-                        </button>
-                        <button
-                            onClick={() => {
-                                onOptionsChange({
-                                    ...options,
-                                    poster: {
-                                        ...options.poster,
-                                        layoutOrder: ['header', 'image', 'title', 'list', 'footer']
-                                    }
-                                });
-                            }}
-                            className="px-3 py-2 rounded border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white transition-colors uppercase text-[10px]"
-                        >
-                            Reset
-                        </button>
-                    </div>
+                            <GripVertical className="w-3.5 h-3.5 text-neutral-600 group-hover:text-neutral-400 flex-shrink-0" />
+                            <span className="flex-1 text-xs text-neutral-300">{getSectionLabel(section)}</span>
+                            <button onClick={() => toggleSection(section)} className="text-neutral-500 hover:text-white transition-colors">
+                                {isSectionEnabled(section) ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                            </button>
+                        </div>
+                    ))}
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => set({ layoutOrder: [...p.layoutOrder].sort(() => Math.random() - 0.5) })}
+                        className="py-2 bg-neutral-800 text-neutral-300 text-xs rounded-lg hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-1.5"
+                    >
+                        🎲 Shuffle
+                    </button>
+                    <button
+                        onClick={() => set({ layoutOrder: ['header', 'image', 'title', 'list', 'footer'] })}
+                        className="py-2 rounded-lg border border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-white transition-colors text-xs"
+                    >
+                        Reset
+                    </button>
+                </div>
+            </SectionCard>
 
-                {/* Padding and Margins */}
-                <div className="p-3 bg-neutral-900/50 rounded-lg border border-neutral-800 space-y-3 animate-in fade-in slide-in-from-top-1">
-                    {/* Padding Size */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 block">Poster padding</label>
-                        <div className="grid grid-cols-3 gap-1">
-                            {(['S', 'M', 'L'] as const).map((size) => (
-                                <button
-                                    key={size}
-                                    onClick={() => onOptionsChange({
-                                        ...options,
-                                        poster: { ...options.poster, paddingSize: size }
-                                    })}
-                                    className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.paddingSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Image Padding */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 block">Image padding</label>
-                        <div className="grid grid-cols-2 gap-1">
-                            <button
-                                onClick={() => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, imagePadding: 'none' }
-                                })}
-                                className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imagePadding === 'none' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                            >
-                                None
-                            </button>
-                            <button
-                                onClick={() => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, imagePadding: 'same-as-poster' }
-                                })}
-                                className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imagePadding === 'same-as-poster' ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                            >
-                                Same as Poster
-                            </button>
-                        </div>
-                    </div>
-                    {/* Image Scale */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 block">Image scale</label>
-                        <div className="grid grid-cols-3 gap-1">
-                            {(['fit', 'fill', 'original'] as const).map((scale) => (
-                                <button
-                                    key={scale}
-                                    onClick={() => onOptionsChange({
-                                        ...options,
-                                        poster: { ...options.poster, imageScale: scale }
-                                    })}
-                                    className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageScale === scale ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                >
-                                    {scale}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Image Alignment */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 block">Image align X</label>
-                            <div className="grid grid-cols-3 gap-1">
-                                {(['left', 'center', 'right'] as const).map((align) => (
-                                    <button
-                                        key={align}
-                                        onClick={() => onOptionsChange({
-                                            ...options,
-                                            poster: { ...options.poster, imageAlignX: align }
-                                        })}
-                                        className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignX === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                    >
-                                        {align.charAt(0)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 block">Image align Y</label>
-                            <div className="grid grid-cols-3 gap-1">
-                                {(['top', 'center', 'bottom'] as const).map((align) => (
-                                    <button
-                                        key={align}
-                                        onClick={() => onOptionsChange({
-                                            ...options,
-                                            poster: { ...options.poster, imageAlignY: align }
-                                        })}
-                                        className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] uppercase ${options.poster.imageAlignY === align ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                    >
-                                        {align.charAt(0)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Layout Gap */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 block">Layout gap</label>
-                        <div className="flex gap-1 items-center">
-                            {[16, 24, 32, 40].map((size) => (
-                                <button
-                                    key={size}
-                                    onClick={() => onOptionsChange({
-                                        ...options,
-                                        poster: { ...options.poster, gap: size }
-                                    })}
-                                    className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.gap === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                            <input
-                                type="number"
-                                value={options.poster.gap}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, gap: parseInt(e.target.value) || 0 }
-                                })}
-                                className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Poster Sizes */}
-                    <div className="space-y-1">
-                        <label className="text-[10px] text-neutral-400 block">Poster sizes</label>
-                        <div className="grid grid-cols-3 gap-1">
-                            {(['A5', 'A4', 'A3'] as const).map((size) => {
-                                const cmLabels: { [key: string]: string } = {
-                                    'A5': '14.8x21',
-                                    'A4': '21x29.7',
-                                    'A3': '29.7x42',
-                                };
-                                return (
-                                <button
-                                    key={size}
+            <SectionCard title="Poster size">
+                <Field label="Format">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {(['A5', 'A4', 'A3'] as const).map(size => {
+                            const cmLabels: Record<string, string> = { A5: '14.8×21', A4: '21×29.7', A3: '29.7×42' };
+                            return (
+                                <button key={size}
                                     onClick={() => {
                                         const baseDims = getPosterDimensions(options, options.poster.aspectRatio || 'A4', options.poster.resolution || 'high');
-                                        onOptionsChange({
-                                            ...options,
-                                            poster: {
-                                                ...options.poster,
-                                                aspectRatio: size,
-                                                customDimensions: {
-                                                    width: baseDims.width,
-                                                    height: baseDims.height,
-                                                    keepRatio: true
-                                                }
-                                            }
-                                        })
+                                        set({ aspectRatio: size, customDimensions: { width: baseDims.width, height: baseDims.height, keepRatio: true } });
                                     }}
-                                    className={`py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[8px] uppercase flex flex-col items-center justify-center ${options.poster.aspectRatio === size ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-500'}`}
-                                    title={`${size} (${cmLabels[size]})`}
+                                    className={`py-2 rounded-lg border transition-colors flex flex-col items-center text-[9px] uppercase ${p.aspectRatio === size ? 'bg-white text-black border-transparent font-bold' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}
                                 >
-                                    <div>{size}</div>
-                                    <div className="text-[7px] opacity-70">{cmLabels[size]}</div>
+                                    <span>{size}</span>
+                                    <span className="opacity-60 mt-0.5">{cmLabels[size]}</span>
                                 </button>
-                                );
-                            })}
-                        </div>
+                            );
+                        })}
                     </div>
+                </Field>
+            </SectionCard>
 
-                    {options.poster.aspectRatio === 'custom' && (
-                        <div className="space-y-3 pt-3 border-t border-neutral-800 animate-in fade-in slide-in-from-top-1">
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-400">Width (px)</label>
-                                    <input
-                                        type="number"
-                                        value={options.poster.customDimensions?.width || 2000}
-                                        onChange={(e) => {
-                                            const w = parseInt(e.target.value) || 0;
-                                            const dims = { ...options.poster.customDimensions! };
-                                            if (dims.keepRatio && dims.width > 0) {
-                                                const ratio = dims.height / dims.width;
-                                                dims.height = Math.round(w * ratio);
-                                            }
-                                            dims.width = w;
-                                            onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, customDimensions: dims }
-                                            });
-                                        }}
-                                        className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-1.5 text-xs focus:outline-none focus:border-neutral-600 rounded"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] text-neutral-400">Height (px)</label>
-                                    <input
-                                        type="number"
-                                        value={options.poster.customDimensions?.height || 2000}
-                                        onChange={(e) => {
-                                            const h = parseInt(e.target.value) || 0;
-                                            const dims = { ...options.poster.customDimensions! };
-                                            if (dims.keepRatio && dims.height > 0) {
-                                                const ratio = dims.width / dims.height;
-                                                dims.width = Math.round(h * ratio);
-                                            }
-                                            dims.height = h;
-                                            onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, customDimensions: dims }
-                                            });
-                                        }}
-                                        className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-1.5 text-xs focus:outline-none focus:border-neutral-600 rounded"
-                                    />
-                                </div>
-                            </div>
+            <SectionCard title="Spacing">
+                <Field label="Poster padding">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {(['S', 'M', 'L'] as const).map(size => (
+                            <button key={size} onClick={() => set({ paddingSize: size })}
+                                className={`py-1.5 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                {size}
+                            </button>
+                        ))}
+                    </div>
+                </Field>
 
-                            <div className="flex flex-col gap-2">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={options.poster.customDimensions?.keepRatio || false}
-                                        onChange={(e) => {
-                                            const dims = { ...options.poster.customDimensions!, keepRatio: e.target.checked };
-                                            onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, customDimensions: dims }
-                                            });
-                                        }}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-6 h-3 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-2 after:w-2 after:transition-all peer-checked:bg-white/20 relative"></div>
-                                    <span className="text-[10px] text-neutral-400">Lock aspect ratio</span>
-                                </label>
+                <Field label="Layout gap">
+                    <div className="flex gap-1.5">
+                        {[16, 24, 32, 40].map(size => (
+                            <button key={size} onClick={() => set({ gap: size })} className={segBtn(p.gap === size)}>{size}</button>
+                        ))}
+                        <input type="number" value={p.gap}
+                            onChange={e => set({ gap: parseInt(e.target.value) || 0 })}
+                            className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
+                    </div>
+                </Field>
+            </SectionCard>
 
-                                <button
-                                    onClick={() => {
-                                        if (imageDimensions) {
-                                            const dims = {
-                                                ...options.poster.customDimensions!,
-                                                width: imageDimensions.width,
-                                                height: imageDimensions.height
-                                            };
-                                            onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, customDimensions: dims }
-                                            });
-                                        } else {
-                                            // Fallback to DOM if imageDimensions not available (e.g. grid mode)
-                                            const img = document.querySelector('canvas') || document.querySelector('img');
-                                            if (img) {
-                                                const w = img instanceof HTMLCanvasElement ? img.width : (img as HTMLImageElement).naturalWidth;
-                                                const h = img instanceof HTMLCanvasElement ? img.height : (img as HTMLImageElement).naturalHeight;
-                                                if (w && h) {
-                                                    const dims = { ...options.poster.customDimensions!, width: w, height: h };
-                                                    onOptionsChange({
-                                                        ...options,
-                                                        poster: { ...options.poster, customDimensions: dims }
-                                                    });
-                                                }
-                                            } else {
-                                                alert('Please upload an image first to match dimensions.');
-                                            }
-                                        }
-                                    }}
-                                    className={`w-full py-1.5 border border-dashed transition-colors text-[9px] uppercase ${imageDimensions ? 'border-neutral-700 text-neutral-300 hover:border-white hover:text-white' : 'border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
-                                >
-                                    Match Canvas to Image Size
+            <SectionCard title="Image">
+                <Field label="Padding">
+                    <div className="grid grid-cols-2 gap-1.5">
+                        {(['none', 'same-as-poster'] as const).map(v => (
+                            <button key={v} onClick={() => set({ imagePadding: v })}
+                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                {v === 'none' ? 'None' : 'Same'}
+                            </button>
+                        ))}
+                    </div>
+                </Field>
+
+                <Field label="Scale">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {(['fit', 'fill', 'original'] as const).map(v => (
+                            <button key={v} onClick={() => set({ imageScale: v })}
+                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                {v}
+                            </button>
+                        ))}
+                    </div>
+                </Field>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <Field label="Align X">
+                        <div className="grid grid-cols-3 gap-1">
+                            {(['left', 'center', 'right'] as const).map(v => (
+                                <button key={v} onClick={() => set({ imageAlignX: v })}
+                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignX === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    {v.charAt(0)}
                                 </button>
-                            </div>
+                            ))}
                         </div>
-                    )}
-
+                    </Field>
+                    <Field label="Align Y">
+                        <div className="grid grid-cols-3 gap-1">
+                            {(['top', 'center', 'bottom'] as const).map(v => (
+                                <button key={v} onClick={() => set({ imageAlignY: v })}
+                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignY === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    {v.charAt(0)}
+                                </button>
+                            ))}
+                        </div>
+                    </Field>
                 </div>
-            </div>
+            </SectionCard>
         </div>
     );
 };

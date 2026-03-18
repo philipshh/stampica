@@ -54,7 +54,7 @@ export const Controls: React.FC<ControlsProps> = ({
             </div>
 
             {/* Scrollable content */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar">
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 custom-scrollbar">
                 {activeTab === 'design' && (
                     <DesignControls options={options} onOptionsChange={onOptionsChange} />
                 )}

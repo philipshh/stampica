@@ -8,6 +8,28 @@ interface AdjustmentControlsProps {
     onOptionsChange: (options: DitherOptions) => void;
 }
 
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
+            <div className="px-4 py-3 border-b border-neutral-800">
+                <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>
+            </div>
+            <div className="p-4 space-y-4">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+        <div className="space-y-1.5">
+            <label className="text-xs text-neutral-500 block">{label}</label>
+            {children}
+        </div>
+    );
+}
+
 const SliderField: React.FC<{
     label: string;
     value: number;
@@ -18,44 +40,31 @@ const SliderField: React.FC<{
     suffix?: string;
     defaultValue?: number;
 }> = ({ label, value, min, max, step, onChange, suffix = '', defaultValue }) => {
-    const handleMinus = () => onChange(Math.max(min, value - step));
-    const handlePlus = () => onChange(Math.min(max, value + step));
     const canReset = defaultValue !== undefined && value !== defaultValue;
-
     return (
-        <div className="space-y-1">
-            <div className="flex justify-between text-[10px] text-neutral-400">
-                <label
+        <div className="space-y-1.5">
+            <div className="flex justify-between text-xs text-neutral-500">
+                <span
                     className={defaultValue !== undefined ? 'cursor-pointer hover:text-white transition-colors select-none' : ''}
                     onClick={() => defaultValue !== undefined && onChange(defaultValue)}
-                    title={defaultValue !== undefined ? `Reset to default (${defaultValue})` : undefined}
+                    title={defaultValue !== undefined ? `Reset to ${defaultValue}` : undefined}
                 >
                     {label}{canReset && <span className="ml-1 text-neutral-600">↺</span>}
-                </label>
-                <span className="text-neutral-500 font-mono">{Math.round(value * 100) / 100}{suffix}</span>
+                </span>
+                <span className="font-mono text-neutral-400">{Math.round(value * 100) / 100}{suffix}</span>
             </div>
-            <div className="flex items-center gap-3">
-                <button
-                    onClick={handleMinus}
-                    className="w-10 h-10 md:w-5 md:h-5 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-600 transition-colors flex-shrink-0"
-                >
-                    <Minus className="w-3 h-3" />
+            <div className="flex items-center gap-2">
+                <button onClick={() => onChange(Math.max(min, value - step))}
+                    className="w-6 h-6 rounded-full border border-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-500 transition-colors flex-shrink-0">
+                    <Minus className="w-2.5 h-2.5" />
                 </button>
-                <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={value}
-                    onChange={(e) => onChange(Number(e.target.value))}
-                    className="flex-1 appearance-none cursor-pointer accent-white h-px md:h-1 bg-neutral-800 rounded-lg"
-                    style={{ touchAction: 'pan-y' }}
-                />
-                <button
-                    onClick={handlePlus}
-                    className="w-10 h-10 md:w-5 md:h-5 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-600 transition-colors flex-shrink-0"
-                >
-                    <Plus className="w-3 h-3" />
+                <input type="range" min={min} max={max} step={step} value={value}
+                    onChange={e => onChange(Number(e.target.value))}
+                    className="flex-1 appearance-none cursor-pointer accent-white h-1 bg-neutral-700 rounded-full"
+                    style={{ touchAction: 'pan-y' }} />
+                <button onClick={() => onChange(Math.min(max, value + step))}
+                    className="w-6 h-6 rounded-full border border-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-500 transition-colors flex-shrink-0">
+                    <Plus className="w-2.5 h-2.5" />
                 </button>
             </div>
         </div>
@@ -65,7 +74,7 @@ const SliderField: React.FC<{
 const ThemeSelect: React.FC<{
     currentValue: string;
     themes: { name: string; colors: string[] }[];
-    onSelect: (themeName: string) => void;
+    onSelect: (name: string) => void;
 }> = ({ currentValue, themes, onSelect }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [dropStyle, setDropStyle] = useState<React.CSSProperties>({});
@@ -75,12 +84,7 @@ const ThemeSelect: React.FC<{
     useEffect(() => {
         if (!isOpen) return;
         const handleClick = (e: MouseEvent) => {
-            if (
-                !triggerRef.current?.contains(e.target as Node) &&
-                !dropdownRef.current?.contains(e.target as Node)
-            ) {
-                setIsOpen(false);
-            }
+            if (!triggerRef.current?.contains(e.target as Node) && !dropdownRef.current?.contains(e.target as Node)) setIsOpen(false);
         };
         const handleScroll = (e: Event) => {
             if (dropdownRef.current?.contains(e.target as Node)) return;
@@ -88,10 +92,7 @@ const ThemeSelect: React.FC<{
         };
         document.addEventListener('mousedown', handleClick);
         document.addEventListener('scroll', handleScroll, true);
-        return () => {
-            document.removeEventListener('mousedown', handleClick);
-            document.removeEventListener('scroll', handleScroll, true);
-        };
+        return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('scroll', handleScroll, true); };
     }, [isOpen]);
 
     const open = () => {
@@ -103,8 +104,7 @@ const ThemeSelect: React.FC<{
         const goDown = spaceBelow >= dropH || spaceBelow >= spaceAbove;
         setDropStyle(goDown
             ? { position: 'fixed', left: r.left, width: r.width, top: r.bottom + 4, maxHeight: Math.min(240, spaceBelow), zIndex: 9999 }
-            : { position: 'fixed', left: r.left, width: r.width, bottom: window.innerHeight - r.top + 4, maxHeight: Math.min(240, spaceAbove), zIndex: 9999 }
-        );
+            : { position: 'fixed', left: r.left, width: r.width, bottom: window.innerHeight - r.top + 4, maxHeight: Math.min(240, spaceAbove), zIndex: 9999 });
         setIsOpen(v => !v);
     };
 
@@ -112,11 +112,8 @@ const ThemeSelect: React.FC<{
 
     return (
         <div className="relative w-full">
-            <button
-                ref={triggerRef}
-                onClick={open}
-                className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-[10px] rounded uppercase flex items-center justify-between hover:border-neutral-600 transition-colors"
-            >
+            <button ref={triggerRef} onClick={open}
+                className="w-full bg-neutral-800 border border-neutral-700 text-white py-2 px-3 text-xs rounded-lg flex items-center justify-between hover:border-neutral-500 transition-colors">
                 <div className="flex items-center gap-2 overflow-hidden">
                     {selectedTheme && (
                         <div className="flex -space-x-1 flex-shrink-0">
@@ -125,31 +122,20 @@ const ThemeSelect: React.FC<{
                             ))}
                         </div>
                     )}
-                    <span className="truncate">{currentValue || 'Select Theme'}</span>
+                    <span className="truncate">{currentValue || 'Select theme'}</span>
                 </div>
                 <span className="text-neutral-500 text-[8px] ml-1">{isOpen ? '▲' : '▼'}</span>
             </button>
-
             {isOpen && (
-                <div
-                    ref={dropdownRef}
-                    style={dropStyle}
-                    className="bg-neutral-900 border border-neutral-800 rounded overflow-y-auto shadow-2xl p-1 space-y-0.5"
-                >
-                    {themes.map((theme) => (
-                        <button
-                            key={theme.name}
-                            onClick={() => { onSelect(theme.name); setIsOpen(false); }}
-                            className="w-full px-2 py-1.5 text-[10px] uppercase text-left hover:bg-neutral-800 flex items-center gap-2 transition-colors rounded-sm"
-                        >
+                <div ref={dropdownRef} style={dropStyle}
+                    className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-y-auto shadow-2xl p-1 space-y-0.5">
+                    {themes.map(theme => (
+                        <button key={theme.name} onClick={() => { onSelect(theme.name); setIsOpen(false); }}
+                            className="w-full px-3 py-2 text-xs text-left hover:bg-neutral-800 flex items-center gap-2 transition-colors rounded-lg">
                             <div className="flex -space-x-1 flex-shrink-0">
-                                {theme.colors.map((c, i) => (
-                                    <div key={i} className="w-3 h-3 rounded-full border border-black" style={{ backgroundColor: c }} />
-                                ))}
+                                {theme.colors.map((c, i) => <div key={i} className="w-3 h-3 rounded-full border border-black" style={{ backgroundColor: c }} />)}
                             </div>
-                            <span className={`truncate ${theme.name === currentValue ? 'text-white font-bold' : 'text-neutral-400'}`}>
-                                {theme.name}
-                            </span>
+                            <span className={`truncate ${theme.name === currentValue ? 'text-white font-semibold' : 'text-neutral-400'}`}>{theme.name}</span>
                         </button>
                     ))}
                 </div>
@@ -162,431 +148,185 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
     const [presets, setPresets] = useState<ColorPreset[]>([]);
 
     useEffect(() => {
-        const savedPresets = localStorage.getItem('ditherColorPresets');
-        if (savedPresets) {
-            setPresets(JSON.parse(savedPresets));
-        }
+        const saved = localStorage.getItem('ditherColorPresets');
+        if (saved) setPresets(JSON.parse(saved));
     }, []);
 
-    const updateOption = <K extends keyof DitherOptions>(key: K, value: DitherOptions[K]) => {
+    const update = <K extends keyof DitherOptions>(key: K, value: DitherOptions[K]) =>
         onOptionsChange({ ...options, [key]: value });
-    };
 
     const savePreset = () => {
         if (options.colorMode === 'rgb' || options.colorMode === 'monochrome') return;
-
         const name = prompt('Enter preset name:');
         if (!name) return;
-
         const getColors = () => {
             if (options.colorMode === 'duotone') return options.duotoneColors;
             if (options.colorMode === 'tritone') return options.tritoneColors;
             return options.quadtoneColors;
         };
-
-        const newPreset: ColorPreset = {
-            id: Date.now().toString(),
-            name,
-            mode: options.colorMode as any,
-            colors: getColors() as any,
-            timestamp: Date.now()
-        };
-
-        const updatedPresets = [...presets, newPreset];
-        setPresets(updatedPresets);
-        localStorage.setItem('ditherColorPresets', JSON.stringify(updatedPresets));
-    };
-
-    const handleRandomizeColors = () => {
-        const randomTheme = QUADTONE_THEMES[Math.floor(Math.random() * QUADTONE_THEMES.length)];
-        handleThemeSelect(randomTheme.name);
+        const newPreset: ColorPreset = { id: Date.now().toString(), name, mode: options.colorMode as any, colors: getColors() as any, timestamp: Date.now() };
+        const updated = [...presets, newPreset];
+        setPresets(updated);
+        localStorage.setItem('ditherColorPresets', JSON.stringify(updated));
     };
 
     const handleThemeSelect = (themeName: string) => {
         const qTheme = QUADTONE_THEMES.find(t => t.name === themeName);
         const tTheme = TRITONE_THEMES.find(t => t.name === themeName);
         const dTheme = DUOTONE_THEMES.find(t => t.name === themeName);
-
         const newOptions = { ...options, selectedThemeName: themeName };
-
-        if (qTheme) {
-            newOptions.quadtoneColors = {
-                color1: qTheme.shadow,
-                color2: qTheme.midShadow,
-                color3: qTheme.midHighlight,
-                color4: qTheme.highlight
-            };
-        }
-        if (tTheme) {
-            newOptions.tritoneColors = {
-                color1: tTheme.shadow,
-                color2: tTheme.mid,
-                color3: tTheme.highlight
-            };
-        }
-        if (dTheme) {
-            newOptions.duotoneColors = {
-                color1: dTheme.shadow,
-                color2: dTheme.highlight
-            };
-        }
-
+        if (qTheme) newOptions.quadtoneColors = { color1: qTheme.shadow, color2: qTheme.midShadow, color3: qTheme.midHighlight, color4: qTheme.highlight };
+        if (tTheme) newOptions.tritoneColors = { color1: tTheme.shadow, color2: tTheme.mid, color3: tTheme.highlight };
+        if (dTheme) newOptions.duotoneColors = { color1: dTheme.shadow, color2: dTheme.highlight };
         onOptionsChange(newOptions);
     };
 
-    const handleResetColors = () => {
-        handleThemeSelect("Base Reference");
-    };
+    const segBtn = (active: boolean) =>
+        `py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`;
 
     const colorModes = [
-        { id: 'monochrome', label: 'Mono' },
-        { id: 'duotone', label: 'Duo' },
-        { id: 'tritone', label: 'Trio' },
-        { id: 'quadtone', label: 'Quad' },
-        { id: 'rgb', label: 'RGB' }
+        { id: 'monochrome', label: 'Mono' }, { id: 'duotone', label: 'Duo' },
+        { id: 'tritone', label: 'Trio' }, { id: 'quadtone', label: 'Quad' }, { id: 'rgb', label: 'RGB' }
     ];
 
+    const hasPalette = options.colorMode === 'duotone' || options.colorMode === 'tritone' || options.colorMode === 'quadtone';
+
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-200">
-            {/* Dither Algorithm Selection */}
-            <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400">Algorithm</label>
-                <div className="grid grid-cols-3 gap-1">
-                    {(() => {
-                        const dgAlgos = ['atkinson', 'floyd', 'threshold'];
-                        const classicAlgos = ['none', 'atkinson', 'threshold'];
-                        const list = options.engine === 'dg' ? dgAlgos : classicAlgos;
-                        return list.map((algo) => (
-                            <button
-                                key={algo}
-                                onClick={() => updateOption('algorithm', algo as any)}
-                                className={`py-2 text-[10px] rounded border transition-all uppercase ${options.algorithm === algo
-                                    ? 'bg-white text-black border-white'
-                                    : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
-                                    }`}
-                            >
+        <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
+            <SectionCard title="Dither">
+                <Field label="Algorithm">
+                    <div className="grid grid-cols-3 gap-1.5">
+                        {(options.engine === 'dg' ? ['atkinson', 'floyd', 'threshold'] : ['none', 'atkinson', 'threshold']).map(algo => (
+                            <button key={algo} onClick={() => update('algorithm', algo as any)} className={segBtn(options.algorithm === algo)}>
                                 {algo}
                             </button>
-                        ));
-                    })()}
-                </div>
-            </div>
+                        ))}
+                    </div>
+                </Field>
 
-            {/* Color Mode Selection */}
-            <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400">Color mode</label>
-                <div className="grid grid-cols-5 gap-1">
-                    {colorModes.map((mode) => (
-                        <button
-                            key={mode.id}
-                            onClick={() => updateOption('colorMode', mode.id as any)}
-                            className={`py-2 text-[10px] rounded border transition-all uppercase ${options.colorMode === mode.id
-                                ? 'bg-white text-black border-white'
-                                : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
-                                }`}
-                        >
-                            {mode.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+                <Field label="Color mode">
+                    <div className="grid grid-cols-5 gap-1">
+                        {colorModes.map(mode => (
+                            <button key={mode.id} onClick={() => update('colorMode', mode.id as any)} className={segBtn(options.colorMode === mode.id)}>
+                                {mode.label}
+                            </button>
+                        ))}
+                    </div>
+                </Field>
 
-            {/* Dither Palette Section - Moved right below color mode */}
-            {(options.colorMode === 'duotone' || options.colorMode === 'tritone' || options.colorMode === 'quadtone') && (
-                <div className="space-y-3 pt-2 border-t border-neutral-800">
-                    <div className="flex justify-between items-center">
-                        <label className="text-[10px] text-neutral-400">Palette</label>
-                        <button
-                            onClick={savePreset}
-                            className="text-neutral-500 hover:text-white transition-colors"
-                            title="Save Preset"
-                        >
-                            <Save className="w-3 h-3" />
+                <SliderField label="Threshold" value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
+                <SliderField label="Point size" value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
+            </SectionCard>
+
+            {hasPalette && (
+                <SectionCard title="Palette">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-neutral-500">Theme preset</span>
+                        <button onClick={savePreset} className="text-neutral-500 hover:text-white transition-colors" title="Save preset">
+                            <Save className="w-3.5 h-3.5" />
                         </button>
                     </div>
-
-                    {/* Theme Selector */}
                     <ThemeSelect
-                        currentValue={options.selectedThemeName || ""}
+                        currentValue={options.selectedThemeName || ''}
                         themes={
                             options.colorMode === 'duotone' ? DUOTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.highlight] })) :
-                                options.colorMode === 'tritone' ? TRITONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.mid, t.highlight] })) :
-                                    QUADTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.midShadow, t.midHighlight, t.highlight] }))
+                            options.colorMode === 'tritone' ? TRITONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.mid, t.highlight] })) :
+                            QUADTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.midShadow, t.midHighlight, t.highlight] }))
                         }
                         onSelect={handleThemeSelect}
                     />
 
-                    {/* Color Grid */}
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-2 mt-1">
                         {options.colorMode === 'duotone' && (
                             <>
-                                <input
-                                    type="color"
-                                    value={options.duotoneColors.color1}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            duotoneColors: { ...options.duotoneColors, color1: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
-                                <input
-                                    type="color"
-                                    value={options.duotoneColors.color2}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            duotoneColors: { ...options.duotoneColors, color2: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
+                                <input type="color" value={options.duotoneColors.color1} onChange={e => onOptionsChange({ ...options, duotoneColors: { ...options.duotoneColors, color1: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
+                                <input type="color" value={options.duotoneColors.color2} onChange={e => onOptionsChange({ ...options, duotoneColors: { ...options.duotoneColors, color2: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
                             </>
                         )}
                         {options.colorMode === 'tritone' && (
                             <>
-                                <input
-                                    type="color"
-                                    value={options.tritoneColors.color1}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            tritoneColors: { ...options.tritoneColors, color1: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
-                                <input
-                                    type="color"
-                                    value={options.tritoneColors.color2}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            tritoneColors: { ...options.tritoneColors, color2: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
-                                <input
-                                    type="color"
-                                    value={options.tritoneColors.color3}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            tritoneColors: { ...options.tritoneColors, color3: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
+                                <input type="color" value={options.tritoneColors.color1} onChange={e => onOptionsChange({ ...options, tritoneColors: { ...options.tritoneColors, color1: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
+                                <input type="color" value={options.tritoneColors.color2} onChange={e => onOptionsChange({ ...options, tritoneColors: { ...options.tritoneColors, color2: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
+                                <input type="color" value={options.tritoneColors.color3} onChange={e => onOptionsChange({ ...options, tritoneColors: { ...options.tritoneColors, color3: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
                             </>
                         )}
                         {options.colorMode === 'quadtone' && (
                             <>
-                                <input
-                                    type="color"
-                                    value={options.quadtoneColors.color1}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            quadtoneColors: { ...options.quadtoneColors, color1: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
-                                <input
-                                    type="color"
-                                    value={options.quadtoneColors.color2}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            quadtoneColors: { ...options.quadtoneColors, color2: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
-                                <input
-                                    type="color"
-                                    value={options.quadtoneColors.color3}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            quadtoneColors: { ...options.quadtoneColors, color3: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
-                                <input
-                                    type="color"
-                                    value={options.quadtoneColors.color4}
-                                    onChange={(e) => {
-                                        onOptionsChange({
-                                            ...options,
-                                            quadtoneColors: { ...options.quadtoneColors, color4: e.target.value },
-                                            selectedThemeName: undefined
-                                        });
-                                    }}
-                                    className="w-full h-8 bg-transparent cursor-pointer border-none p-0"
-                                />
+                                <input type="color" value={options.quadtoneColors.color1} onChange={e => onOptionsChange({ ...options, quadtoneColors: { ...options.quadtoneColors, color1: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
+                                <input type="color" value={options.quadtoneColors.color2} onChange={e => onOptionsChange({ ...options, quadtoneColors: { ...options.quadtoneColors, color2: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
+                                <input type="color" value={options.quadtoneColors.color3} onChange={e => onOptionsChange({ ...options, quadtoneColors: { ...options.quadtoneColors, color3: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
+                                <input type="color" value={options.quadtoneColors.color4} onChange={e => onOptionsChange({ ...options, quadtoneColors: { ...options.quadtoneColors, color4: e.target.value }, selectedThemeName: undefined })} className="w-full h-8 bg-transparent cursor-pointer border-none p-0" />
                             </>
                         )}
                     </div>
 
-                    {/* Shuffle + Reset row */}
                     <div className="grid grid-cols-2 gap-2">
-                        <button
-                            onClick={handleRandomizeColors}
-                            className="px-3 py-2 bg-neutral-800 text-neutral-300 text-[10px] rounded uppercase tracking-wider font-medium hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-2"
-                        >
-                            <span>🎲</span> Shuffle
+                        <button onClick={() => handleThemeSelect(QUADTONE_THEMES[Math.floor(Math.random() * QUADTONE_THEMES.length)].name)}
+                            className="py-2 bg-neutral-800 text-neutral-300 text-xs rounded-lg hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                            🎲 Shuffle
                         </button>
-                        <button
-                            onClick={handleResetColors}
-                            className="px-3 py-2 rounded border border-neutral-800 text-neutral-400 hover:border-neutral-600 hover:text-white transition-colors uppercase text-[10px]"
-                        >
+                        <button onClick={() => handleThemeSelect('Base Reference')}
+                            className="py-2 rounded-lg border border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-white transition-colors text-xs">
                             Reset
                         </button>
                     </div>
 
-                    {/* Presets Dropdown */}
-                    {presets.length > 0 && (
-                        <div className="space-y-1">
-                            <div className="relative">
-                                <select
-                                    onChange={(e) => {
-                                        const preset = presets.find(p => p.id === e.target.value);
-                                        if (preset) {
-                                            if (preset.mode === 'duotone') {
-                                                onOptionsChange({ ...options, colorMode: 'duotone', duotoneColors: preset.colors as any });
-                                            } else if (preset.mode === 'tritone') {
-                                                onOptionsChange({ ...options, colorMode: 'tritone', tritoneColors: preset.colors as any });
-                                            } else if (preset.mode === 'quadtone') {
-                                                onOptionsChange({ ...options, colorMode: 'quadtone', quadtoneColors: preset.colors as any });
-                                            }
-                                        }
-                                    }}
-                                    className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-[10px] rounded appearance-none uppercase focus:outline-none focus:border-neutral-600"
-                                    value=""
-                                >
-                                    <option value="" disabled>Saved Presets</option>
-                                    {presets.filter(p => p.mode === options.colorMode).map((preset) => (
-                                        <option key={preset.id} value={preset.id}>{preset.name}</option>
-                                    ))}
-                                </select>
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-[10px]">▼</div>
-                            </div>
-                            {/* Delete Button for current selection could be here, but simpler is to keep it in a list if requested. Let's stick to dropdown as asked. */}
+                    {presets.filter(p => p.mode === options.colorMode).length > 0 && (
+                        <div className="relative">
+                            <select
+                                onChange={e => {
+                                    const preset = presets.find(p => p.id === e.target.value);
+                                    if (!preset) return;
+                                    if (preset.mode === 'duotone') onOptionsChange({ ...options, colorMode: 'duotone', duotoneColors: preset.colors as any });
+                                    else if (preset.mode === 'tritone') onOptionsChange({ ...options, colorMode: 'tritone', tritoneColors: preset.colors as any });
+                                    else if (preset.mode === 'quadtone') onOptionsChange({ ...options, colorMode: 'quadtone', quadtoneColors: preset.colors as any });
+                                }}
+                                className="w-full bg-neutral-800 border border-neutral-700 text-white py-2 px-3 text-xs rounded-lg appearance-none focus:outline-none focus:border-neutral-500"
+                                value="">
+                                <option value="" disabled>Saved presets</option>
+                                {presets.filter(p => p.mode === options.colorMode).map(preset => (
+                                    <option key={preset.id} value={preset.id}>{preset.name}</option>
+                                ))}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-[8px]">▼</div>
                         </div>
                     )}
-
-                </div>
+                </SectionCard>
             )}
 
-            {/* Dithering Options */}
-            <div className="space-y-4 pt-2 border-t border-neutral-800">
-                <SliderField
-                    label="Threshold"
-                    value={options.threshold}
-                    min={0}
-                    max={255}
-                    step={1}
-                    defaultValue={128}
-                    onChange={(v) => updateOption('threshold', v)}
-                />
-
-                {!options.strictSwatches && options.colorMode !== 'rgb' && (
-                    <SliderField
-                        label="Palette steps"
-                        value={options.paletteSteps}
-                        min={2}
-                        max={16}
-                        step={1}
-                        onChange={(v) => updateOption('paletteSteps', v)}
-                    />
-                )}
-
-                <SliderField
-                    label="Point size"
-                    value={options.pointSize}
-                    min={1}
-                    max={16}
-                    step={1}
-                    defaultValue={2}
-                    onChange={(v) => updateOption('pointSize', v)}
-                />
-
-            </div>
-
-            {/* Effects Section */}
-            <div className="space-y-4 pt-4 border-t border-neutral-800">
-                <SliderField label="Brightness" value={options.brightness} min={-100} max={100} step={1} defaultValue={0} onChange={(v) => updateOption('brightness', v)} />
-                <SliderField label="Contrast" value={options.contrast} min={-100} max={100} step={1} defaultValue={0} onChange={(v) => updateOption('contrast', v)} />
-                <SliderField label="Gamma" value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={(v) => updateOption('gamma', v)} />
-
+            <SectionCard title="Image adjustments">
+                <SliderField label="Brightness" value={options.brightness} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('brightness', v)} />
+                <SliderField label="Contrast" value={options.contrast} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('contrast', v)} />
+                <SliderField label="Gamma" value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={v => update('gamma', v)} />
                 <div className="grid grid-cols-2 gap-2">
-                    <button
-                        onClick={() => updateOption('invert', !options.invert)}
-                        className={`py-2 rounded border border-neutral-800 hover:border-neutral-600 transition-colors uppercase text-[10px] ${options.invert ? 'bg-neutral-800 text-white' : 'text-neutral-400'}`}
-                    >
+                    <button onClick={() => update('invert', !options.invert)}
+                        className={`py-2 rounded-lg border transition-colors text-xs uppercase ${options.invert ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
                         Invert
                     </button>
-                    <button
-                        onClick={() => onOptionsChange({
-                            ...options,
-                            brightness: 0,
-                            contrast: 0,
-                            gamma: 1,
-                            invert: false
-                        })}
-                        className="py-2 rounded border border-neutral-800 text-neutral-400 hover:border-neutral-600 transition-colors uppercase text-[10px]"
-                    >
-                        Reset Effects
+                    <button onClick={() => onOptionsChange({ ...options, brightness: 0, contrast: 0, gamma: 1, invert: false })}
+                        className="py-2 rounded-lg border border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-white transition-colors text-xs">
+                        Reset
                     </button>
                 </div>
+            </SectionCard>
 
-            </div>
-
-            {/* Paper Texture Section */}
-            <div className="space-y-4 pt-4 border-t border-neutral-800">
-                <div className="space-y-1">
-                    <label className="text-[10px] text-neutral-400">Paper texture</label>
-                    <div className="relative">
-                        <select
-                            value={options.paperTexture}
-                            onChange={(e) => updateOption('paperTexture', e.target.value as any)}
-                            className="w-full bg-neutral-900 border border-neutral-800 text-white py-2 px-2 text-xs rounded appearance-none uppercase focus:outline-none focus:border-neutral-600"
-                        >
-                            <option value="none">None</option>
-                            <option value="texture-1">Crumpled Paper</option>
-                            <option value="texture-2">Speckled Paper</option>
-                            <option value="texture-3">Smooth Paper</option>
-                            <option value="folded">Folded Paper</option>
-                            <option value="glue">Glued Paper</option>
-                        </select>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-[10px]">▼</div>
-                    </div>
+            <SectionCard title="Paper texture">
+                <div className="relative">
+                    <select value={options.paperTexture} onChange={e => update('paperTexture', e.target.value as any)}
+                        className="w-full bg-neutral-800 border border-neutral-700 text-white py-2 px-3 text-xs rounded-lg appearance-none focus:outline-none focus:border-neutral-500">
+                        <option value="none">None</option>
+                        <option value="texture-1">Crumpled Paper</option>
+                        <option value="texture-2">Speckled Paper</option>
+                        <option value="texture-3">Smooth Paper</option>
+                        <option value="folded">Folded Paper</option>
+                        <option value="glue">Glued Paper</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-[8px]">▼</div>
                 </div>
-
                 {options.paperTexture !== 'none' && (
-                    <SliderField
-                        label="Texture opacity"
-                        value={options.paperTextureOpacity}
-                        min={0}
-                        max={100}
-                        step={1}
-                        onChange={(v) => updateOption('paperTextureOpacity', v)}
-                        suffix="%"
-                    />
+                    <SliderField label="Opacity" value={options.paperTextureOpacity} min={0} max={100} step={1} onChange={v => update('paperTextureOpacity', v)} suffix="%" />
                 )}
-            </div>
-        </div >
+            </SectionCard>
+        </div>
     );
 };

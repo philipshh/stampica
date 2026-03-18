@@ -7,247 +7,140 @@ interface DesignControlsProps {
     onOptionsChange: (options: DitherOptions) => void;
 }
 
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
+            <div className="px-4 py-3 border-b border-neutral-800">
+                <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>
+            </div>
+            <div className="p-4 space-y-4">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+    return (
+        <div className="space-y-1.5">
+            <label className="text-xs text-neutral-500 block">{label}</label>
+            {children}
+        </div>
+    );
+}
+
+const inputClass = "w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-neutral-500 transition-colors";
+
+const sizeBtn = (active: boolean) =>
+    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`;
+
 export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
+    if (options.designMode !== 'poster') return null;
+
+    const p = options.poster;
+    const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-left-2 duration-200">
+        <div className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-200">
+            <SectionCard title="Text content">
+                {/* Director */}
+                <Field label="Director / Studio">
+                    <input type="text" value={p.director} onChange={e => set({ director: e.target.value })} className={inputClass} />
+                </Field>
 
-            {options.designMode === 'poster' && (
-                <>
-                    {/* Text Fields */}
-                    <div className="space-y-4">
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400">Director</label>
-                            <input
-                                type="text"
-                                value={options.poster.director}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, director: e.target.value }
-                                })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
-                            />
+                {/* Title */}
+                <Field label={
+                    <span className="flex items-center justify-between">
+                        <span>Title</span>
+                        <div className="flex gap-1">
+                            {(['left', 'center', 'right'] as const).map(align => (
+                                <button key={align} onClick={() => set({ titleAlignment: align })}
+                                    className={`p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-white bg-neutral-700' : 'text-neutral-600 hover:text-neutral-300'}`}>
+                                    {align === 'left' && <AlignLeft className="w-3 h-3" />}
+                                    {align === 'center' && <AlignCenter className="w-3 h-3" />}
+                                    {align === 'right' && <AlignRight className="w-3 h-3" />}
+                                </button>
+                            ))}
                         </div>
-
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400 flex justify-between items-center">
-                                <span>Title</span>
-                                <div className="flex gap-1">
-                                    {(['left', 'center', 'right'] as const).map((align) => (
-                                        <button
-                                            key={align}
-                                            onClick={() => onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, titleAlignment: align }
-                                            })}
-                                            className={`p-1 rounded hover:bg-neutral-800 transition-colors ${options.poster.titleAlignment === align ? 'text-white bg-neutral-800' : 'text-neutral-500'}`}
-                                            title={`Align ${align}`}
-                                        >
-                                            {align === 'left' && <AlignLeft className="w-3 h-3" />}
-                                            {align === 'center' && <AlignCenter className="w-3 h-3" />}
-                                            {align === 'right' && <AlignRight className="w-3 h-3" />}
-                                        </button>
-                                    ))}
-                                </div>
-                            </label>
-                            <input
-                                type="text"
-                                value={options.poster.title}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, title: e.target.value }
-                                })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
-                            />
-                            <div className="mt-1">
-                                <div className="flex gap-1 items-center">
-                                        {[40, 48, 56, 64].map((size) => (
-                                            <button
-                                                key={size}
-                                                onClick={() => onOptionsChange({
-                                                    ...options,
-                                                    poster: { ...options.poster, titleFontSize: size }
-                                                })}
-                                                className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.titleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                            >
-                                                {size}
-                                            </button>
-                                        ))}
-                                        <input
-                                            type="number"
-                                            value={options.poster.titleFontSize}
-                                            onChange={(e) => onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, titleFontSize: parseInt(e.target.value) || 48 }
-                                            })}
-                                            className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                                        />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400">Subtitle</label>
-                            <input
-                                type="text"
-                                value={options.poster.subtitle}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, subtitle: e.target.value }
-                                })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
-                            />
-                            <div className="mt-1">
-                                <div className="flex gap-1 items-center">
-                                        {[16, 24, 32, 40].map((size) => (
-                                            <button
-                                                key={size}
-                                                onClick={() => onOptionsChange({
-                                                    ...options,
-                                                    poster: { ...options.poster, subtitleFontSize: size }
-                                                })}
-                                                className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleFontSize === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                            >
-                                                {size}
-                                            </button>
-                                        ))}
-                                        <input
-                                            type="number"
-                                            value={options.poster.subtitleFontSize}
-                                            onChange={(e) => onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, subtitleFontSize: parseInt(e.target.value) || 16 }
-                                            })}
-                                            className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                                        />
-                                </div>
-                                <div className="space-y-1 mt-2">
-                                    <label className="text-[10px] text-neutral-400">Gap to title</label>
-                                    <div className="flex gap-1 items-center">
-                                        {[8, 16, 24].map((size) => (
-                                            <button
-                                                key={size}
-                                                onClick={() => onOptionsChange({
-                                                    ...options,
-                                                    poster: { ...options.poster, subtitleMargin: size }
-                                                })}
-                                                className={`flex-1 py-1 rounded border border-neutral-800 hover:border-neutral-600 transition-colors text-[10px] ${options.poster.subtitleMargin === size ? 'bg-neutral-800 text-white' : 'text-neutral-500'}`}
-                                            >
-                                                {size}
-                                            </button>
-                                        ))}
-                                        <input
-                                            type="number"
-                                            value={options.poster.subtitleMargin}
-                                            onChange={(e) => onOptionsChange({
-                                                ...options,
-                                                poster: { ...options.poster, subtitleMargin: parseInt(e.target.value) || 16 }
-                                            })}
-                                            className="w-12 py-1 bg-neutral-900 border border-neutral-800 text-white text-[10px] text-center focus:outline-none focus:border-neutral-600 rounded"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-[10px] text-neutral-400">Year</label>
-                            <input
-                                type="text"
-                                value={options.poster.year}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: { ...options.poster, year: e.target.value }
-                                })}
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] text-neutral-400">Description</label>
-                            <textarea
-                                value={options.poster.description[0] || ''}
-                                onChange={(e) => {
-                                    const newDesc = [e.target.value];
-                                    onOptionsChange({
-                                        ...options,
-                                        poster: { ...options.poster, description: newDesc, descriptionColumns: 1 }
-                                    });
-                                }}
-                                rows={3}
-                                placeholder="Description..."
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs rounded focus:outline-none focus:border-neutral-600 resize-none"
-                            />
-                        </div>
-
-                        {/* List Content */}
-                        <div className="space-y-2 pt-4 border-t border-neutral-800">
-                            <label className="text-[10px] text-neutral-400 flex justify-between items-center">
-                                <span>List content</span>
-                                <div className="flex gap-2 items-center">
-                                    {/* Columns Selector */}
-                                    <div className="flex items-center gap-1 bg-neutral-900 rounded border border-neutral-800 px-1 h-6">
-                                        <span className="text-[8px] text-neutral-500 uppercase">Cols</span>
-                                        <select
-                                            value={options.poster.listSection.columns || 1}
-                                            onChange={(e) => onOptionsChange({
-                                                ...options,
-                                                poster: {
-                                                    ...options.poster,
-                                                    listSection: { ...options.poster.listSection, columns: Number(e.target.value) as 1 | 2 | 3 | 4 }
-                                                }
-                                            })}
-                                            className="bg-transparent text-white text-[10px] focus:outline-none appearance-none cursor-pointer w-4 text-center"
-                                        >
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option>
-                                            <option value={4}>4</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="flex gap-1">
-                                        {(['left', 'center', 'right'] as const).map((align) => (
-                                            <button
-                                                key={align}
-                                                onClick={() => onOptionsChange({
-                                                    ...options,
-                                                    poster: {
-                                                        ...options.poster,
-                                                        listSection: { ...options.poster.listSection, alignment: align }
-                                                    }
-                                                })}
-                                                className={`p-1 rounded hover:bg-neutral-800 transition-colors ${options.poster.listSection.alignment === align ? 'text-white bg-neutral-800' : 'text-neutral-500'}`}
-                                                title={`Align ${align}`}
-                                            >
-                                                {align === 'left' && <AlignLeft className="w-3 h-3" />}
-                                                {align === 'center' && <AlignCenter className="w-3 h-3" />}
-                                                {align === 'right' && <AlignRight className="w-3 h-3" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </label>
-                            <textarea
-                                value={options.poster.listSection.content.join('\n')}
-                                onChange={(e) => onOptionsChange({
-                                    ...options,
-                                    poster: {
-                                        ...options.poster,
-                                        listSection: {
-                                            ...options.poster.listSection,
-                                            content: e.target.value.split('\n')
-                                        }
-                                    }
-                                })}
-                                rows={5}
-                                placeholder="Enter items (one per line)..."
-                                className="w-full bg-neutral-900 border border-neutral-800 text-white px-2 py-2 text-xs focus:outline-none focus:border-neutral-600 resize-none font-mono"
-                            />
-                        </div>
+                    </span>
+                }>
+                    <input type="text" value={p.title} onChange={e => set({ title: e.target.value })} className={inputClass} />
+                    <div className="flex gap-1 mt-1.5">
+                        {[40, 48, 56, 64].map(size => (
+                            <button key={size} onClick={() => set({ titleFontSize: size })} className={sizeBtn(p.titleFontSize === size)}>{size}</button>
+                        ))}
+                        <input type="number" value={p.titleFontSize} onChange={e => set({ titleFontSize: parseInt(e.target.value) || 48 })}
+                            className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
                     </div>
-                </>
-            )}
+                </Field>
+
+                {/* Subtitle */}
+                <Field label="Subtitle">
+                    <input type="text" value={p.subtitle} onChange={e => set({ subtitle: e.target.value })} className={inputClass} />
+                    <div className="flex gap-1 mt-1.5">
+                        {[16, 24, 32, 40].map(size => (
+                            <button key={size} onClick={() => set({ subtitleFontSize: size })} className={sizeBtn(p.subtitleFontSize === size)}>{size}</button>
+                        ))}
+                        <input type="number" value={p.subtitleFontSize} onChange={e => set({ subtitleFontSize: parseInt(e.target.value) || 16 })}
+                            className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
+                    </div>
+                </Field>
+
+                {/* Year */}
+                <Field label="Year">
+                    <input type="text" value={p.year} onChange={e => set({ year: e.target.value })} className={inputClass} />
+                </Field>
+
+                {/* Description */}
+                <Field label="Description">
+                    <textarea
+                        value={p.description[0] || ''}
+                        onChange={e => set({ description: [e.target.value], descriptionColumns: 1 })}
+                        rows={3}
+                        placeholder="Description..."
+                        className={`${inputClass} resize-none`}
+                    />
+                </Field>
+            </SectionCard>
+
+            <SectionCard title="Cast & credits">
+                <Field label={
+                    <span className="flex items-center justify-between">
+                        <span>List items (one per line)</span>
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 bg-neutral-800 rounded-lg border border-neutral-700 px-1.5 h-6">
+                                <span className="text-[9px] text-neutral-500 uppercase">Cols</span>
+                                <select value={p.listSection.columns || 1}
+                                    onChange={e => set({ listSection: { ...p.listSection, columns: Number(e.target.value) as 1 | 2 | 3 | 4 } })}
+                                    className="bg-transparent text-white text-[10px] focus:outline-none appearance-none cursor-pointer w-4 text-center">
+                                    <option value={1}>1</option>
+                                    <option value={2}>2</option>
+                                    <option value={3}>3</option>
+                                    <option value={4}>4</option>
+                                </select>
+                            </div>
+                            <div className="flex gap-1">
+                                {(['left', 'center', 'right'] as const).map(align => (
+                                    <button key={align} onClick={() => set({ listSection: { ...p.listSection, alignment: align } })}
+                                        className={`p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-white bg-neutral-700' : 'text-neutral-600 hover:text-neutral-300'}`}>
+                                        {align === 'left' && <AlignLeft className="w-3 h-3" />}
+                                        {align === 'center' && <AlignCenter className="w-3 h-3" />}
+                                        {align === 'right' && <AlignRight className="w-3 h-3" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </span>
+                }>
+                    <textarea
+                        value={p.listSection.content.join('\n')}
+                        onChange={e => set({ listSection: { ...p.listSection, content: e.target.value.split('\n') } })}
+                        rows={5}
+                        placeholder="Enter items (one per line)..."
+                        className={`${inputClass} resize-none font-mono`}
+                    />
+                </Field>
+            </SectionCard>
         </div>
     );
 };
