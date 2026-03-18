@@ -37,7 +37,7 @@ const SliderField: React.FC<{
             <div className="flex items-center gap-3">
                 <button
                     onClick={handleMinus}
-                    className="w-5 h-5 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-600 transition-colors"
+                    className="w-10 h-10 md:w-5 md:h-5 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-600 transition-colors flex-shrink-0"
                 >
                     <Minus className="w-3 h-3" />
                 </button>
@@ -48,12 +48,12 @@ const SliderField: React.FC<{
                     step={step}
                     value={value}
                     onChange={(e) => onChange(Number(e.target.value))}
-                    className="flex-1 h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-white"
+                    className="flex-1 appearance-none cursor-pointer accent-white h-px md:h-1 bg-neutral-800 rounded-lg"
                     style={{ touchAction: 'pan-y' }}
                 />
                 <button
                     onClick={handlePlus}
-                    className="w-5 h-5 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-600 transition-colors"
+                    className="w-10 h-10 md:w-5 md:h-5 rounded-full border border-neutral-800 flex items-center justify-center text-neutral-500 hover:text-white hover:border-neutral-600 transition-colors flex-shrink-0"
                 >
                     <Plus className="w-3 h-3" />
                 </button>

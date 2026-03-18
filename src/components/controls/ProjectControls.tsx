@@ -237,7 +237,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({
         <div className="space-y-6 animate-in fade-in slide-in-from-right-2 duration-200">
             {/* Save Section */}
             <div className="space-y-2">
-                <label className="text-[10px] text-neutral-400 tracking-wider font-bold uppercase">Save Current Design</label>
+                <label className="text-[10px] text-neutral-400">Save current design</label>
                 <div className="flex gap-2">
                     <input
                         type="text"
@@ -279,7 +279,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({
 
             {/* Project List */}
             <div className="space-y-4 pt-4 border-t border-neutral-800">
-                <label className="text-[10px] text-neutral-400 tracking-wider font-bold uppercase">Saved Projects ({projects.length})</label>
+                <label className="text-[10px] text-neutral-400">Saved projects ({projects.length})</label>
 
                 {projects.length === 0 ? (
                     <div className="text-center py-8 text-neutral-600 space-y-2">

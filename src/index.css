@@ -74,17 +74,26 @@ input[type=range]::-webkit-slider-thumb {
   height: 16px;
   width: 16px;
   border-radius: 0;
-  /* Square thumb like reference */
   background: #e5e5e5;
   cursor: pointer;
-  margin-top: -6px;
+  margin-top: -7px;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
-  height: 4px;
+  height: 2px;
   cursor: pointer;
   background: #333;
+}
+
+@media (min-width: 768px) {
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 4px;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    margin-top: -6px;
+  }
 }
 
 input[type=range]:focus {
