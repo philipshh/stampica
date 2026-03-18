@@ -1,14 +1,12 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('RESEND_API_KEY not configured');
+  return new Resend(apiKey);
 }
+
+const FROM = 'Stampica <orders@stampica.com>';
 
 export interface OrderEmailData {
   orderNumber: string;
@@ -21,10 +19,10 @@ export interface OrderEmailData {
 }
 
 export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Promise<void> {
-  const transporter = createTransporter();
+  const resend = getResend();
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: FROM,
     to: order.customerEmail,
     subject: `Order Confirmed – #${order.orderNumber}`,
     html: `
@@ -33,22 +31,10 @@ export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Pr
         <p>Hi ${order.customerName}, thank you for your order.</p>
 
         <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Order number</td>
-            <td style="padding: 8px 0; font-weight: bold;">#${order.orderNumber}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Size</td>
-            <td style="padding: 8px 0;">${order.size}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Quantity</td>
-            <td style="padding: 8px 0;">${order.quantity}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666;">Shipping to</td>
-            <td style="padding: 8px 0;">${order.shippingAddress}</td>
-          </tr>
+          <tr><td style="padding: 8px 0; color: #666;">Order number</td><td style="padding: 8px 0; font-weight: bold;">#${order.orderNumber}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Size</td><td style="padding: 8px 0;">${order.size}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Quantity</td><td style="padding: 8px 0;">${order.quantity}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Shipping to</td><td style="padding: 8px 0;">${order.shippingAddress}</td></tr>
         </table>
 
         <p style="color: #666;">You'll receive another email with tracking info once your order ships.</p>
@@ -58,12 +44,12 @@ export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Pr
 }
 
 export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData): Promise<void> {
-  const transporter = createTransporter();
+  const resend = getResend();
   const shopEmail = process.env.PRINT_SHOP_EMAIL;
   if (!shopEmail) throw new Error('PRINT_SHOP_EMAIL not configured');
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: FROM,
     to: shopEmail,
     subject: `New Stampica Order – #${order.orderNumber}`,
     html: `
@@ -80,13 +66,8 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
         </table>
 
         <a href="${process.env.ADMIN_DASHBOARD_URL}" style="
-          display: inline-block;
-          background: #1a1a1a;
-          color: white;
-          padding: 12px 24px;
-          border-radius: 6px;
-          text-decoration: none;
-          margin-top: 16px;
+          display: inline-block; background: #1a1a1a; color: white;
+          padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 16px;
         ">View in Admin Dashboard</a>
       </div>
     `,
@@ -99,10 +80,10 @@ export async function sendShippingNotification(
   orderNumber: string,
   trackingNumber: string,
 ): Promise<void> {
-  const transporter = createTransporter();
+  const resend = getResend();
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: FROM,
     to: customerEmail,
     subject: `Your Stampica order #${orderNumber} has shipped!`,
     html: `
