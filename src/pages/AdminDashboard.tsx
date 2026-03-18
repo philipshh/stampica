@@ -146,68 +146,73 @@ function OrderRow({
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
       {/* Main row */}
-      <div className="flex items-center gap-4 p-4">
+      <div className="flex gap-3 p-4">
         {/* Preview thumbnail */}
         {order.preview_url ? (
           <img
             src={order.preview_url}
             alt="Poster preview"
-            className="w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start"
+            className="w-14 md:w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start"
           />
         ) : (
-          <div className="w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0 flex items-center justify-center text-neutral-600 text-xs">
+          <div className="w-14 md:w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0 flex items-center justify-center text-neutral-600 text-xs">
             –
           </div>
         )}
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono font-bold text-sm">#{order.order_number}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full border capitalize ${STATUS_COLORS[order.status]}`}>
-              {order.status}
-            </span>
+        <div className="flex-1 min-w-0 flex flex-col gap-2">
+          {/* Top: info + expand/delete */}
+          <div className="flex items-start gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-mono font-bold text-sm">#{order.order_number}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full border capitalize ${STATUS_COLORS[order.status]}`}>
+                  {order.status}
+                </span>
+              </div>
+              <p className="text-sm text-neutral-400 mt-0.5 truncate">
+                {order.users?.name ?? 'Unknown'} · {order.size} × {order.quantity}
+              </p>
+              <p className="text-xs text-neutral-600 mt-0.5">
+                {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                onClick={() => {
+                  if (!deleting && confirm(`Delete order #${order.order_number}? This cannot be undone.`)) {
+                    setDeleting(true);
+                    onDelete(order.id);
+                  }
+                }}
+                className="text-neutral-600 hover:text-red-400 transition-colors p-1"
+                title="Delete order"
+              >
+                <Trash2 size={15} />
+              </button>
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="text-neutral-400 hover:text-white transition-colors p-1"
+              >
+                <ChevronDown size={16} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
           </div>
-          <p className="text-sm text-neutral-400 mt-0.5 truncate">
-            {order.users?.name ?? 'Unknown'} · {order.size} × {order.quantity}
-          </p>
-          <p className="text-xs text-neutral-600 mt-0.5">
-            {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </p>
+
+          {/* Bottom: status selector */}
+          <div className="relative">
+            <select
+              value={order.status}
+              onChange={(e) => onUpdate(order.id, { status: e.target.value as OrderStatus })}
+              className="w-full appearance-none bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg px-3 py-2 pr-8 cursor-pointer hover:border-neutral-500 transition-colors"
+            >
+              {ALL_STATUSES.map((s) => (
+                <option key={s} value={s} className="capitalize">{s}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" />
+          </div>
         </div>
-
-        {/* Status selector */}
-        <div className="relative">
-          <select
-            value={order.status}
-            onChange={(e) => onUpdate(order.id, { status: e.target.value as OrderStatus })}
-            className="appearance-none bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg px-3 py-2 pr-8 cursor-pointer hover:border-neutral-500 transition-colors"
-          >
-            {ALL_STATUSES.map((s) => (
-              <option key={s} value={s} className="capitalize">{s}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" />
-        </div>
-
-        <button
-          onClick={() => {
-            if (!deleting && confirm(`Delete order #${order.order_number}? This cannot be undone.`)) {
-              setDeleting(true);
-              onDelete(order.id);
-            }
-          }}
-          className="text-neutral-600 hover:text-red-400 transition-colors p-1"
-          title="Delete order"
-        >
-          <Trash2 size={15} />
-        </button>
-
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="text-neutral-400 hover:text-white transition-colors p-1"
-        >
-          <ChevronDown size={16} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
       </div>
 
       {/* Expanded details */}

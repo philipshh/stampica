@@ -40,10 +40,10 @@ export function TopBar() {
   }
 
   return (
-    <header className="h-11 flex-shrink-0 flex items-center justify-between px-4 bg-neutral-950 border-b border-neutral-800 z-50">
+    <header className="h-[88px] flex-shrink-0 flex items-center justify-between px-5 bg-neutral-950 border-b border-neutral-800 z-50">
       {/* Logo */}
       <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-        <img src="/logo.png" alt="Stampica" className="h-7 w-auto object-contain" />
+        <img src="/logo.png" alt="Stampica" className="h-10 w-auto object-contain" />
       </Link>
 
       {/* Nav + auth */}

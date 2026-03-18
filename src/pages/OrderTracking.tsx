@@ -143,24 +143,7 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
             </div>
           ) : (
             <>
-              {/* Mobile: current status only */}
-              <div className="sm:hidden flex items-center gap-2">
-                {(() => {
-                  const step = STATUS_STEPS[currentStep] ?? STATUS_STEPS[0];
-                  const Icon = step.icon;
-                  return (
-                    <>
-                      <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0">
-                        <Icon size={13} className="text-neutral-900" />
-                      </div>
-                      <span className="text-sm font-medium text-white">{step.label}</span>
-                    </>
-                  );
-                })()}
-              </div>
-
-              {/* Desktop: full stepper */}
-              <div className="hidden sm:block relative">
+              <div className="relative">
                 <div className="absolute top-4 left-4 right-4 h-0.5 bg-neutral-800 -z-0">
                   <div
                     className="h-full bg-white transition-all duration-700"
@@ -178,7 +161,7 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
                         }`}>
                           <Icon size={14} />
                         </div>
-                        <span className={`text-xs text-center leading-tight max-w-[56px] ${
+                        <span className={`hidden sm:block text-xs text-center leading-tight max-w-[56px] ${
                           done ? 'text-white font-medium' : 'text-neutral-500'
                         }`}>{step.label}</span>
                       </div>

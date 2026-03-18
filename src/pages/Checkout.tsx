@@ -232,14 +232,14 @@ export function Checkout() {
                 {/* Quantity */}
                 <div>
                   <label className="block text-sm text-neutral-400 mb-3">Quantity</label>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center gap-4">
                     <button type="button" onClick={() => update('quantity', Math.max(1, form.quantity - 1))}
                       className="w-9 h-9 rounded-lg border border-neutral-700 flex items-center justify-center text-lg font-medium text-white hover:bg-neutral-800 transition-colors">−</button>
                     <span className="w-8 text-center font-semibold text-white">{form.quantity}</span>
                     <button type="button" onClick={() => update('quantity', Math.min(20, form.quantity + 1))}
                       className="w-9 h-9 rounded-lg border border-neutral-700 flex items-center justify-center text-lg font-medium text-white hover:bg-neutral-800 transition-colors">+</button>
                   </div>
-                  <div className="flex items-center justify-between pt-3 mt-1 border-t border-neutral-800">
+                  <div className="flex items-center justify-between mt-2 pt-3 border-t border-neutral-800">
                     <span className="text-sm text-neutral-400">Total</span>
                     <span className="text-2xl font-bold text-white">€{totalPrice}</span>
                   </div>
@@ -284,6 +284,7 @@ export function Checkout() {
               className="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-100 disabled:opacity-50 transition-all text-base">
               {isSubmitting ? 'Uploading & placing order…' : `Place order · €${totalPrice}`}
             </button>
+            <div className="h-8" />
           </form>
         )}
       </div>
