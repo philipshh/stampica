@@ -28,6 +28,7 @@ interface Order {
   phone: string;
   tracking_number: string | null;
   preview_url: string | null;
+  poster_url: string | null;
   created_at: string;
   users: { name: string; email: string } | null;
 }
@@ -220,16 +221,18 @@ function OrderRow({
             </button>
           </div>
 
-          {/* Hi-res download */}
-          {order.preview_url && (
+          {/* Hi-res download for print shop */}
+          {order.poster_url ? (
             <a
-              href={order.preview_url.replace('_preview', '_hires')}
+              href={order.poster_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-white bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg transition-colors font-medium"
             >
-              Download hi-res file
+              ↓ Download hi-res print file
             </a>
+          ) : (
+            <p className="text-xs text-neutral-600">No hi-res file attached</p>
           )}
         </div>
       )}

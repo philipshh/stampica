@@ -17,6 +17,7 @@ export interface OrderEmailData {
   quantity: number;
   shippingAddress: string;
   phone: string;
+  posterUrl?: string | null;
 }
 
 export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Promise<void> {
@@ -59,6 +60,13 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
           <tr><td style="color: #666; padding: 6px 0;">Quantity</td><td>${order.quantity}</td></tr>
           <tr><td style="color: #666; padding: 6px 0;">Ship to</td><td>${order.shippingAddress}</td></tr>
         </table>
+
+        ${order.posterUrl ? `
+        <a href="${order.posterUrl}" style="
+          display: inline-block; background: #1a1a1a; color: white;
+          padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 8px; font-size: 14px;
+        ">↓ Download hi-res print file</a>
+        ` : '<p style="color: #999; font-size: 13px;">No hi-res file attached to this order.</p>'}
       </div>
     `,
   });
