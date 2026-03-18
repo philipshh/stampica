@@ -12,11 +12,13 @@ const PORT = process.env.PORT ?? 3000;
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow any localhost port in development, or the configured FRONTEND_URL in production
+      const allowed = process.env.FRONTEND_URL ?? '';
       if (
         !origin ||
         origin.startsWith('http://localhost:') ||
-        origin === process.env.FRONTEND_URL
+        origin === allowed ||
+        // allow all Vercel preview deployments for the same project
+        (allowed.includes('vercel.app') && origin.endsWith('.vercel.app'))
       ) {
         callback(null, true);
       } else {
