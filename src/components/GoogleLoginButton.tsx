@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 declare global {
@@ -30,10 +30,12 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
   const { loginWithGoogle } = useAuth();
   const buttonRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!CLIENT_ID) {
-      console.warn('VITE_GOOGLE_CLIENT_ID is not set');
+      setError('Google login is not configured (missing client ID).');
       return;
     }
 
@@ -43,11 +45,15 @@ export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
       window.google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: async ({ credential }) => {
+          setError(null);
+          setIsLoading(true);
           try {
             await loginWithGoogle(credential);
             onSuccess?.();
           } catch (err) {
-            console.error('Google login error:', err);
+            setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+          } finally {
+            setIsLoading(false);
           }
         },
       });
@@ -60,7 +66,6 @@ export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
       });
     }
 
-    // Load the GSI script if not already loaded
     if (window.google) {
       initGSI();
       return;
@@ -69,12 +74,26 @@ export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.onload = initGSI;
+    script.onerror = () => setError('Failed to load Google sign-in. Check your connection.');
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) document.head.removeChild(script);
     };
   }, [loginWithGoogle, onSuccess]);
 
-  return <div ref={buttonRef} />;
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {isLoading ? (
+        <div className="text-sm text-neutral-500 dark:text-neutral-400">Signing in…</div>
+      ) : (
+        <div ref={buttonRef} />
+      )}
+      {error && (
+        <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg max-w-xs text-center">
+          {error}
+        </p>
+      )}
+    </div>
+  );
 }
