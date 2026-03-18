@@ -4,22 +4,33 @@ import { useAuth } from '../contexts/AuthContext';
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
 // Drop poster images into /public/carousel/ and list them here.
-// Any aspect ratio works — they're displayed as portrait cards.
 const CAROUSEL_IMAGES: string[] = [
   // '/carousel/poster-1.jpg',
-  // '/carousel/poster-2.jpg',
+];
+
+// Placeholders used when no real images are configured
+const PLACEHOLDERS = [
+  'from-neutral-800 to-neutral-900',
+  'from-neutral-700 to-neutral-900',
+  'from-neutral-800 to-neutral-950',
+  'from-neutral-600 to-neutral-900',
+  'from-neutral-800 to-neutral-800',
+  'from-neutral-700 to-neutral-800',
+  'from-neutral-800 to-neutral-900',
+  'from-neutral-700 to-neutral-950',
 ];
 
 export function Landing() {
   const { user } = useAuth();
-  const hasImages = CAROUSEL_IMAGES.length > 0;
+
+  const source = CAROUSEL_IMAGES.length > 0 ? CAROUSEL_IMAGES : PLACEHOLDERS;
   // Duplicate for seamless infinite loop
-  const track = hasImages ? [...CAROUSEL_IMAGES, ...CAROUSEL_IMAGES] : [];
+  const track = [...source, ...source];
 
   return (
-    <div className="min-h-full bg-neutral-950 text-white flex flex-col">
-      {/* Hero */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center">
+    <div className="relative min-h-full bg-neutral-950 text-white flex flex-col overflow-hidden">
+      {/* Hero — extra bottom padding leaves visual room for the carousel */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 pb-52 text-center">
         <div className="space-y-4 max-w-xl mb-10">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none">
             Stampica
@@ -55,40 +66,46 @@ export function Landing() {
         </div>
       </div>
 
-      {/* Carousel */}
-      <div className="w-full overflow-hidden border-t border-neutral-800 py-8 bg-neutral-950">
-        {hasImages ? (
-          <div className="flex animate-carousel" style={{ width: 'max-content' }}>
-            {track.map((src, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 mx-3 w-40 md:w-52 rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900"
-                style={{ aspectRatio: '1 / 1.414' }}
-              >
-                <img
-                  src={src}
-                  alt={`Poster ${(i % CAROUSEL_IMAGES.length) + 1}`}
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          // Placeholder row shown until images are added
-          <div className="flex gap-3 px-4 justify-center flex-wrap opacity-30">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-40 md:w-52 rounded-xl border border-neutral-800 bg-neutral-900"
-                style={{ aspectRatio: '1 / 1.414' }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Carousel — absolutely pinned to the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-52 overflow-hidden pointer-events-none">
+        {/* Top-to-bottom fade so cards blend into the background */}
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-neutral-950 to-transparent z-10" />
+        {/* Left / right edge fades */}
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
 
-      <div className="h-8" />
+        <div
+          className="flex items-start animate-carousel pointer-events-auto"
+          style={{ width: 'max-content', willChange: 'transform', paddingTop: '16px' }}
+        >
+          {track.map((item, i) => {
+            const isReal = CAROUSEL_IMAGES.length > 0;
+            const isEven = i % 2 === 0;
+
+            return (
+              <div
+                key={i}
+                className="flex-shrink-0 mx-2 w-28 md:w-36 rounded-xl overflow-hidden border border-neutral-800"
+                style={{
+                  aspectRatio: '1 / 1.414',
+                  marginTop: isEven ? '0px' : '28px',
+                }}
+              >
+                {isReal ? (
+                  <img
+                    src={item}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${item}`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
