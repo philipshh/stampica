@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useRef } from 'react';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
-// Drop poster images into /public/carousel/ and list them here.
 const CAROUSEL_IMAGES: string[] = [
   '/carousel/poster-1.png',
   '/carousel/poster-2.png',
@@ -18,29 +18,69 @@ const CAROUSEL_IMAGES: string[] = [
   '/carousel/poster-11.png',
 ];
 
-// Placeholders used when no real images are configured
-const PLACEHOLDERS = [
-  'from-neutral-800 to-neutral-900',
-  'from-neutral-700 to-neutral-900',
-  'from-neutral-800 to-neutral-950',
-  'from-neutral-600 to-neutral-900',
-  'from-neutral-800 to-neutral-800',
-  'from-neutral-700 to-neutral-800',
-  'from-neutral-800 to-neutral-900',
-  'from-neutral-700 to-neutral-950',
-];
+// ── Arch carousel constants ────────────────────────────────────────────────────
+const R = 1200;           // ring radius in px — larger = flatter arch
+const CARD_W = 160;
+const CARD_H = Math.round(CARD_W * 1.414); // A4 ratio ≈ 226
+const CAROUSEL_H = 340;
+// Ring center is below the visible strip; cards at 12 o'clock start ~20px from top
+const RING_CY = R + CARD_H / 2 + 20;
+const SPEED = 360 / 80000; // degrees per ms → full revolution in ~80 s
 
+function cardTransform(i: number, n: number, rot: number): string {
+  const deg = (i / n) * 360 + rot;
+  const rad = (deg * Math.PI) / 180;
+  const x = Math.sin(rad) * R;
+  const y = -Math.cos(rad) * R + RING_CY;
+  return `translateX(${x - CARD_W / 2}px) translateY(${y - CARD_H / 2}px)`;
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 export function Landing() {
   const { user } = useAuth();
 
-  const source = CAROUSEL_IMAGES.length > 0 ? CAROUSEL_IMAGES : PLACEHOLDERS;
-  // Duplicate for seamless infinite loop
+  const source = CAROUSEL_IMAGES.length > 0
+    ? CAROUSEL_IMAGES
+    : Array.from({ length: 10 }, (_, i) => `__ph_${i}`);
+
+  // Duplicate so the ring is dense enough and loops seamlessly
   const track = [...source, ...source];
+
+  const ringRef = useRef<HTMLDivElement>(null);
+  const rotRef = useRef(0);
+
+  useEffect(() => {
+    let raf: number;
+    let last: number | undefined;
+    const n = track.length;
+
+    function tick(now: number) {
+      if (last !== undefined) {
+        rotRef.current = (rotRef.current + (now - last) * SPEED) % 360;
+      }
+      last = now;
+
+      if (ringRef.current) {
+        const cards = ringRef.current.children;
+        for (let i = 0; i < cards.length; i++) {
+          (cards[i] as HTMLElement).style.transform = cardTransform(i, n, rotRef.current);
+        }
+      }
+
+      raf = requestAnimationFrame(tick);
+    }
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [track.length]);
 
   return (
     <div className="relative min-h-full bg-neutral-950 text-white flex flex-col overflow-hidden">
-      {/* Hero — extra bottom padding leaves visual room for the carousel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 pb-52 text-center">
+      {/* Hero — bottom padding leaves room for the arch */}
+      <div
+        className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center"
+        style={{ paddingBottom: CAROUSEL_H + 40 }}
+      >
         <div className="space-y-4 max-w-xl mb-10">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none">
             Stampica
@@ -76,44 +116,43 @@ export function Landing() {
         </div>
       </div>
 
-      {/* Carousel — absolutely pinned to the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-52 overflow-hidden pointer-events-none">
-        {/* Top-to-bottom fade so cards blend into the background */}
-        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-neutral-950 to-transparent z-10" />
-        {/* Left / right edge fades */}
-        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
+      {/* Arch carousel — absolutely pinned to bottom */}
+      <div
+        className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none"
+        style={{ height: CAROUSEL_H }}
+      >
+        {/* Top fade blends into hero */}
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-neutral-950 to-transparent z-10" />
+        {/* Side fades */}
+        <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+        <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
 
-        <div
-          className="flex items-start animate-carousel pointer-events-auto"
-          style={{ width: 'max-content', willChange: 'transform', paddingTop: '16px' }}
-        >
-          {track.map((item, i) => {
-            const isReal = CAROUSEL_IMAGES.length > 0;
-            const isEven = i % 2 === 0;
-
-            return (
-              <div
-                key={i}
-                className="flex-shrink-0 mx-2 w-28 md:w-36 rounded-xl overflow-hidden border border-neutral-800"
-                style={{
-                  aspectRatio: '1 / 1.414',
-                  marginTop: isEven ? '0px' : '28px',
-                }}
-              >
-                {isReal ? (
-                  <img
-                    src={item}
-                    alt=""
-                    className="w-full h-full object-cover"
-                    draggable={false}
-                  />
-                ) : (
-                  <div className={`w-full h-full bg-gradient-to-br ${item}`} />
-                )}
-              </div>
-            );
-          })}
+        {/* Cards — positioned by rAF loop */}
+        <div ref={ringRef} className="absolute inset-0">
+          {track.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: 0,
+                width: CARD_W,
+                height: CARD_H,
+                transform: cardTransform(i, track.length, 0),
+              }}
+            >
+              {item.startsWith('__ph_') ? (
+                <div className="w-full h-full bg-neutral-900 border border-neutral-800" />
+              ) : (
+                <img
+                  src={item}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
