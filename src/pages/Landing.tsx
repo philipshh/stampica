@@ -77,7 +77,7 @@ export function Landing() {
   return (
     <div className="relative min-h-full bg-neutral-950 text-white flex flex-col overflow-hidden">
       {/* Hero — 200px from header on mobile, centered on desktop */}
-      <div className="flex-1 flex flex-col items-center justify-start md:justify-center px-6 pt-[200px] pb-24 md:pt-20 md:pb-[380px] text-center">
+      <div className="flex-1 flex flex-col items-center justify-start md:justify-center px-6 pt-[100px] pb-24 md:pt-20 md:pb-[380px] text-center">
         <div className="space-y-4 max-w-xl mb-10">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none">
             Stampica
@@ -156,7 +156,7 @@ export function Landing() {
       {/* Mobile marquee — CSS-only, bottom: -10vh so posters sink below fold */}
       <div
         className="md:hidden absolute left-0 right-0 overflow-hidden pointer-events-none"
-        style={{ bottom: '-10vh', height: 'calc(45vw * 1.414 + 56px)' }}
+        style={{ bottom: '-7vh', height: 'calc(60vw * 1.414 + 56px)' }}
       >
         <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
         <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
@@ -166,8 +166,8 @@ export function Landing() {
               key={i}
               className="flex-shrink-0 mx-2"
               style={{
-                width: 'calc(45vw)',
-                height: 'calc(45vw * 1.414)',
+                width: 'calc(60vw)',
+                height: 'calc(60vw * 1.414)',
                 marginTop: i % 2 === 0 ? 0 : 48,
               }}
             >
