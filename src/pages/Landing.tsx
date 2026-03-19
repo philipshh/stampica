@@ -77,10 +77,7 @@ export function Landing() {
   return (
     <div className="relative min-h-full bg-neutral-950 text-white flex flex-col overflow-hidden">
       {/* Hero — bottom padding leaves room for the arch */}
-      <div
-        className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center"
-        style={{ paddingBottom: CAROUSEL_H + 40 }}
-      >
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 pb-10 md:pb-[380px] text-center">
         <div className="space-y-4 max-w-xl mb-10">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none">
             Stampica
@@ -116,18 +113,15 @@ export function Landing() {
         </div>
       </div>
 
-      {/* Arch carousel — absolutely pinned to bottom */}
+      {/* Arch carousel — desktop only (rAF-driven) */}
       <div
-        className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none hidden md:block"
         style={{ height: CAROUSEL_H }}
       >
-        {/* Top fade blends into hero */}
         <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-neutral-950 to-transparent z-10" />
-        {/* Side fades */}
         <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
         <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
 
-        {/* Cards — positioned by rAF loop */}
         <div ref={ringRef} className="absolute inset-0">
           {track.map((item, i) => (
             <div
@@ -144,12 +138,28 @@ export function Landing() {
               {item.startsWith('__ph_') ? (
                 <div className="w-full h-full bg-neutral-900 border border-neutral-800" />
               ) : (
-                <img
-                  src={item}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
+                <img src={item} alt="" className="w-full h-full object-cover" draggable={false} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile marquee — CSS-only, no JS */}
+      <div className="md:hidden w-full overflow-hidden pb-8 pt-4">
+        <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-neutral-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-neutral-950 to-transparent z-10 pointer-events-none" />
+        <div className="flex animate-marquee" style={{ width: 'max-content' }}>
+          {[...source, ...source].map((item, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 mx-2"
+              style={{ width: 100, height: Math.round(100 * 1.414) }}
+            >
+              {item.startsWith('__ph_') ? (
+                <div className="w-full h-full bg-neutral-900 border border-neutral-800" />
+              ) : (
+                <img src={item} alt="" className="w-full h-full object-cover" draggable={false} />
               )}
             </div>
           ))}
