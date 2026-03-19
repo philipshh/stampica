@@ -95,6 +95,15 @@ export function Landing() {
             Create
           </Link>
 
+          {user && (
+            <Link
+              to="/orders"
+              className="px-8 py-3.5 border border-neutral-700 text-white font-semibold rounded-xl hover:border-neutral-400 transition-colors text-base"
+            >
+              Orders
+            </Link>
+          )}
+
           {/* Instagram icon button */}
           <a
             href={INSTAGRAM_URL}
@@ -109,15 +118,6 @@ export function Landing() {
               <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
             </svg>
           </a>
-
-          {user && (
-            <Link
-              to="/orders"
-              className="px-8 py-3.5 border border-neutral-700 text-white font-semibold rounded-xl hover:border-neutral-400 transition-colors text-base"
-            >
-              Orders
-            </Link>
-          )}
         </div>
       </div>
 
