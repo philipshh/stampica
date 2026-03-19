@@ -77,7 +77,7 @@ export function Landing() {
   return (
     <div className="relative min-h-full bg-neutral-950 text-white flex flex-col overflow-hidden">
       {/* Hero — bottom padding leaves room for the arch */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 pb-10 md:pb-[380px] text-center">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 pb-24 md:pb-[380px] text-center">
         <div className="space-y-4 max-w-xl mb-10">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none">
             Stampica
@@ -153,16 +153,23 @@ export function Landing() {
         </div>
       </div>
 
-      {/* Mobile marquee — CSS-only, no JS */}
-      <div className="md:hidden w-full overflow-hidden pb-8 pt-4">
-        <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-neutral-950 to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-neutral-950 to-transparent z-10 pointer-events-none" />
-        <div className="flex animate-marquee" style={{ width: 'max-content' }}>
+      {/* Mobile marquee — CSS-only, absolute at bottom, ~1/3 of card visible */}
+      <div
+        className="md:hidden absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none"
+        style={{ height: 72 }}
+      >
+        <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+        <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
+        <div className="flex items-start animate-marquee" style={{ width: 'max-content' }}>
           {[...source, ...source].map((item, i) => (
             <div
               key={i}
-              className="flex-shrink-0 mx-2"
-              style={{ width: 130, height: Math.round(130 * 1.414) }}
+              className="flex-shrink-0 mx-1.5"
+              style={{
+                width: 130,
+                height: Math.round(130 * 1.414),
+                marginTop: i % 2 === 0 ? 0 : 26,
+              }}
             >
               {item.startsWith('__ph_') ? (
                 <div className="w-full h-full bg-neutral-900 border border-neutral-800" />
