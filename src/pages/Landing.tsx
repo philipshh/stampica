@@ -87,27 +87,35 @@ export function Landing() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex items-center gap-3">
           <Link
             to="/create"
             className="px-8 py-3.5 bg-white text-black font-semibold rounded-xl hover:bg-neutral-100 transition-colors text-base"
           >
-            Create poster
+            Create
           </Link>
+
+          {/* Instagram icon button */}
           <a
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-8 py-3.5 border border-neutral-700 text-white font-semibold rounded-xl hover:border-neutral-400 transition-colors text-base"
+            className="w-12 h-12 flex items-center justify-center border border-neutral-700 rounded-xl hover:border-neutral-400 transition-colors text-white"
+            title="@stampica_studio on Instagram"
           >
-            See examples
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+            </svg>
           </a>
+
           {user && (
             <Link
               to="/orders"
               className="px-8 py-3.5 border border-neutral-700 text-white font-semibold rounded-xl hover:border-neutral-400 transition-colors text-base"
             >
-              Your orders
+              Orders
             </Link>
           )}
         </div>
@@ -154,7 +162,7 @@ export function Landing() {
             <div
               key={i}
               className="flex-shrink-0 mx-2"
-              style={{ width: 100, height: Math.round(100 * 1.414) }}
+              style={{ width: 130, height: Math.round(130 * 1.414) }}
             >
               {item.startsWith('__ph_') ? (
                 <div className="w-full h-full bg-neutral-900 border border-neutral-800" />
