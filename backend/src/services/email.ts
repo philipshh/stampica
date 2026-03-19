@@ -36,11 +36,9 @@ function parseAddress(addr: string) {
 
 const row = (label: string, value: string) => `
   <tr>
-    <td style="padding:8px 0;color:#888;font-size:13px;white-space:nowrap;width:130px;">${label}</td>
-    <td style="padding:8px 0;color:#111;font-size:13px;">${value}</td>
+    <td style="padding:10px 0;color:#888;font-size:13px;white-space:nowrap;width:130px;border-bottom:1px solid #eee;">${label}</td>
+    <td style="padding:10px 0;color:#111;font-size:13px;border-bottom:1px solid #eee;">${value}</td>
   </tr>`;
-
-const divider = `<tr><td colspan="2" style="padding:0;border-bottom:1px solid #eee;"></td></tr>`;
 
 function emailShell(body: string) {
   return `<!DOCTYPE html>
@@ -54,9 +52,7 @@ function emailShell(body: string) {
         <!-- Header / Logo -->
         <tr>
           <td style="background:#0a0a0a;padding:28px 40px;text-align:center;">
-            <img src="${APP_URL}/logo.png" alt="Stampica" height="36" style="display:block;margin:0 auto;"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-            <span style="display:none;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.05em;">STAMPICA</span>
+            <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.06em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">STAMPICA</span>
           </td>
         </tr>
 
@@ -94,16 +90,16 @@ export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Pr
     <!-- Poster preview -->
     ${order.previewUrl ? `
     <div style="text-align:center;margin-bottom:28px;">
-      <img src="${order.previewUrl}" alt="Your poster" style="max-width:200px;width:100%;border-radius:4px;display:inline-block;">
+      <img src="${order.previewUrl}" alt="Your poster" style="max-width:200px;width:100%;border:6px solid #0a0a0a;display:inline-block;">
     </div>` : ''}
 
     <!-- Order summary -->
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
       ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
-      ${divider}
+
       ${row('Size', order.size)}
       ${row('Quantity', String(order.quantity))}
-      ${divider}
+
     </table>
 
     <!-- Ship to -->
@@ -141,13 +137,13 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
     <!-- Order details -->
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
       ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
-      ${divider}
+
       ${row('Customer', order.customerName)}
       ${row('Email', `<a href="mailto:${order.customerEmail}" style="color:#111;">${order.customerEmail}</a>`)}
-      ${divider}
+
       ${row('Size', order.size)}
       ${row('Quantity', String(order.quantity))}
-      ${divider}
+
     </table>
 
     <!-- Ship to -->
@@ -190,7 +186,7 @@ export async function sendShippingNotification(
 
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
       ${row('Order #', `<strong>#${orderNumber}</strong>`)}
-      ${divider}
+
       ${row('Tracking', `<strong style="font-family:monospace;">${trackingNumber}</strong>`)}
     </table>
 
