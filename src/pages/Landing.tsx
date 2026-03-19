@@ -5,7 +5,17 @@ const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
 // Drop poster images into /public/carousel/ and list them here.
 const CAROUSEL_IMAGES: string[] = [
-  // '/carousel/poster-1.jpg',
+  '/carousel/poster-1.png',
+  '/carousel/poster-2.png',
+  '/carousel/poster-3.png',
+  '/carousel/poster-4.png',
+  '/carousel/poster-5.png',
+  '/carousel/poster-6.png',
+  '/carousel/poster-7.png',
+  '/carousel/poster-8.png',
+  '/carousel/poster-9.png',
+  '/carousel/poster-10.png',
+  '/carousel/poster-11.png',
 ];
 
 // Placeholders used when no real images are configured
