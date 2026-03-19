@@ -82,6 +82,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       quantity,
       shippingAddress,
       phone,
+      previewUrl: previewUrl ?? null,
       posterUrl: posterUrl ?? null,
     };
 

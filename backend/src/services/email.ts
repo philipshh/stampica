@@ -18,6 +18,7 @@ export interface OrderEmailData {
   quantity: number;
   shippingAddress: string; // "Name, Street, City PostalCode, Country"
   phone: string;
+  previewUrl?: string | null;
   posterUrl?: string | null;
 }
 
@@ -89,6 +90,12 @@ export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Pr
   const body = `
     <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Your order is confirmed!</h2>
     <p style="margin:0 0 28px;color:#666;font-size:15px;">Hi ${firstName}, thanks for your order. We'll get it printed and on its way.</p>
+
+    <!-- Poster preview -->
+    ${order.previewUrl ? `
+    <div style="text-align:center;margin-bottom:28px;">
+      <img src="${order.previewUrl}" alt="Your poster" style="max-width:200px;width:100%;border-radius:4px;display:inline-block;">
+    </div>` : ''}
 
     <!-- Order summary -->
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
