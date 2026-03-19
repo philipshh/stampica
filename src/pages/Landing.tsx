@@ -25,7 +25,7 @@ const CARD_H = Math.round(CARD_W * 1.414); // A4 ratio ≈ 226
 const CAROUSEL_H = 340;
 // Ring center is below the visible strip; cards at 12 o'clock start ~20px from top
 const RING_CY = R + CARD_H / 2 + 20;
-const SPEED = 360 / 80000; // degrees per ms → full revolution in ~80 s
+const SPEED = 360 / 130000; // degrees per ms → full revolution in ~130 s
 
 function cardTransform(i: number, n: number, rot: number): string {
   const deg = (i / n) * 360 + rot;
@@ -43,8 +43,8 @@ export function Landing() {
     ? CAROUSEL_IMAGES
     : Array.from({ length: 10 }, (_, i) => `__ph_${i}`);
 
-  // Duplicate so the ring is dense enough and loops seamlessly
-  const track = [...source, ...source];
+  // Triple so cards are tightly packed and the loop is seamless
+  const track = [...source, ...source, ...source];
 
   const ringRef = useRef<HTMLDivElement>(null);
   const rotRef = useRef(0);
