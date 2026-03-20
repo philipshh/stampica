@@ -15,10 +15,24 @@ const SIZES = ['A5', 'A4', 'A3'] as const;
 type PosterSize = (typeof SIZES)[number];
 
 const SIZE_INFO: Record<PosterSize, { dims: string; price: number }> = {
-  A5: { dims: '14.8 × 21 cm', price: 14 },
-  A4: { dims: '21 × 29.7 cm', price: 22 },
-  A3: { dims: '29.7 × 42 cm', price: 35 },
+  A5: { dims: '14.8 × 21 cm', price: 700 },
+  A4: { dims: '21 × 29.7 cm', price: 900 },
+  A3: { dims: '29.7 × 42 cm', price: 1100 },
 };
+
+// ── Framing ───────────────────────────────────────────────────────────────────
+const FRAMES = ['none', 'black', 'white'] as const;
+type FrameOption = (typeof FRAMES)[number];
+
+const FRAME_INFO: Record<FrameOption, { label: string; description: string; extra: number }> = {
+  none:  { label: 'No frame',    description: 'Poster only',          extra: 0    },
+  black: { label: 'Black frame', description: 'Slim black wood frame', extra: 1000 },
+  white: { label: 'White frame', description: 'Slim white wood frame', extra: 1000 },
+};
+
+// ── Shipping ──────────────────────────────────────────────────────────────────
+const SHIPPING_COST = 200;
+const FREE_SHIPPING_THRESHOLD = 4000;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface CheckoutLocationState {
@@ -32,6 +46,7 @@ interface CheckoutLocationState {
 interface FormState {
   size: PosterSize;
   quantity: number;
+  frame: FrameOption;
   name: string;
   address: string;
   city: string;
@@ -70,6 +85,7 @@ export function Checkout() {
   const [form, setForm] = useState<FormState>({
     size: initialSize,
     quantity: 1,
+    frame: 'none',
     name: user?.name ?? '',
     address: '',
     city: '',
@@ -98,7 +114,9 @@ export function Checkout() {
     Object.entries(errors).filter(([k]) => touched[k as FormKey])
   ) as Partial<Record<FormKey, string>>;
 
-  const totalPrice = SIZE_INFO[form.size].price * form.quantity;
+  const itemPrice = (SIZE_INFO[form.size].price + FRAME_INFO[form.frame].extra) * form.quantity;
+  const shipping = itemPrice >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const totalPrice = itemPrice + shipping;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -147,7 +165,7 @@ export function Checkout() {
           quantity: form.quantity,
           shippingAddress,
           phone: form.phone,
-          designData: state.options ?? {},
+          designData: { ...(state.options ?? {}), frame: form.frame },
           previewUrl: previewFileUrl,
           posterUrl: hiresFileUrl,
         }),
@@ -222,7 +240,30 @@ export function Checkout() {
                           {SIZE_INFO[s].dims}
                         </div>
                         <div className={`text-base font-bold mt-1.5 ${form.size === s ? 'text-black' : 'text-neutral-200'}`}>
-                          €{SIZE_INFO[s].price}
+                          {SIZE_INFO[s].price} din
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Framing */}
+                <div>
+                  <label className="block text-sm text-neutral-400 mb-3">Framing</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {FRAMES.map(f => (
+                      <button key={f} type="button" onClick={() => update('frame', f)}
+                        className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all text-left ${
+                          form.frame === f
+                            ? 'bg-white text-black border-transparent'
+                            : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:border-neutral-500'
+                        }`}>
+                        <div className="font-bold text-xs">{FRAME_INFO[f].label}</div>
+                        <div className={`text-[10px] mt-0.5 ${form.frame === f ? 'text-black/60' : 'text-neutral-500'}`}>
+                          {FRAME_INFO[f].description}
+                        </div>
+                        <div className={`text-sm font-bold mt-1.5 ${form.frame === f ? 'text-black' : 'text-neutral-200'}`}>
+                          {FRAME_INFO[f].extra === 0 ? 'Included' : `+${FRAME_INFO[f].extra} din`}
                         </div>
                       </button>
                     ))}
@@ -239,9 +280,25 @@ export function Checkout() {
                     <button type="button" onClick={() => update('quantity', Math.min(20, form.quantity + 1))}
                       className="w-9 h-9 rounded-lg border border-neutral-700 flex items-center justify-center text-lg font-medium text-white hover:bg-neutral-800 transition-colors">+</button>
                   </div>
-                  <div className="flex items-center justify-between mt-2 pt-3 border-t border-neutral-800">
-                    <span className="text-sm text-neutral-400">Total</span>
-                    <span className="text-2xl font-bold text-white">€{totalPrice}</span>
+                  <div className="mt-3 pt-3 border-t border-neutral-800 space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-neutral-400">Subtotal</span>
+                      <span className="text-white">{itemPrice} din</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-neutral-400">Shipping</span>
+                      {shipping === 0
+                        ? <span className="text-green-400 font-medium">Free</span>
+                        : <span className="text-white">{shipping} din</span>
+                      }
+                    </div>
+                    {shipping > 0 && (
+                      <p className="text-[11px] text-neutral-600">Free shipping on orders over {FREE_SHIPPING_THRESHOLD} din</p>
+                    )}
+                    <div className="flex items-center justify-between pt-2 border-t border-neutral-800">
+                      <span className="text-sm text-neutral-400">Total</span>
+                      <span className="text-2xl font-bold text-white">{totalPrice} din</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -282,7 +339,7 @@ export function Checkout() {
 
             <button type="submit" disabled={isSubmitting}
               className="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-100 disabled:opacity-50 transition-all text-base">
-              {isSubmitting ? 'Uploading & placing order…' : `Place order · €${totalPrice}`}
+              {isSubmitting ? 'Uploading & placing order…' : `Place order · ${totalPrice} din`}
             </button>
             <div className="h-8" />
           </form>

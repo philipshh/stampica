@@ -16,6 +16,7 @@ export interface OrderEmailData {
   customerName: string;
   size: string;
   quantity: number;
+  frame?: string | null;
   shippingAddress: string; // "Name, Street, City PostalCode, Country"
   phone: string;
   previewUrl?: string | null;
@@ -98,6 +99,7 @@ export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Pr
       ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
 
       ${row('Size', order.size)}
+      ${order.frame && order.frame !== 'none' ? row('Framing', order.frame.charAt(0).toUpperCase() + order.frame.slice(1) + ' frame') : ''}
       ${row('Quantity', String(order.quantity))}
 
     </table>
@@ -142,6 +144,7 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
       ${row('Email', `<a href="mailto:${order.customerEmail}" style="color:#111;">${order.customerEmail}</a>`)}
 
       ${row('Size', order.size)}
+      ${order.frame && order.frame !== 'none' ? row('Framing', order.frame.charAt(0).toUpperCase() + order.frame.slice(1) + ' frame') : ''}
       ${row('Quantity', String(order.quantity))}
 
     </table>

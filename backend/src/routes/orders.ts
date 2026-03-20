@@ -80,6 +80,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       customerName: user.name,
       size,
       quantity,
+      frame: (designData?.frame as string | undefined) ?? null,
       shippingAddress,
       phone,
       previewUrl: previewUrl ?? null,
