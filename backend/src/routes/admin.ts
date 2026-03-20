@@ -30,25 +30,30 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
 
 type OrderStatus = 'pending' | 'confirmed' | 'printing' | 'shipped' | 'delivered' | 'cancelled';
 
-// GET /api/admin/orders – list all orders (admin only)
+const PAGE_SIZE = 25;
+
+// GET /api/admin/orders – list all orders (admin only), paginated
 router.get('/orders', requireAdmin, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const { status } = req.query as { status?: OrderStatus };
+    const { status, search, page } = req.query as { status?: OrderStatus; search?: string; page?: string };
+    const pageNum = Math.max(0, parseInt(page ?? '0', 10) || 0);
+    const from = pageNum * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
 
     let query = supabase
       .from('orders')
-      .select('*, users(name, email)')
-      .order('created_at', { ascending: false });
+      .select('*, users(name, email)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
-    if (status) {
-      query = query.eq('status', status);
-    }
+    if (status) query = query.eq('status', status);
+    if (search) query = query.ilike('order_number', `%${search}%`);
 
-    const { data: orders, error } = await query;
+    const { data: orders, error, count } = await query;
     if (error) throw error;
 
-    res.json({ orders });
+    res.json({ orders, total: count ?? 0, page: pageNum, pageSize: PAGE_SIZE });
   } catch (err) {
     console.error('[admin/orders/list]', err);
     res.status(500).json({ error: 'Failed to fetch orders' });

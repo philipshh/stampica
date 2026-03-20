@@ -40,18 +40,23 @@ export function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const PAGE_SIZE = 25;
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchOrders() {
+  async function fetchOrders(p = page) {
+    setIsLoading(true);
     try {
-      const url = filterStatus === 'all'
-        ? `${API_BASE}/api/admin/orders`
-        : `${API_BASE}/api/admin/orders?status=${filterStatus}`;
+      const params = new URLSearchParams({ page: String(p) });
+      if (filterStatus !== 'all') params.set('status', filterStatus);
+      if (search.trim()) params.set('search', search.trim());
 
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-      const data = (await res.json()) as { orders?: Order[]; error?: string };
+      const res = await fetch(`${API_BASE}/api/admin/orders?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = (await res.json()) as { orders?: Order[]; total?: number; error?: string };
       if (!res.ok) throw new Error(data.error ?? 'Failed to load');
       setOrders(data.orders ?? []);
+      setTotal(data.total ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -59,7 +64,14 @@ export function AdminDashboard() {
     }
   }
 
-  useEffect(() => { fetchOrders(); }, [filterStatus, token]);
+  useEffect(() => {
+    setPage(0);
+    fetchOrders(0);
+  }, [filterStatus, search, token]);
+
+  useEffect(() => {
+    fetchOrders(page);
+  }, [page]);
 
   async function updateOrder(id: string, patch: { status?: OrderStatus; trackingNumber?: string }) {
     await fetch(`${API_BASE}/api/admin/orders/${id}`, {
@@ -67,7 +79,7 @@ export function AdminDashboard() {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(patch),
     });
-    fetchOrders();
+    fetchOrders(page);
   }
 
   async function deleteOrder(id: string) {
@@ -75,14 +87,10 @@ export function AdminDashboard() {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     });
-    fetchOrders();
+    fetchOrders(page);
   }
 
-  const filtered = orders.filter((o) => {
-    const matchesStatus = filterStatus === 'all' || o.status === filterStatus;
-    const matchesSearch = !search || o.order_number.toLowerCase().includes(search.toLowerCase()) || (o.users?.name ?? '').toLowerCase().includes(search.toLowerCase()) || (o.users?.email ?? '').toLowerCase().includes(search.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white p-4 md:p-8">
@@ -90,7 +98,7 @@ export function AdminDashboard() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <span className="text-sm text-neutral-500">{orders.length} orders</span>
+          <span className="text-sm text-neutral-500">{total} orders</span>
         </div>
 
         {/* Search */}
@@ -128,13 +136,36 @@ export function AdminDashboard() {
 
         {/* Orders table */}
         <div className="space-y-3">
-          {filtered.map((order) => (
+          {orders.map((order) => (
             <OrderRow key={order.id} order={order} onUpdate={updateOrder} onDelete={deleteOrder} />
           ))}
-          {!isLoading && filtered.length === 0 && (
+          {!isLoading && orders.length === 0 && (
             <p className="text-neutral-500 text-sm py-8 text-center">No orders found</p>
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 text-sm">
+            <button
+              onClick={() => setPage(p => p - 1)}
+              disabled={page === 0}
+              className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              ← Prev
+            </button>
+            <span className="text-neutral-500">
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={page >= totalPages - 1}
+              className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              Next →
+            </button>
+          </div>
+        )}
         <div className="h-8" />
       </div>
     </div>
