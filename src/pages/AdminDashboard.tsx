@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Lightbox } from '../components/Lightbox';
+import { SkeletonCard } from '../components/Skeleton';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
@@ -104,7 +105,11 @@ export function AdminDashboard() {
           ))}
         </div>
 
-        {isLoading && <p className="text-neutral-400 text-sm">Loading orders…</p>}
+        {isLoading && (
+          <div className="space-y-3">
+            {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
         {/* Orders table */}
@@ -173,9 +178,15 @@ function OrderRow({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono font-bold text-sm">#{order.order_number}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full border capitalize ${STATUS_COLORS[order.status]}`}>
-                  {order.status}
-                </span>
+                <select
+                  value={order.status}
+                  onChange={(e) => onUpdate(order.id, { status: e.target.value as OrderStatus })}
+                  className={`text-xs px-2 py-0.5 rounded-full border capitalize appearance-none cursor-pointer bg-transparent ${STATUS_COLORS[order.status]}`}
+                >
+                  {ALL_STATUSES.map((s) => (
+                    <option key={s} value={s} className="capitalize bg-neutral-900 text-white">{s}</option>
+                  ))}
+                </select>
               </div>
               <p className="text-sm text-neutral-400 mt-0.5 truncate">
                 {order.users?.name ?? 'Unknown'} · {order.size} × {order.quantity}
@@ -206,19 +217,6 @@ function OrderRow({
             </div>
           </div>
 
-          {/* Bottom: status selector */}
-          <div className="relative">
-            <select
-              value={order.status}
-              onChange={(e) => onUpdate(order.id, { status: e.target.value as OrderStatus })}
-              className="w-full appearance-none bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg px-3 py-2 pr-8 cursor-pointer hover:border-neutral-500 transition-colors"
-            >
-              {ALL_STATUSES.map((s) => (
-                <option key={s} value={s} className="capitalize">{s}</option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400" />
-          </div>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Package, Printer, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Lightbox } from '../components/Lightbox';
+import { SkeletonCard } from '../components/Skeleton';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
@@ -77,7 +78,11 @@ export function OrderTracking() {
           )}
         </div>
 
-        {isLoading && <div className="text-neutral-400 text-sm py-12 text-center">Loading…</div>}
+        {isLoading && (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
         {error && <div className="text-red-400 bg-red-900/20 px-4 py-3 rounded-xl text-sm">{error}</div>}
 
         {!isLoading && !error && orders.length === 0 && (
