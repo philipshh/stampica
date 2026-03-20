@@ -19,18 +19,7 @@ interface ProjectControlsProps {
     onProjectLoad: (project: PosterProject) => void;
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
-            <div className="px-4 py-3 border-b border-neutral-800">
-                <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>
-            </div>
-            <div className="p-4 space-y-3">
-                {children}
-            </div>
-        </div>
-    );
-}
+import { SectionCard } from './SectionCard';
 
 const ProjectCard: React.FC<{
     project: PosterProject;
@@ -167,7 +156,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            <SectionCard title="Save design">
+            <SectionCard title="Save design" spacing="sm">
                 <div className="flex gap-2">
                     <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)}
                         placeholder="Project name..."
@@ -180,7 +169,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
                 </div>
             </SectionCard>
 
-            <SectionCard title="Backup">
+            <SectionCard title="Backup" spacing="sm">
                 <div className="grid grid-cols-2 gap-2">
                     <button onClick={handleBackup} disabled={isLoading}
                         className="flex items-center justify-center gap-2 py-2.5 bg-neutral-800 border border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500 transition-all rounded-lg text-xs disabled:opacity-50">
@@ -193,7 +182,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
                 </div>
             </SectionCard>
 
-            <SectionCard title={`Saved projects${projects.length > 0 ? ` (${projects.length})` : ''}`}>
+            <SectionCard title={`Saved projects${projects.length > 0 ? ` (${projects.length})` : ''}`} spacing="sm">
                 {projects.length === 0 ? (
                     <div className="text-center py-6 text-neutral-600 space-y-2">
                         <FolderOpen className="w-7 h-7 mx-auto opacity-30" />

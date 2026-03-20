@@ -6,22 +6,22 @@ import { GoogleLoginButton } from './GoogleLoginButton';
 export function TopBar() {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [showLogin, setShowLogin] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close login popover on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        setShowLogin(false);
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
       }
     }
-    if (showLogin) document.addEventListener('mousedown', handler);
+    if (showDropdown) document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [showLogin]);
+  }, [showDropdown]);
 
-  // Close popover on route change
-  useEffect(() => { setShowLogin(false); }, [location.pathname]);
+  // Close on route change
+  useEffect(() => { setShowDropdown(false); }, [location.pathname]);
 
   function navLink(to: string, label: string) {
     const active = location.pathname === to;
@@ -39,6 +39,14 @@ export function TopBar() {
     );
   }
 
+  const initials = user?.name
+    .split(' ')
+    .filter(Boolean)
+    .map(n => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() ?? '';
+
   return (
     <header className="h-[88px] flex-shrink-0 flex items-center justify-between px-5 bg-neutral-950 border-b border-neutral-800 z-50">
       {/* Logo */}
@@ -55,32 +63,47 @@ export function TopBar() {
         <div className="w-px h-4 bg-neutral-800 mx-2" />
 
         {user ? (
-          <>
-            <span className="text-xs text-neutral-500 max-w-[120px] truncate hidden sm:block">
-              {user.name}
-            </span>
+          <div ref={dropdownRef} className="relative">
+            {/* Avatar button — always visible */}
             <button
-              onClick={logout}
-              className="text-sm px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800/60 transition-colors"
+              onClick={() => setShowDropdown(v => !v)}
+              className="flex items-center gap-2 rounded-lg p-1 hover:bg-neutral-800/60 transition-colors"
             >
-              Sign out
+              {user.picture ? (
+                <img
+                  src={user.picture}
+                  alt={user.name}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs font-semibold text-white flex-shrink-0">
+                  {initials}
+                </div>
+              )}
+              <span className="text-xs text-neutral-400 max-w-[100px] truncate hidden sm:block">
+                {user.name}
+              </span>
             </button>
-          </>
-        ) : (
-          <div ref={popoverRef} className="relative">
-            <button
-              onClick={() => setShowLogin((v) => !v)}
-              className="text-sm px-3 py-1.5 rounded-lg border border-neutral-700 text-neutral-300 hover:border-neutral-500 hover:text-white transition-colors"
-            >
-              Sign in
-            </button>
-            {showLogin && (
-              <div className="absolute right-0 top-full mt-2 p-4 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl flex flex-col items-center gap-2 w-64 z-50">
-                <p className="text-xs text-neutral-500 text-center">Sign in to order and track prints</p>
-                <GoogleLoginButton onSuccess={() => setShowLogin(false)} />
+
+            {/* Dropdown */}
+            {showDropdown && (
+              <div className="absolute right-0 top-full mt-2 bg-neutral-900 border border-neutral-800 rounded-xl shadow-xl w-44 z-50 overflow-hidden">
+                <div className="px-3 py-2.5 border-b border-neutral-800">
+                  <p className="text-xs font-medium text-white truncate">{user.name}</p>
+                  <p className="text-[11px] text-neutral-500 truncate">{user.email}</p>
+                </div>
+                <button
+                  onClick={() => { setShowDropdown(false); logout(); }}
+                  className="w-full text-left px-3 py-2.5 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
             )}
           </div>
+        ) : (
+          // Render Google button directly — one click to sign in
+          <GoogleLoginButton />
         )}
       </div>
     </header>

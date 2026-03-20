@@ -2,23 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DitherOptions, ColorPreset } from '../../lib/dither';
 import { QUADTONE_THEMES, DUOTONE_THEMES, TRITONE_THEMES } from '../../lib/colorUtils';
 import { Save, Minus, Plus } from 'lucide-react';
+import { SectionCard } from './SectionCard';
 
 interface AdjustmentControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
-}
-
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
-            <div className="px-4 py-3 border-b border-neutral-800">
-                <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>
-            </div>
-            <div className="p-4 space-y-4">
-                {children}
-            </div>
-        </div>
-    );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

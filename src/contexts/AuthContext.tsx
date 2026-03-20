@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string;
   name: string;
   role: 'customer' | 'admin';
+  picture?: string;
 }
 
 interface AuthContextValue {
@@ -35,7 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const isExpired = payload.exp * 1000 < Date.now();
         if (!isExpired) {
           setToken(stored);
-          setUser({ id: payload.userId, email: payload.email, name: payload.name, role: payload.role });
+          const picture = localStorage.getItem('stampica_picture') ?? undefined;
+          setUser({ id: payload.userId, email: payload.email, name: payload.name, role: payload.role, picture });
         } else {
           localStorage.removeItem(TOKEN_KEY);
         }
@@ -47,6 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function loginWithGoogle(idToken: string) {
+    // Extract picture from Google's credential token before sending to backend
+    let picture: string | undefined;
+    try {
+      const googlePayload = JSON.parse(atob(idToken.split('.')[1]));
+      picture = googlePayload.picture;
+      if (picture) localStorage.setItem('stampica_picture', picture);
+    } catch {}
+
     const res = await fetch(`${API_BASE}/api/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -65,11 +75,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     localStorage.setItem(TOKEN_KEY, jwt);
     setToken(jwt);
-    setUser(userData);
+    setUser({ ...userData, picture });
   }
 
   function logout() {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('stampica_picture');
     setToken(null);
     setUser(null);
   }
