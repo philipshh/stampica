@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Package, Printer, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Lightbox } from '../components/Lightbox';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
@@ -107,18 +108,23 @@ export function OrderTracking() {
 function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
   const currentStep = STATUS_ORDER[order.status];
   const isCancelled = order.status === 'cancelled';
+  const [lightbox, setLightbox] = useState(false);
 
   return (
     <div className={`bg-neutral-900 rounded-2xl border transition-all overflow-hidden ${
       highlight ? 'border-white ring-2 ring-white/10' : 'border-neutral-800'
     }`}>
+      {lightbox && order.preview_url && (
+        <Lightbox src={order.preview_url} alt={`Poster #${order.order_number}`} onClose={() => setLightbox(false)} />
+      )}
       <div className="flex gap-4 p-5">
         {/* Poster thumbnail */}
         {order.preview_url ? (
           <img
             src={order.preview_url}
             alt="Poster"
-            className="w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start"
+            onClick={() => setLightbox(true)}
+            className="w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start cursor-zoom-in hover:opacity-80 transition-opacity"
           />
         ) : (
           <div className="w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0" />

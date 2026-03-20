@@ -156,7 +156,7 @@ export function Landing() {
       {/* Mobile marquee — CSS-only, bottom: -10vh so posters sink below fold */}
       <div
         className="md:hidden absolute left-0 right-0 overflow-hidden pointer-events-none"
-        style={{ bottom: '-7vh', height: 'calc(60vw * 1.414 + 56px)' }}
+        style={{ bottom: '-8vh', height: '50vh' }}
       >
         <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
         <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
@@ -166,8 +166,8 @@ export function Landing() {
               key={i}
               className="flex-shrink-0 mx-2"
               style={{
-                width: 'calc(60vw)',
-                height: 'calc(60vw * 1.414)',
+                width: 'calc(300px)',
+                height: 'calc(300px * 1.414)',
                 marginTop: i % 2 === 0 ? 0 : 48,
               }}
             >
