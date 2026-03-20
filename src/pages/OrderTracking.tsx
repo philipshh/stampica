@@ -228,7 +228,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
               <span />
             )}
             <Link
-              to="/support"
+              to={`/support?order=${order.order_number}`}
               className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
             >
               {order.status === 'pending' ? 'Need help?' : 'Contact support'}

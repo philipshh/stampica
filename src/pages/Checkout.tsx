@@ -82,17 +82,22 @@ export function Checkout() {
   const defaultSize = (state.defaultSize ?? state.options?.poster.aspectRatio ?? 'A4') as PosterSize;
   const initialSize: PosterSize = SIZES.includes(defaultSize as PosterSize) ? defaultSize : 'A4';
 
+  const savedShipping = (() => {
+    try { return JSON.parse(localStorage.getItem('stampica_shipping') ?? 'null'); } catch { return null; }
+  })();
+
   const [form, setForm] = useState<FormState>({
     size: initialSize,
     quantity: 1,
     frame: 'none',
-    name: user?.name ?? '',
-    address: '',
-    city: '',
-    postalCode: '',
-    country: '',
-    phone: '',
+    name: user?.name ?? savedShipping?.name ?? '',
+    address: savedShipping?.address ?? '',
+    city: savedShipping?.city ?? '',
+    postalCode: savedShipping?.postalCode ?? '',
+    country: savedShipping?.country ?? '',
+    phone: savedShipping?.phone ?? '',
   });
+  const [saveShipping, setSaveShipping] = useState(!!savedShipping);
 
   const [touched, setTouched] = useState<Partial<Record<FormKey, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,6 +137,15 @@ export function Checkout() {
     setSubmitError(null);
 
     try {
+      if (saveShipping) {
+        localStorage.setItem('stampica_shipping', JSON.stringify({
+          name: form.name, address: form.address, city: form.city,
+          postalCode: form.postalCode, country: form.country, phone: form.phone,
+        }));
+      } else {
+        localStorage.removeItem('stampica_shipping');
+      }
+
       const shippingAddress = `${form.name}, ${form.address}, ${form.city} ${form.postalCode}, ${form.country}`;
       const orderId = Date.now().toString(36);
 
@@ -253,7 +267,7 @@ export function Checkout() {
                   <div className="grid grid-cols-3 gap-2">
                     {FRAMES.map(f => (
                       <button key={f} type="button" onClick={() => update('frame', f)}
-                        className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all text-left ${
+                        className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all text-center ${
                           form.frame === f
                             ? 'bg-white text-black border-transparent'
                             : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:border-neutral-500'
@@ -262,9 +276,11 @@ export function Checkout() {
                         <div className={`text-[10px] mt-0.5 ${form.frame === f ? 'text-black/60' : 'text-neutral-500'}`}>
                           {FRAME_INFO[f].description}
                         </div>
-                        <div className={`text-sm font-bold mt-1.5 ${form.frame === f ? 'text-black' : 'text-neutral-200'}`}>
-                          {FRAME_INFO[f].extra === 0 ? 'Included' : `+${FRAME_INFO[f].extra} din`}
-                        </div>
+                        {FRAME_INFO[f].extra > 0 && (
+                          <div className={`text-sm font-bold mt-1.5 ${form.frame === f ? 'text-black' : 'text-neutral-200'}`}>
+                            +{FRAME_INFO[f].extra} din
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -330,6 +346,15 @@ export function Checkout() {
                 <Field label="Phone number" value={form.phone}
                   onChange={v => update('phone', v)} onBlur={() => touch('phone')}
                   error={visibleErrors.phone} type="tel" autoComplete="tel" />
+                <label className="flex items-center gap-2.5 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={saveShipping}
+                    onChange={e => setSaveShipping(e.target.checked)}
+                    className="w-4 h-4 rounded accent-white cursor-pointer"
+                  />
+                  <span className="text-sm text-neutral-400">Save shipping details for next time</span>
+                </label>
               </div>
             </section>
 

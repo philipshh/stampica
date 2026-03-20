@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CheckCircle } from 'lucide-react';
 
@@ -22,11 +23,12 @@ interface Order {
 
 export function Support() {
   const { user, token } = useAuth();
+  const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState({
     name: user?.name ?? '',
     email: user?.email ?? '',
-    orderNumber: '',
+    orderNumber: searchParams.get('order') ?? '',
     subject: SUBJECTS[0],
     message: '',
   });
