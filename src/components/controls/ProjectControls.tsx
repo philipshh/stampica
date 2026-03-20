@@ -17,6 +17,7 @@ interface ProjectControlsProps {
     options: DitherOptions;
     imageFile: File | null;
     onProjectLoad: (project: PosterProject) => void;
+    isAdmin?: boolean;
 }
 
 import { SectionCard } from './SectionCard';
@@ -63,7 +64,7 @@ const ProjectCard: React.FC<{
     );
 };
 
-export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, imageFile, onProjectLoad }) => {
+export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, imageFile, onProjectLoad, isAdmin = false }) => {
     const [projects, setProjects] = useState<PosterProject[]>([]);
     const [projectName, setProjectName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -169,7 +170,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
                 </div>
             </SectionCard>
 
-            <SectionCard title="Backup" spacing="sm">
+            {isAdmin && <SectionCard title="Backup" spacing="sm">
                 <div className="grid grid-cols-2 gap-2">
                     <button onClick={handleBackup} disabled={isLoading}
                         className="flex items-center justify-center gap-2 py-2.5 bg-neutral-800 border border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500 transition-all rounded-lg text-xs disabled:opacity-50">
@@ -180,7 +181,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
                         <Upload className="w-3.5 h-3.5" /> Import ZIP
                     </button>
                 </div>
-            </SectionCard>
+            </SectionCard>}
 
             <SectionCard title={`Saved projects${projects.length > 0 ? ` (${projects.length})` : ''}`} spacing="sm">
                 {projects.length === 0 ? (

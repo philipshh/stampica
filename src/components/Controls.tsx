@@ -69,6 +69,7 @@ export const Controls: React.FC<ControlsProps> = ({
                         options={options}
                         imageFile={imageFile}
                         onProjectLoad={onProjectLoad}
+                        isAdmin={isAdmin}
                     />
                 )}
             </div>
