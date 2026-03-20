@@ -39,6 +39,7 @@ export function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all');
+  const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   async function fetchOrders() {
@@ -77,7 +78,11 @@ export function AdminDashboard() {
     fetchOrders();
   }
 
-  const filtered = filterStatus === 'all' ? orders : orders.filter((o) => o.status === filterStatus);
+  const filtered = orders.filter((o) => {
+    const matchesStatus = filterStatus === 'all' || o.status === filterStatus;
+    const matchesSearch = !search || o.order_number.toLowerCase().includes(search.toLowerCase()) || (o.users?.name ?? '').toLowerCase().includes(search.toLowerCase()) || (o.users?.email ?? '').toLowerCase().includes(search.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white p-4 md:p-8">
@@ -87,6 +92,15 @@ export function AdminDashboard() {
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
           <span className="text-sm text-neutral-500">{orders.length} orders</span>
         </div>
+
+        {/* Search */}
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by order number, name or email…"
+          className="w-full mb-4 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+        />
 
         {/* Status filter */}
         <div className="flex flex-wrap gap-2 mb-6">

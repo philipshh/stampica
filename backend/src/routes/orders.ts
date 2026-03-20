@@ -117,6 +117,46 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+// PATCH /api/orders/:id/cancel – cancel a pending order (owner only)
+router.patch('/:id/cancel', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { user } = res.locals;
+    const { id } = req.params;
+    const supabase = getSupabase();
+
+    const { data: order, error: fetchError } = await supabase
+      .from('orders')
+      .select('id, status, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+    if (order.user_id !== user.userId) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    if (order.status !== 'pending') {
+      res.status(409).json({ error: 'Only pending orders can be cancelled' });
+      return;
+    }
+
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'cancelled' })
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[orders/cancel]', err);
+    res.status(500).json({ error: 'Failed to cancel order' });
+  }
+});
+
 // GET /api/orders/:orderNumber – get a single order by order number
 router.get('/:orderNumber', requireAuth, async (req: Request, res: Response) => {
   try {

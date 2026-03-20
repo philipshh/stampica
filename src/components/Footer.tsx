@@ -8,6 +8,7 @@ export function Footer() {
         <Link to="/terms" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Terms</Link>
         <Link to="/privacy" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Privacy</Link>
         <Link to="/shipping" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Shipping & Returns</Link>
+        <Link to="/support" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Support</Link>
         <a href="https://instagram.com/stampica_studio" target="_blank" rel="noopener noreferrer"
           className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">Instagram</a>
       </nav>

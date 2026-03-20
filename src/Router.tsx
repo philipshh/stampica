@@ -10,6 +10,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { Terms } from './pages/Terms';
 import { Privacy } from './pages/Privacy';
 import { Shipping } from './pages/Shipping';
+import { Support } from './pages/Support';
 import { DevNav } from './pages/DevNav';
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -53,6 +54,7 @@ export function Router() {
         <Route path="/terms" element={<Layout><Terms /></Layout>} />
         <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
         <Route path="/shipping" element={<Layout><Shipping /></Layout>} />
+        <Route path="/support" element={<Layout><Support /></Layout>} />
         <Route path="/dev" element={<Layout><DevNav /></Layout>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -101,6 +101,7 @@ export function OrderTracking() {
               key={order.id}
               order={order}
               highlight={order.order_number === highlightOrderNumber}
+              onCancelled={(id) => setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'cancelled' } : o))}
             />
           ))}
         </div>
@@ -110,10 +111,26 @@ export function OrderTracking() {
   );
 }
 
-function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
+function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight: boolean; onCancelled: (id: string) => void }) {
   const currentStep = STATUS_ORDER[order.status];
   const isCancelled = order.status === 'cancelled';
   const [lightbox, setLightbox] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const { token } = useAuth();
+
+  async function handleCancel() {
+    if (!confirm(`Cancel order #${order.order_number}? This cannot be undone.`)) return;
+    setCancelling(true);
+    try {
+      await fetch(`${API_BASE}/api/orders/${order.id}/cancel`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      onCancelled(order.id);
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   return (
     <div className={`bg-neutral-900 rounded-2xl border transition-all overflow-hidden ${
@@ -190,12 +207,33 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
           )}
 
           {order.tracking_number && (
-            <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-2 text-sm">
+            <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center gap-2 text-sm">
               <Truck size={14} className="text-neutral-400" />
-              <span className="text-neutral-500 dark:text-neutral-400">Tracking:</span>
-              <span className="font-mono font-medium text-neutral-900 dark:text-white">{order.tracking_number}</span>
+              <span className="text-neutral-400">Tracking:</span>
+              <span className="font-mono font-medium text-white">{order.tracking_number}</span>
             </div>
           )}
+
+          {/* Bottom actions */}
+          <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center justify-between gap-2">
+            {order.status === 'pending' ? (
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+              >
+                {cancelling ? 'Cancelling…' : 'Cancel order'}
+              </button>
+            ) : (
+              <span />
+            )}
+            <Link
+              to="/support"
+              className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+            >
+              {order.status === 'pending' ? 'Need help?' : 'Contact support'}
+            </Link>
+          </div>
         </div>
       </div>
     </div>

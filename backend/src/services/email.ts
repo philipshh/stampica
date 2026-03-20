@@ -172,6 +172,47 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
   });
 }
 
+export async function sendSupportEmail({
+  name,
+  email,
+  orderNumber,
+  subject,
+  message,
+}: {
+  name: string;
+  email: string;
+  orderNumber?: string;
+  subject: string;
+  message: string;
+}): Promise<void> {
+  const shopEmail = process.env.PRINT_SHOP_EMAIL;
+  if (!shopEmail) throw new Error('PRINT_SHOP_EMAIL not configured');
+
+  const body = `
+    <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Support request</h2>
+    <p style="margin:0 0 28px;color:#666;font-size:15px;">${subject}</p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
+      ${row('From', `${name} &lt;${email}&gt;`)}
+      ${orderNumber ? row('Order #', `<strong>#${orderNumber}</strong>`) : ''}
+    </table>
+
+    <p style="margin:24px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;">Message</p>
+    <div style="background:#f9f9f9;border-radius:8px;padding:16px 20px;font-size:14px;color:#333;line-height:1.7;white-space:pre-wrap;">${message}</div>
+
+    <p style="margin:24px 0 0;">
+      <a href="mailto:${email}" style="display:inline-block;background:#0a0a0a;color:#fff;padding:11px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Reply to ${name}</a>
+    </p>`;
+
+  await getClient().transactionalEmails.sendTransacEmail({
+    sender: { email: FROM_EMAIL, name: FROM_NAME },
+    to: [{ email: shopEmail }],
+    replyTo: { email, name },
+    subject: `Support: ${subject}${orderNumber ? ` (#${orderNumber})` : ''}`,
+    htmlContent: emailShell(body),
+  });
+}
+
 export async function sendShippingNotification(
   customerEmail: string,
   customerName: string,
