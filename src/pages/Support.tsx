@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { CheckCircle } from 'lucide-react';
 
@@ -13,8 +13,16 @@ const SUBJECTS = [
   'Other',
 ];
 
+interface Order {
+  id: string;
+  order_number: string;
+  size: string;
+  status: string;
+}
+
 export function Support() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState({
     name: user?.name ?? '',
     email: user?.email ?? '',
@@ -25,6 +33,14 @@ export function Support() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then((data: { orders?: Order[] }) => setOrders(data.orders ?? []))
+      .catch(() => {});
+  }, [token]);
 
   function set(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -98,13 +114,30 @@ export function Support() {
           </div>
 
           <div>
-            <label className="block text-xs text-neutral-400 mb-1.5">Order number <span className="text-neutral-600">(optional)</span></label>
-            <input
-              value={form.orderNumber}
-              onChange={e => set('orderNumber', e.target.value)}
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-              placeholder="STP-XXXXX"
-            />
+            <label className="block text-xs text-neutral-400 mb-1.5">
+              Order <span className="text-neutral-600">(optional)</span>
+            </label>
+            {orders.length > 0 ? (
+              <select
+                value={form.orderNumber}
+                onChange={e => set('orderNumber', e.target.value)}
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-neutral-600 transition-colors appearance-none cursor-pointer"
+              >
+                <option value="">No specific order</option>
+                {orders.map(o => (
+                  <option key={o.id} value={o.order_number}>
+                    #{o.order_number} — {o.size} · {o.status}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                value={form.orderNumber}
+                onChange={e => set('orderNumber', e.target.value)}
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+                placeholder="STP-XXXXX"
+              />
+            )}
           </div>
 
           <div>
