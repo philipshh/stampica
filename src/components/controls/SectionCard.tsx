@@ -9,11 +9,20 @@ interface SectionCardProps {
 }
 
 export function SectionCard({ title, children, defaultOpen = true, spacing = 'md' }: SectionCardProps) {
-  const [open, setOpen] = useState(defaultOpen);
+  const storageKey = `sc_${title.toLowerCase().replace(/\s+/g, '_')}`;
+  const [open, setOpen] = useState(() => {
+    const stored = localStorage.getItem(storageKey);
+    return stored !== null ? stored === 'true' : defaultOpen;
+  });
+  function toggle() {
+    const next = !open;
+    setOpen(next);
+    localStorage.setItem(storageKey, String(next));
+  }
   return (
     <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
       <button
-        onClick={() => setOpen(v => !v)}
+        onClick={toggle}
         className="w-full flex items-center justify-between px-4 py-3 border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors"
       >
         <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>

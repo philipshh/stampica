@@ -79,9 +79,7 @@ export function Landing() {
       {/* Hero — 200px from header on mobile, centered on desktop */}
       <div className="flex-1 flex flex-col items-center justify-start md:justify-center px-6 pt-[100px] pb-24 md:pt-20 md:pb-[380px] text-center">
         <div className="space-y-4 max-w-xl mb-10">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none">
-            Stampica
-          </h1>
+          <img src="/logo-text.svg" alt="Stampica" className="w-52 md:w-80 max-w-full mx-auto" />
           <p className="text-neutral-400 text-lg md:text-xl leading-relaxed">
             Design dithered posters, order prints — delivered to your door.
           </p>
