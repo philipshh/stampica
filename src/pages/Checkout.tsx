@@ -206,11 +206,11 @@ export function Checkout() {
   }
 
   return (
-    <div className="min-h-full bg-neutral-950">
-      <div className="flex flex-col md:flex-row md:h-[calc(100vh-88px)]">
+    <div className="h-full bg-neutral-950 overflow-hidden">
+      <div className="flex flex-col md:flex-row h-full">
 
         {/* Left — poster preview (desktop: sticky full height, mobile: top strip) */}
-        <div className="md:w-1/2 md:sticky md:top-0 md:h-full bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10">
+        <div className="md:w-1/2 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10 flex-shrink-0">
           {previewUrl ? (
             <img src={previewUrl} alt="Your poster"
               className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800" />
