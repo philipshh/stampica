@@ -206,22 +206,30 @@ export function Checkout() {
   }
 
   return (
-    <div className="min-h-full bg-neutral-950 p-4 md:p-8">
-      <div className="max-w-lg mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center">
-            <ShoppingBag className="text-white" size={20} />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Order your poster</h1>
+    <div className="min-h-full bg-neutral-950">
+      <div className="flex flex-col md:flex-row md:h-[calc(100vh-88px)]">
+
+        {/* Left — poster preview (desktop: sticky full height, mobile: top strip) */}
+        <div className="md:w-1/2 md:sticky md:top-0 md:h-full bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10">
+          {previewUrl ? (
+            <img src={previewUrl} alt="Your poster"
+              className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800" />
+          ) : (
+            <div className="w-full aspect-[1/1.41] max-h-full bg-neutral-800 rounded-xl flex items-center justify-center text-neutral-600 text-sm">
+              No preview
+            </div>
+          )}
         </div>
 
-        {/* Poster preview */}
-        {previewUrl && (
-          <div className="mb-6 flex justify-center">
-            <img src={previewUrl} alt="Your poster"
-              className="w-4/5 rounded-xl border border-neutral-800 object-contain shadow-lg" />
-          </div>
-        )}
+        {/* Right — form */}
+        <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8">
+          <div className="max-w-lg mx-auto">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center">
+                <ShoppingBag className="text-white" size={20} />
+              </div>
+              <h1 className="text-2xl font-bold text-white">Order your poster</h1>
+            </div>
 
         {!user ? (
           <div className="bg-neutral-900 rounded-2xl p-6 text-center border border-neutral-800">
@@ -369,6 +377,9 @@ export function Checkout() {
             <div className="h-8" />
           </form>
         )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
