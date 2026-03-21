@@ -206,8 +206,8 @@ export function Checkout() {
   }
 
   return (
-    <div className="h-full bg-neutral-950 overflow-hidden">
-      <div className="flex flex-col md:flex-row h-full">
+    <div className="md:h-full bg-neutral-950 md:overflow-hidden">
+      <div className="flex flex-col md:flex-row md:h-full">
 
         {/* Left — poster preview (desktop: sticky full height, mobile: top strip) */}
         <div className="md:w-1/2 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10 flex-shrink-0">
@@ -222,7 +222,7 @@ export function Checkout() {
         </div>
 
         {/* Right — form */}
-        <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8">
+        <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8 md:h-full">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center">
