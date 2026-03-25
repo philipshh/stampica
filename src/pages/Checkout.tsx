@@ -259,24 +259,6 @@ export function Checkout() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-white">{item.size} · {item.frame !== 'none' ? item.frame + ' frame · ' : ''}{item.quantity}×</p>
                         </div>
-                        <button
-                          onClick={async () => {
-                            if (!item.options) return;
-                            const exportOptions = { ...item.options, poster: { ...item.options.poster, aspectRatio: item.size } };
-                            const blob = await exportPosterHiResBlob(exportOptions, item.imageFile ?? null, item.processedImage ?? null);
-                            if (blob) {
-                              const url = URL.createObjectURL(blob);
-                              const a = document.createElement('a');
-                              a.href = url; a.download = `poster-${item.size}.png`;
-                              a.click();
-                              URL.revokeObjectURL(url);
-                            }
-                          }}
-                          title={t('downloadHires')}
-                          className="text-neutral-500 hover:text-white transition-colors flex-shrink-0 p-1"
-                        >
-                          <Download size={14} />
-                        </button>
                         <p className="text-sm font-bold text-white flex-shrink-0">{itemPrice(item)} din</p>
                       </div>
                     ))}
@@ -357,6 +339,15 @@ export function Checkout() {
                 <button type="submit" disabled={isSubmitting}
                   className="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-100 disabled:opacity-50 transition-all text-base">
                   {isSubmitting ? t('uploading') : `${t('placeOrder')} · ${total} din`}
+                </button>
+                <button
+                  type="button"
+                  disabled
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-neutral-800 text-neutral-600 text-sm cursor-not-allowed"
+                >
+                  <Download size={15} />
+                  {t('downloadHires')}
+                  <span className="text-[10px] bg-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded">Coming soon</span>
                 </button>
                 <div className="h-8" />
               </form>

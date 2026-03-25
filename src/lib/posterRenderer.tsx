@@ -715,14 +715,21 @@ export async function drawPosterToCanvas(
     // Apply text-only vertical alignment
     if (options.poster.textOnly) {
         const enabledTextSections = options.poster.layoutOrder.filter(s => isSectionEnabled(s) && s !== 'image');
-        const numGaps = Math.max(0, enabledTextSections.length - 1);
-        const totalWithGaps = totalFixedContentHeight + numGaps * gap;
-        const vAlign = options.poster.contentVerticalAlign ?? 'top';
+        const vAlign = options.poster.contentVerticalAlign ?? 'center';
         const availableHeight = POSTER_HEIGHT - 2 * padding;
+
         if (vAlign === 'center') {
-            currentY = padding + (availableHeight - totalWithGaps) / 2;
+            // Distribute sections evenly across full height (space-between)
+            const numSections = enabledTextSections.length;
+            if (numSections > 1) {
+                const distributedGap = (availableHeight - totalFixedContentHeight) / (numSections - 1);
+                // Store for use during rendering — override the regular gap
+                (options as any).__textOnlyDistributedGap = Math.max(gap, distributedGap);
+            }
+            // currentY stays at padding (sections render top-to-bottom with distributed gap)
         } else if (vAlign === 'bottom') {
-            currentY = POSTER_HEIGHT - padding - totalWithGaps;
+            const numGaps = Math.max(0, enabledTextSections.length - 1);
+            currentY = POSTER_HEIGHT - padding - totalFixedContentHeight - numGaps * gap;
         }
         // 'top' keeps currentY = padding (default)
     }
@@ -792,7 +799,8 @@ export async function drawPosterToCanvas(
             const enabledSections = options.poster.layoutOrder.filter(s => isSectionEnabled(s));
             const isLast = enabledSections[enabledSections.length - 1] === section;
             if (!isLast) {
-                currentY += gap;
+                const activeGap = (options as any).__textOnlyDistributedGap ?? gap;
+                currentY += activeGap;
             }
         }
     }
