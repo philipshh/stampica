@@ -476,20 +476,47 @@ export const QUADTONE_THEMES: QuadtoneTheme[] = [
         midShadow: "#2E3448",
         midHighlight: "#C07A8A",
         highlight: "#EDE1E5"
-    }
+    },
+    // ── Anime Colors (from anicolors.com) ─────────────────────────────────────
+    { name: "Mr.3",               group: "Anime Colors", shadow: "#212933", midShadow: "#715F4A", midHighlight: "#A7A697", highlight: "#E5EBE5" },
+    { name: "Alioth",             group: "Anime Colors", shadow: "#1E1F35", midShadow: "#384C9C", midHighlight: "#A0AFB9", highlight: "#E5E7E5" },
+    { name: "Megrez",             group: "Anime Colors", shadow: "#221D27", midShadow: "#655059", midHighlight: "#9F96B1", highlight: "#E8E1E5" },
+    { name: "Virgo",              group: "Anime Colors", shadow: "#421F28", midShadow: "#AA539C", midHighlight: "#DAA5C9", highlight: "#F1F1F2" },
+    { name: "Aries",              group: "Anime Colors", shadow: "#1F3143", midShadow: "#4471C2", midHighlight: "#A4CADB", highlight: "#EBEDE9" },
+    { name: "Merak",              group: "Anime Colors", shadow: "#313564", midShadow: "#4C6C64", midHighlight: "#AFB0BD", highlight: "#F6F3F0" },
+    { name: "Benetnasch",         group: "Anime Colors", shadow: "#461412", midShadow: "#394448", midHighlight: "#8287AE", highlight: "#D6D0D0" },
+    { name: "Ruphas Mafahl",      group: "Anime Colors", shadow: "#2A090E", midShadow: "#513240", midHighlight: "#8E91AD", highlight: "#F1EFE9" },
+    { name: "Sei Minamijuji",     group: "Anime Colors", shadow: "#2D2C42", midShadow: "#3C64B6", midHighlight: "#BEBAC3", highlight: "#E6EAF4" },
+    { name: "Parthenos",          group: "Anime Colors", shadow: "#296637", midShadow: "#7BA354", midHighlight: "#B3B7CD", highlight: "#FAFAF9" },
+    { name: "Jupiter",            group: "Anime Colors", shadow: "#1F2222", midShadow: "#6C442C", midHighlight: "#A47C3C", highlight: "#D0C6AF" },
+    { name: "Orm",                group: "Anime Colors", shadow: "#100F11", midShadow: "#3B3231", midHighlight: "#6C798F", highlight: "#E6E7E6" },
+    { name: "Aigokeros",          group: "Anime Colors", shadow: "#272024", midShadow: "#403C4F", midHighlight: "#A09388", highlight: "#E7E9EB" },
+    { name: "Mars",               group: "Anime Colors", shadow: "#2F2B2F", midShadow: "#7E3D3B", midHighlight: "#787EAB", highlight: "#F1DFA2" },
+    { name: "Satoshi Ito",        group: "Anime Colors", shadow: "#262227", midShadow: "#843C4C", midHighlight: "#A0A3A1", highlight: "#E3E5E3" },
+    { name: "Ichiyo Shimamura",   group: "Anime Colors", shadow: "#080706", midShadow: "#3C443C", midHighlight: "#7A7775", highlight: "#E0D2BD" },
+    { name: "Fukushi Ishige",     group: "Anime Colors", shadow: "#2F2E2D", midShadow: "#5C5341", midHighlight: "#94949C", highlight: "#DED8C9" },
+    { name: "Mitsuha Shimamura",  group: "Anime Colors", shadow: "#1D2029", midShadow: "#3B454F", midHighlight: "#7B8A9C", highlight: "#B9BFC2" },
+    { name: "Daisuke Sato",       group: "Anime Colors", shadow: "#0A110E", midShadow: "#384A3F", midHighlight: "#90A73A", highlight: "#DCD095" },
+    { name: "Tanzaburo Tojima",   group: "Anime Colors", shadow: "#0F0D0D", midShadow: "#38649C", midHighlight: "#97AAB9", highlight: "#D8E1E9" },
+    { name: "Hachiro Nakao",      group: "Anime Colors", shadow: "#411E2A", midShadow: "#646C6F", midHighlight: "#BCB3B7", highlight: "#DCDCDD" },
+    { name: "Yuriko Okada",       group: "Anime Colors", shadow: "#32231E", midShadow: "#805E42", midHighlight: "#AAABBA", highlight: "#F6E4D6" },
+    { name: "Yukarisu",           group: "Anime Colors", shadow: "#252833", midShadow: "#4D465A", midHighlight: "#AC7258", highlight: "#EBCFC4" },
+    { name: "Nidalee",            group: "Anime Colors", shadow: "#1D1C21", midShadow: "#301818", midHighlight: "#484848", highlight: "#907860" },
 ];
 
 export const TRITONE_THEMES: TritoneTheme[] = QUADTONE_THEMES.map(theme => ({
     name: theme.name,
     shadow: theme.shadow,
     mid: theme.midShadow,
-    highlight: theme.highlight
+    highlight: theme.highlight,
+    group: theme.group,
 }));
 
 export const DUOTONE_THEMES: DuotoneTheme[] = QUADTONE_THEMES.map(theme => ({
     name: theme.name,
     shadow: theme.shadow,
-    highlight: theme.highlight
+    highlight: theme.highlight,
+    group: theme.group,
 }));
 
 export function computePaletteFromColorMode(options: DitherOptions): [number, number, number][] {

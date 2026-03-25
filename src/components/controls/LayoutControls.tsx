@@ -161,6 +161,48 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 </Field>
             </SectionCard>
 
+            <SectionCard title="Text Only">
+                <Field label="Image-free mode">
+                    <button
+                        onClick={() => set({ textOnly: !p.textOnly, showImage: p.textOnly ? true : false })}
+                        className={`w-full py-2 rounded-lg border transition-colors text-xs uppercase ${p.textOnly ? 'bg-white text-black border-transparent font-bold' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}
+                    >
+                        {p.textOnly ? 'Text only — on' : 'Enable text only'}
+                    </button>
+                </Field>
+                {p.textOnly && (
+                    <Field label="Content position">
+                        <div className="flex flex-col items-center gap-1">
+                            {(['top', 'center', 'bottom'] as const).map(vAlign => (
+                                <div key={vAlign} className="flex gap-1">
+                                    {(['left', 'center', 'right'] as const).map(hAlign => {
+                                        const isActive =
+                                            (p.contentVerticalAlign ?? 'center') === vAlign &&
+                                            (p.contentHorizontalAlign ?? 'center') === hAlign;
+                                        return (
+                                            <button
+                                                key={hAlign}
+                                                onClick={() => set({
+                                                    contentVerticalAlign: vAlign,
+                                                    contentHorizontalAlign: hAlign,
+                                                    titleAlignment: hAlign,
+                                                })}
+                                                className={`w-7 h-7 rounded flex items-center justify-center border transition-colors ${isActive ? 'bg-white border-white' : 'border-neutral-700 hover:border-neutral-400'}`}
+                                            >
+                                                <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-black' : 'bg-neutral-500'}`} />
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            ))}
+                        </div>
+                        <p className="text-[10px] text-neutral-600 mt-1 text-center">
+                            {(p.contentVerticalAlign ?? 'center')} · {(p.contentHorizontalAlign ?? 'center')}
+                        </p>
+                    </Field>
+                )}
+            </SectionCard>
+
             <SectionCard title={t('sectionImage')}>
                 <Field label={t('fieldImagePadding')}>
                     <div className="grid grid-cols-2 gap-1.5">

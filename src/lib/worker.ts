@@ -228,6 +228,113 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
         return [c[0], c[1], c[2]];
     });
 
+    // ── New effects: halftone, pixelate, ascii ────────────────────────────────
+    if (algorithm === 'halftone' || algorithm === 'pixelate' || algorithm === 'ascii') {
+        const sortedByLum = [...palette].sort((a, b) =>
+            getLuminance(a[0], a[1], a[2]) - getLuminance(b[0], b[1], b[2])
+        );
+        const shadowColor = sortedByLum[0];
+        const highlightColor = sortedByLum[sortedByLum.length - 1];
+
+        if (algorithm === 'pixelate') {
+            // Each downscaled block → closest palette color, no error diffusion
+            const resultData = new Uint8ClampedArray(data.length);
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] < 128) { resultData[i + 3] = data[i + 3]; continue; }
+                const closest = findClosestColor(data[i], data[i + 1], data[i + 2], palette, 'default');
+                resultData[i] = closest[0];
+                resultData[i + 1] = closest[1];
+                resultData[i + 2] = closest[2];
+                resultData[i + 3] = data[i + 3];
+            }
+            finish(resultData, width, height, imageData.width, imageData.height, pointSize, e.data.jobId);
+            return;
+        }
+
+        if (algorithm === 'halftone') {
+            // Draw luminance-scaled circles at full resolution
+            const origW = imageData.width;
+            const origH = imageData.height;
+            const bSize = Math.max(pointSize, 4);
+            const outData = new Uint8ClampedArray(origW * origH * 4);
+            const numBlocksX = Math.ceil(origW / bSize);
+            const numBlocksY = Math.ceil(origH / bSize);
+
+            for (let by = 0; by < numBlocksY; by++) {
+                for (let bx = 0; bx < numBlocksX; bx++) {
+                    const sx = Math.min(bx, width - 1);
+                    const sy = Math.min(by, height - 1);
+                    const si = (sy * width + sx) * 4;
+                    const lum = getLuminance(data[si], data[si + 1], data[si + 2]) / 255;
+                    const maxR = bSize / 2;
+                    const r = maxR * (1 - lum); // dark = large dot, light = small dot
+                    const cx = bx * bSize + bSize / 2;
+                    const cy = by * bSize + bSize / 2;
+
+                    for (let dy = 0; dy < bSize; dy++) {
+                        for (let dx = 0; dx < bSize; dx++) {
+                            const px = bx * bSize + dx;
+                            const py = by * bSize + dy;
+                            if (px >= origW || py >= origH) continue;
+                            const di = (py * origW + px) * 4;
+                            const distSq = (px - cx + 0.5) ** 2 + (py - cy + 0.5) ** 2;
+                            const color = distSq <= r * r ? shadowColor : highlightColor;
+                            outData[di] = color[0];
+                            outData[di + 1] = color[1];
+                            outData[di + 2] = color[2];
+                            outData[di + 3] = 255;
+                        }
+                    }
+                }
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            self.postMessage({ imageData: new ImageData(outData as any, origW, origH), jobId: e.data.jobId });
+            return;
+        }
+
+        if (algorithm === 'ascii') {
+            const chars = ['@', '#', 'S', '%', '?', '*', '+', ';', ':', ',', '.', ' '];
+            const origW = imageData.width;
+            const origH = imageData.height;
+            const bSize = Math.max(pointSize, 6);
+
+            try {
+                const canvas = new OffscreenCanvas(origW, origH);
+                const ctx = canvas.getContext('2d')!;
+                ctx.fillStyle = `rgb(${highlightColor[0]},${highlightColor[1]},${highlightColor[2]})`;
+                ctx.fillRect(0, 0, origW, origH);
+                ctx.fillStyle = `rgb(${shadowColor[0]},${shadowColor[1]},${shadowColor[2]})`;
+                ctx.font = `bold ${bSize}px monospace`;
+                ctx.textBaseline = 'top';
+                const numBlocksX = Math.ceil(origW / bSize);
+                const numBlocksY = Math.ceil(origH / bSize);
+
+                for (let by = 0; by < numBlocksY; by++) {
+                    for (let bx = 0; bx < numBlocksX; bx++) {
+                        const sx = Math.min(bx, width - 1);
+                        const sy = Math.min(by, height - 1);
+                        const si = (sy * width + sx) * 4;
+                        const lum = getLuminance(data[si], data[si + 1], data[si + 2]) / 255;
+                        const charIdx = Math.min(Math.floor(lum * chars.length), chars.length - 1);
+                        ctx.fillText(chars[charIdx], bx * bSize, by * bSize);
+                    }
+                }
+                const imgData = ctx.getImageData(0, 0, origW, origH);
+                self.postMessage({ imageData: imgData, jobId: e.data.jobId });
+            } catch {
+                // OffscreenCanvas not available — fall back to pixelate
+                const resultData = new Uint8ClampedArray(data.length);
+                for (let i = 0; i < data.length; i += 4) {
+                    const closest = findClosestColor(data[i], data[i + 1], data[i + 2], palette, 'default');
+                    resultData[i] = closest[0]; resultData[i + 1] = closest[1];
+                    resultData[i + 2] = closest[2]; resultData[i + 3] = data[i + 3];
+                }
+                finish(resultData, width, height, imageData.width, imageData.height, pointSize, e.data.jobId);
+            }
+            return;
+        }
+    }
+
     if (algorithm === 'none') {
         const resultData = new Uint8ClampedArray(data.length);
         for (let i = 0; i < data.length; i += 4) {

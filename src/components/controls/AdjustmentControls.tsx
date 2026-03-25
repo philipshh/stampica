@@ -61,7 +61,7 @@ const SliderField: React.FC<{
 
 const ThemeSelect: React.FC<{
     currentValue: string;
-    themes: { name: string; colors: string[] }[];
+    themes: { name: string; colors: string[]; group?: string }[];
     onSelect: (name: string) => void;
 }> = ({ currentValue, themes, onSelect }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -117,15 +117,25 @@ const ThemeSelect: React.FC<{
             {isOpen && (
                 <div ref={dropdownRef} style={dropStyle}
                     className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-y-auto shadow-2xl p-1 space-y-0.5">
-                    {themes.map(theme => (
-                        <button key={theme.name} onClick={() => { onSelect(theme.name); setIsOpen(false); }}
-                            className="w-full px-3 py-2 text-xs text-left hover:bg-neutral-800 flex items-center gap-2 transition-colors rounded-lg">
-                            <div className="flex -space-x-1 flex-shrink-0">
-                                {theme.colors.map((c, i) => <div key={i} className="w-3 h-3 rounded-full border border-black" style={{ backgroundColor: c }} />)}
-                            </div>
-                            <span className={`truncate ${theme.name === currentValue ? 'text-white font-semibold' : 'text-neutral-400'}`}>{theme.name}</span>
-                        </button>
-                    ))}
+                    {themes.map((theme, i) => {
+                        const showGroupHeader = theme.group && (i === 0 || themes[i - 1].group !== theme.group);
+                        return (
+                            <React.Fragment key={theme.name}>
+                                {showGroupHeader && (
+                                    <div className="px-3 pt-2 pb-1 text-[9px] uppercase tracking-widest text-neutral-600 select-none">
+                                        {theme.group}
+                                    </div>
+                                )}
+                                <button onClick={() => { onSelect(theme.name); setIsOpen(false); }}
+                                    className="w-full px-3 py-2 text-xs text-left hover:bg-neutral-800 flex items-center gap-2 transition-colors rounded-lg">
+                                    <div className="flex -space-x-1 flex-shrink-0">
+                                        {theme.colors.map((c, j) => <div key={j} className="w-3 h-3 rounded-full border border-black" style={{ backgroundColor: c }} />)}
+                                    </div>
+                                    <span className={`truncate ${theme.name === currentValue ? 'text-white font-semibold' : 'text-neutral-400'}`}>{theme.name}</span>
+                                </button>
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
             )}
         </div>
@@ -183,8 +193,8 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
             <SectionCard title="Dither">
                 <Field label="Algorithm">
-                    <div className="grid grid-cols-3 gap-1.5">
-                        {(options.engine === 'dg' ? ['atkinson', 'floyd', 'threshold'] : ['none', 'atkinson', 'threshold']).map(algo => (
+                    <div className="grid grid-cols-4 gap-1.5">
+                        {(['none', 'atkinson', 'threshold', 'floyd', 'stucki', 'halftone', 'pixelate', 'ascii'] as const).map(algo => (
                             <button key={algo} onClick={() => update('algorithm', algo as any)} className={segBtn(options.algorithm === algo)}>
                                 {algo}
                             </button>
@@ -217,9 +227,9 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     <ThemeSelect
                         currentValue={options.selectedThemeName || ''}
                         themes={
-                            options.colorMode === 'duotone' ? DUOTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.highlight] })) :
-                            options.colorMode === 'tritone' ? TRITONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.mid, t.highlight] })) :
-                            QUADTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.midShadow, t.midHighlight, t.highlight] }))
+                            options.colorMode === 'duotone' ? DUOTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.highlight], group: t.group })) :
+                            options.colorMode === 'tritone' ? TRITONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.mid, t.highlight], group: t.group })) :
+                            QUADTONE_THEMES.map(t => ({ name: t.name, colors: [t.shadow, t.midShadow, t.midHighlight, t.highlight], group: t.group }))
                         }
                         onSelect={handleThemeSelect}
                     />

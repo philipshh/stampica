@@ -712,6 +712,20 @@ export async function drawPosterToCanvas(
         totalFixedContentHeight += h;
     }
 
+    // Apply text-only vertical alignment
+    if (options.poster.textOnly) {
+        const enabledTextSections = options.poster.layoutOrder.filter(s => isSectionEnabled(s) && s !== 'image');
+        const numGaps = Math.max(0, enabledTextSections.length - 1);
+        const totalWithGaps = totalFixedContentHeight + numGaps * gap;
+        const vAlign = options.poster.contentVerticalAlign ?? 'top';
+        if (vAlign === 'center') {
+            currentY = (POSTER_HEIGHT - totalWithGaps) / 2;
+        } else if (vAlign === 'bottom') {
+            currentY = POSTER_HEIGHT - totalWithGaps - padding;
+        }
+        // 'top' keeps currentY = padding (default)
+    }
+
     // 2. Render sections
     // imageMarginBottom is already defined at the top level
 

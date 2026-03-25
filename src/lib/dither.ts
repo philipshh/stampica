@@ -3,8 +3,28 @@ export type DitherAlgorithm =
     | 'atkinson'
     | 'threshold'
     | 'floyd'
-    | 'stucki';
+    | 'stucki'
+    | 'halftone'
+    | 'pixelate'
+    | 'ascii';
 export type AspectRatio = 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
+
+export type ProductType = 'poster' | 'tshirt' | 'tote' | 'cap';
+
+export interface ProductConfig {
+    id: ProductType;
+    name: string;
+    printAreaAspect: number;
+    mockupImagePath?: string;
+    availableSizes: string[];
+}
+
+export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
+    poster: { id: 'poster', name: 'Poster', printAreaAspect: 1 / Math.SQRT2, availableSizes: ['A5', 'A4', 'A3'] },
+    tshirt: { id: 'tshirt', name: 'T-Shirt', printAreaAspect: 1, availableSizes: ['S', 'M', 'L', 'XL'] },
+    tote:   { id: 'tote', name: 'Tote Bag', printAreaAspect: 1, availableSizes: ['One Size'] },
+    cap:    { id: 'cap', name: 'Cap', printAreaAspect: 2, availableSizes: ['One Size'] },
+};
 export type PaddingSize = 'S' | 'M' | 'L';
 export type ImagePadding = 'none' | 'same-as-poster';
 export type LayoutOrder = string[]; // e.g. ['header', 'title', 'image', 'list', 'footer']
@@ -27,6 +47,7 @@ export interface QuadtoneTheme {
     midShadow: string;
     midHighlight: string;
     highlight: string;
+    group?: string;
 }
 
 export interface TritoneTheme {
@@ -34,12 +55,14 @@ export interface TritoneTheme {
     shadow: string;
     mid: string;
     highlight: string;
+    group?: string;
 }
 
 export interface DuotoneTheme {
     name: string;
     shadow: string;
     highlight: string;
+    group?: string;
 }
 
 // Predefined color palette presets
@@ -174,6 +197,9 @@ export interface DitherOptions {
         titleFont?: TitleFont;
         bodyFont?: BodyFont;
         gap: number;
+        textOnly?: boolean;
+        contentVerticalAlign?: 'top' | 'center' | 'bottom';
+        contentHorizontalAlign?: 'left' | 'center' | 'right';
     };
 }
 

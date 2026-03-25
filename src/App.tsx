@@ -273,7 +273,11 @@ function App() {
 
         timerRef.current = setTimeout(async () => {
             if (options.imageMode === 'single') {
-                if (!imageFile) return;
+                if (!imageFile) {
+                    if (!options.poster.textOnly) return;
+                    setProcessedImage(null);
+                    return;
+                }
                 const result = await processImage(imageFile, options);
                 setProcessedImage(result);
             } else {
