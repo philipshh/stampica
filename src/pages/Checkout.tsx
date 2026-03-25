@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { useCart, CartItem } from '../contexts/CartContext';
@@ -68,6 +68,7 @@ export function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
+  const [previewIdx, setPreviewIdx] = useState(0);
 
   // Redirect to cart if empty
   useEffect(() => {
@@ -90,8 +91,6 @@ export function Checkout() {
   const subtotal = items.reduce((s, i) => s + itemPrice(i), 0);
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
   const total = subtotal + shipping;
-
-  const firstPreview = items[0]?.previewBlobUrl ?? null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -181,21 +180,39 @@ export function Checkout() {
 
         {/* Left — poster preview */}
         <div className="md:w-1/2 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10 flex-shrink-0">
-          {firstPreview ? (
+          {items[previewIdx]?.previewBlobUrl ? (
             <div className="relative w-full flex items-center justify-center h-full">
-              {items.length > 1 && (
-                <img src={items[1]?.previewBlobUrl} alt=""
-                  className="absolute left-1/2 -translate-x-1/2 max-h-[85%] max-w-[85%] object-contain rounded-xl border border-neutral-800 shadow-2xl opacity-40"
-                  style={{ transform: 'translateX(-46%) translateY(3%) rotate(-3deg)' }}
-                />
-              )}
-              <img src={firstPreview} alt="Your poster"
-                className="relative max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800 z-10"
+              <img
+                src={items[previewIdx].previewBlobUrl}
+                alt="Your poster"
+                className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800"
               />
               {items.length > 1 && (
-                <div className="absolute top-4 right-4 z-20 bg-white text-black text-xs font-bold rounded-full px-2.5 py-1">
-                  {items.length} {t('items')}
-                </div>
+                <>
+                  <button
+                    onClick={() => setPreviewIdx(i => Math.max(0, i - 1))}
+                    disabled={previewIdx === 0}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-neutral-700 flex items-center justify-center text-white hover:bg-black disabled:opacity-30 transition-all z-10"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    onClick={() => setPreviewIdx(i => Math.min(items.length - 1, i + 1))}
+                    disabled={previewIdx === items.length - 1}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-neutral-700 flex items-center justify-center text-white hover:bg-black disabled:opacity-30 transition-all z-10"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {items.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setPreviewIdx(i)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${i === previewIdx ? 'bg-white scale-125' : 'bg-neutral-600 hover:bg-neutral-400'}`}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           ) : (
@@ -242,6 +259,24 @@ export function Checkout() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-white">{item.size} · {item.frame !== 'none' ? item.frame + ' frame · ' : ''}{item.quantity}×</p>
                         </div>
+                        <button
+                          onClick={async () => {
+                            if (!item.options) return;
+                            const exportOptions = { ...item.options, poster: { ...item.options.poster, aspectRatio: item.size } };
+                            const blob = await exportPosterHiResBlob(exportOptions, item.imageFile ?? null, item.processedImage ?? null);
+                            if (blob) {
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url; a.download = `poster-${item.size}.png`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }
+                          }}
+                          title={t('downloadHires')}
+                          className="text-neutral-500 hover:text-white transition-colors flex-shrink-0 p-1"
+                        >
+                          <Download size={14} />
+                        </button>
                         <p className="text-sm font-bold text-white flex-shrink-0">{itemPrice(item)} din</p>
                       </div>
                     ))}

@@ -374,16 +374,23 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                 color: textColor,
                 padding: `${scaled(getBasePadding())}px`,
                 fontFamily: `${options.poster.bodyFont || 'Inter'}, sans-serif`,
-                gap: `${scaled(options.poster.gap)}px`,
-                ...(options.poster.textOnly && {
-                    justifyContent:
-                        options.poster.contentVerticalAlign === 'bottom' ? 'flex-end' :
-                        options.poster.contentVerticalAlign === 'center' ? 'center' :
-                        'flex-start'
-                })
+                gap: options.poster.textOnly ? 0 : `${scaled(options.poster.gap)}px`,
             }}
         >
-            {orderedSections.filter(section => section !== null)}
+            {options.poster.textOnly ? (
+                <div
+                    className="flex-1 flex flex-col w-full min-h-0"
+                    style={{
+                        gap: `${scaled(options.poster.gap)}px`,
+                        justifyContent:
+                            options.poster.contentVerticalAlign === 'bottom' ? 'flex-end' :
+                            options.poster.contentVerticalAlign === 'center' ? 'center' :
+                            'flex-start',
+                    }}
+                >
+                    {orderedSections.filter(section => section !== null)}
+                </div>
+            ) : orderedSections.filter(section => section !== null)}
 
             {/* Paper Texture Overlay - render last so it's above content */}
             {options.paperTexture !== 'none' && options.paperTextureOpacity > 0 && (

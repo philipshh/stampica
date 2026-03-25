@@ -106,16 +106,6 @@ export const Controls: React.FC<ControlsProps> = ({
                         <span className="bg-white text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>
                     </Link>
                 )}
-                {/* Hi-res download — coming soon */}
-                <button
-                    disabled
-                    title={t('hiresDescription')}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider text-neutral-600 bg-neutral-900/50 cursor-not-allowed"
-                >
-                    <Download className="w-3.5 h-3.5" />
-                    {t('downloadHires')}
-                    <span className="text-[9px] bg-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded font-normal normal-case tracking-normal">{t('comingSoon')}</span>
-                </button>
                 {/* Admin-only actions */}
                 {isAdmin && (
                     <div className="flex gap-2">

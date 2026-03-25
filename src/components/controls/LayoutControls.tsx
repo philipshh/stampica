@@ -203,7 +203,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 )}
             </SectionCard>
 
-            <SectionCard title={t('sectionImage')}>
+            {!p.textOnly && <SectionCard title={t('sectionImage')}>
                 <Field label={t('fieldImagePadding')}>
                     <div className="grid grid-cols-2 gap-1.5">
                         {(['none', 'same-as-poster'] as const).map(v => (
@@ -248,7 +248,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         </div>
                     </Field>
                 </div>
-            </SectionCard>
+            </SectionCard>}
         </div>
     );
 };
