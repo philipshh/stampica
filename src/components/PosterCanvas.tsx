@@ -374,7 +374,13 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                 color: textColor,
                 padding: `${scaled(getBasePadding())}px`,
                 fontFamily: `${options.poster.bodyFont || 'Inter'}, sans-serif`,
-                gap: `${scaled(options.poster.gap)}px`
+                gap: `${scaled(options.poster.gap)}px`,
+                ...(options.poster.textOnly && {
+                    justifyContent:
+                        options.poster.contentVerticalAlign === 'bottom' ? 'flex-end' :
+                        options.poster.contentVerticalAlign === 'center' ? 'center' :
+                        'flex-start'
+                })
             }}
         >
             {orderedSections.filter(section => section !== null)}

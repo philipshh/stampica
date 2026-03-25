@@ -718,10 +718,11 @@ export async function drawPosterToCanvas(
         const numGaps = Math.max(0, enabledTextSections.length - 1);
         const totalWithGaps = totalFixedContentHeight + numGaps * gap;
         const vAlign = options.poster.contentVerticalAlign ?? 'top';
+        const availableHeight = POSTER_HEIGHT - 2 * padding;
         if (vAlign === 'center') {
-            currentY = (POSTER_HEIGHT - totalWithGaps) / 2;
+            currentY = padding + (availableHeight - totalWithGaps) / 2;
         } else if (vAlign === 'bottom') {
-            currentY = POSTER_HEIGHT - totalWithGaps - padding;
+            currentY = POSTER_HEIGHT - padding - totalWithGaps;
         }
         // 'top' keeps currentY = padding (default)
     }

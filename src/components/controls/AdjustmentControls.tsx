@@ -193,9 +193,9 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
             <SectionCard title="Dither">
                 <Field label="Algorithm">
-                    <div className="grid grid-cols-4 gap-1.5">
-                        {(['none', 'atkinson', 'threshold', 'floyd', 'stucki', 'halftone', 'pixelate', 'ascii'] as const).map(algo => (
-                            <button key={algo} onClick={() => update('algorithm', algo as any)} className={segBtn(options.algorithm === algo)}>
+                    <div className="grid grid-cols-2 gap-1.5">
+                        {(['none', 'atkinson', 'stucki', 'threshold'] as const).map(algo => (
+                            <button key={algo} onClick={() => update('algorithm', algo)} className={segBtn(options.algorithm === algo)}>
                                 {algo}
                             </button>
                         ))}

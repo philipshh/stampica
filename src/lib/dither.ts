@@ -2,11 +2,7 @@ export type DitherAlgorithm =
     | 'none'
     | 'atkinson'
     | 'threshold'
-    | 'floyd'
-    | 'stucki'
-    | 'halftone'
-    | 'pixelate'
-    | 'ascii';
+    | 'stucki';
 export type AspectRatio = 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
 
 export type ProductType = 'poster' | 'tshirt' | 'tote' | 'cap';
