@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../contexts/LanguageContext';
 import { GoogleLoginButton } from './GoogleLoginButton';
 
 export function TopBar() {
   const { user, logout } = useAuth();
+  const { lang, setLang, t } = useT();
   const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -20,7 +21,6 @@ export function TopBar() {
     return () => document.removeEventListener('mousedown', handler);
   }, [showDropdown]);
 
-  // Close on route change
   useEffect(() => { setShowDropdown(false); }, [location.pathname]);
 
   function navLink(to: string, label: string) {
@@ -49,43 +49,44 @@ export function TopBar() {
 
   return (
     <header className="h-[88px] flex-shrink-0 flex items-center justify-between px-5 bg-neutral-950 border-b border-neutral-800 z-50">
-      {/* Logo */}
       <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
         <img src="/logo.png" alt="Stampica" className="h-10 w-auto object-contain" />
       </Link>
 
-      {/* Nav + auth */}
       <div className="flex items-center gap-1">
-        {navLink('/create', 'Create')}
-        {user && navLink('/orders', 'Orders')}
+        {navLink('/create', t('create'))}
+        {user && navLink('/orders', t('orders'))}
         {user?.role === 'admin' && navLink('/admin', 'Admin')}
 
         <div className="w-px h-4 bg-neutral-800 mx-2" />
 
+        {/* Language toggle */}
+        <button
+          onClick={() => setLang(lang === 'en' ? 'sr' : 'en')}
+          className="text-xs font-medium px-2 py-1 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-800/60 transition-colors"
+          title="Switch language"
+        >
+          {lang === 'en' ? 'SR' : 'EN'}
+        </button>
+
+        <div className="w-px h-4 bg-neutral-800 mx-1" />
+
         {user ? (
           <div ref={dropdownRef} className="relative">
-            {/* Avatar button — always visible */}
             <button
               onClick={() => setShowDropdown(v => !v)}
               className="flex items-center gap-2 rounded-lg p-1 hover:bg-neutral-800/60 transition-colors"
             >
               {user.picture ? (
-                <img
-                  src={user.picture}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                />
+                <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs font-semibold text-white flex-shrink-0">
                   {initials}
                 </div>
               )}
-              <span className="text-xs text-neutral-400 max-w-[100px] truncate hidden sm:block">
-                {user.name}
-              </span>
+              <span className="text-xs text-neutral-400 max-w-[100px] truncate hidden sm:block">{user.name}</span>
             </button>
 
-            {/* Dropdown */}
             {showDropdown && (
               <div className="absolute right-0 top-full mt-2 bg-neutral-900 border border-neutral-800 rounded-xl shadow-xl w-44 z-50 overflow-hidden">
                 <div className="px-3 py-2.5 border-b border-neutral-800">
@@ -96,13 +97,12 @@ export function TopBar() {
                   onClick={() => { setShowDropdown(false); logout(); }}
                   className="w-full text-left px-3 py-2.5 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
                 >
-                  Sign out
+                  {t('signOut')}
                 </button>
               </div>
             )}
           </div>
         ) : (
-          // Render Google button directly — one click to sign in
           <GoogleLoginButton />
         )}
       </div>

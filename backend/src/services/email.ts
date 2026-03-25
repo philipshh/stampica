@@ -10,17 +10,21 @@ const FROM_EMAIL = process.env.EMAIL_USER ?? 'stampicastudio@gmail.com';
 const FROM_NAME = 'Stampica';
 const APP_URL = process.env.APP_URL ?? 'https://stampica.studio';
 
+export interface OrderEmailItem {
+  size: string;
+  quantity: number;
+  frame: string;
+  previewUrl?: string | null;
+  posterUrl?: string | null;
+}
+
 export interface OrderEmailData {
   orderNumber: string;
   customerEmail: string;
   customerName: string;
-  size: string;
-  quantity: number;
-  frame?: string | null;
+  items: OrderEmailItem[];
   shippingAddress: string; // "Name, Street, City PostalCode, Country"
   phone: string;
-  previewUrl?: string | null;
-  posterUrl?: string | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -80,28 +84,57 @@ function emailShell(body: string) {
 
 // ── Emails ────────────────────────────────────────────────────────────────────
 
+const SIZE_PRICE: Record<string, number> = { A5: 700, A4: 900, A3: 1100 };
+const FRAME_EXTRA: Record<string, number> = { none: 0, black: 1000, white: 1000 };
+const SHIPPING_COST = 200;
+const FREE_SHIPPING_THRESHOLD = 4000;
+
+function itemPrice(item: OrderEmailItem): number {
+  return ((SIZE_PRICE[item.size] ?? 0) + (FRAME_EXTRA[item.frame] ?? 0)) * item.quantity;
+}
+
+function itemsHtml(items: OrderEmailItem[]): string {
+  return items.map((item, i) => {
+    const frameLabel = item.frame && item.frame !== 'none'
+      ? ` · ${item.frame.charAt(0).toUpperCase() + item.frame.slice(1)} frame`
+      : '';
+    const previewCell = item.previewUrl
+      ? `<img src="${item.previewUrl}" alt="Poster ${i + 1}" style="width:56px;border:3px solid #0a0a0a;display:block;">`
+      : `<div style="width:56px;height:79px;background:#eee;border-radius:4px;"></div>`;
+    return `
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:12px 0;width:70px;vertical-align:top;">${previewCell}</td>
+      <td style="padding:12px 12px;font-size:13px;color:#333;vertical-align:top;">
+        ${item.size}${frameLabel}<br>
+        <span style="color:#888;">×${item.quantity}</span>
+      </td>
+      <td style="padding:12px 0;font-size:13px;font-weight:600;color:#111;vertical-align:top;text-align:right;white-space:nowrap;">${itemPrice(item)} din</td>
+    </tr>`;
+  }).join('');
+}
+
 export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Promise<void> {
   const { street, cityPostal, country } = parseAddress(order.shippingAddress);
   const firstName = order.customerName.split(' ')[0];
+  const subtotal = order.items.reduce((s, i) => s + itemPrice(i), 0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const total = subtotal + shipping;
 
   const body = `
     <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Your order is confirmed!</h2>
     <p style="margin:0 0 28px;color:#666;font-size:15px;">Hi ${firstName}, thanks for your order. We'll get it printed and on its way.</p>
 
-    <!-- Poster preview -->
-    ${order.previewUrl ? `
-    <div style="text-align:center;margin-bottom:28px;">
-      <img src="${order.previewUrl}" alt="Your poster" style="max-width:200px;width:100%;border:6px solid #0a0a0a;display:inline-block;">
-    </div>` : ''}
-
-    <!-- Order summary -->
+    <!-- Items -->
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
+      ${itemsHtml(order.items)}
+    </table>
+
+    <!-- Totals -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
       ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
-
-      ${row('Size', order.size)}
-      ${order.frame && order.frame !== 'none' ? row('Framing', order.frame.charAt(0).toUpperCase() + order.frame.slice(1) + ' frame') : ''}
-      ${row('Quantity', String(order.quantity))}
-
+      ${row('Shipping', shipping === 0 ? 'Free' : `${shipping} din`)}
+      ${row('Total', `<strong>${total} din</strong>`)}
+      ${row('Payment', 'Cash on delivery / Plaćanje pouzećem')}
     </table>
 
     <!-- Ship to -->
@@ -131,22 +164,34 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
   if (!shopEmail) throw new Error('PRINT_SHOP_EMAIL not configured');
 
   const { street, cityPostal, country } = parseAddress(order.shippingAddress);
+  const subtotal = order.items.reduce((s, i) => s + itemPrice(i), 0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const total = subtotal + shipping;
+
+  const downloadLinks = order.items
+    .filter(i => i.posterUrl)
+    .map((i, idx) => `<a href="${i.posterUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin:4px 4px 0 0;">↓ Item ${idx + 1} – ${i.size}</a>`)
+    .join('');
 
   const body = `
     <h2 style="margin:0 0 4px;font-size:22px;color:#0a0a0a;">New order</h2>
     <p style="margin:0 0 28px;color:#666;font-size:15px;">Order <strong>#${order.orderNumber}</strong> just came in.</p>
 
-    <!-- Order details -->
+    <!-- Customer -->
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
       ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
-
       ${row('Customer', order.customerName)}
       ${row('Email', `<a href="mailto:${order.customerEmail}" style="color:#111;">${order.customerEmail}</a>`)}
+    </table>
 
-      ${row('Size', order.size)}
-      ${order.frame && order.frame !== 'none' ? row('Framing', order.frame.charAt(0).toUpperCase() + order.frame.slice(1) + ' frame') : ''}
-      ${row('Quantity', String(order.quantity))}
-
+    <!-- Items -->
+    <p style="margin:24px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;">Items (${order.items.length})</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
+      ${itemsHtml(order.items)}
+    </table>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+      ${row('Shipping', shipping === 0 ? 'Free' : `${shipping} din`)}
+      ${row('Total', `<strong>${total} din</strong>`)}
     </table>
 
     <!-- Ship to -->
@@ -159,12 +204,9 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
       <tr><td style="padding:4px 16px 12px;font-size:14px;color:#555;">${order.phone}</td></tr>
     </table>
 
-    <!-- Download button -->
+    <!-- Download buttons -->
     <div style="margin-top:28px;">
-      ${order.posterUrl
-        ? `<a href="${order.posterUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;padding:13px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">↓ Download hi-res print file</a>`
-        : `<p style="color:#aaa;font-size:13px;margin:0;">No hi-res file attached to this order.</p>`
-      }
+      ${downloadLinks || `<p style="color:#aaa;font-size:13px;margin:0;">No hi-res files attached to this order.</p>`}
     </div>`;
 
   await getClient().transactionalEmails.sendTransacEmail({

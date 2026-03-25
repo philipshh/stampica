@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../contexts/LanguageContext';
 import { CheckCircle } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -23,6 +24,7 @@ interface Order {
 
 export function Support() {
   const { user, token } = useAuth();
+  const { t } = useT();
   const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState({
@@ -73,8 +75,8 @@ export function Support() {
       <div className="min-h-full bg-neutral-950 flex items-center justify-center p-8">
         <div className="text-center max-w-sm">
           <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Message sent</h2>
-          <p className="text-neutral-400 text-sm">We'll get back to you as soon as possible.</p>
+          <h2 className="text-xl font-bold text-white mb-2">{t('messageSent')}</h2>
+          <p className="text-neutral-400 text-sm">{t('messageSentDesc')}</p>
         </div>
       </div>
     );
@@ -84,26 +86,24 @@ export function Support() {
     <div className="min-h-full bg-neutral-950 text-white p-4 md:p-8">
       <div className="max-w-lg mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-1">Contact support</h1>
-          <p className="text-neutral-400 text-sm">
-            Have a question or issue? Fill out the form and we'll get back to you.
-          </p>
+          <h1 className="text-2xl font-bold mb-1">{t('contactSupportTitle')}</h1>
+          <p className="text-neutral-400 text-sm">{t('contactSupportDesc')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-neutral-400 mb-1.5">Name</label>
+              <label className="block text-xs text-neutral-400 mb-1.5">{t('name')}</label>
               <input
                 required
                 value={form.name}
                 onChange={e => set('name', e.target.value)}
                 className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-                placeholder="Your name"
+                placeholder={t('yourName')}
               />
             </div>
             <div>
-              <label className="block text-xs text-neutral-400 mb-1.5">Email</label>
+              <label className="block text-xs text-neutral-400 mb-1.5">{t('email')}</label>
               <input
                 required
                 type="email"
@@ -116,16 +116,14 @@ export function Support() {
           </div>
 
           <div>
-            <label className="block text-xs text-neutral-400 mb-1.5">
-              Order <span className="text-neutral-600">(optional)</span>
-            </label>
+            <label className="block text-xs text-neutral-400 mb-1.5">{t('orderOptional')}</label>
             {orders.length > 0 ? (
               <select
                 value={form.orderNumber}
                 onChange={e => set('orderNumber', e.target.value)}
                 className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-neutral-600 transition-colors appearance-none cursor-pointer"
               >
-                <option value="">No specific order</option>
+                <option value="">{t('noSpecificOrder')}</option>
                 {orders.map(o => (
                   <option key={o.id} value={o.order_number}>
                     #{o.order_number} — {o.size} · {o.status}
@@ -143,7 +141,7 @@ export function Support() {
           </div>
 
           <div>
-            <label className="block text-xs text-neutral-400 mb-1.5">Subject</label>
+            <label className="block text-xs text-neutral-400 mb-1.5">{t('subject')}</label>
             <select
               value={form.subject}
               onChange={e => set('subject', e.target.value)}
@@ -154,14 +152,14 @@ export function Support() {
           </div>
 
           <div>
-            <label className="block text-xs text-neutral-400 mb-1.5">Message</label>
+            <label className="block text-xs text-neutral-400 mb-1.5">{t('message')}</label>
             <textarea
               required
               rows={5}
               value={form.message}
               onChange={e => set('message', e.target.value)}
               className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors resize-none"
-              placeholder="Describe your issue…"
+              placeholder={t('describeIssue')}
             />
           </div>
 
@@ -172,7 +170,7 @@ export function Support() {
             disabled={isSubmitting}
             className="w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-neutral-100 transition-colors disabled:opacity-50 text-sm"
           >
-            {isSubmitting ? 'Sending…' : 'Send message'}
+            {isSubmitting ? t('sending') : t('sendMessage')}
           </button>
         </form>
       </div>

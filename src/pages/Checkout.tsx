@@ -1,52 +1,26 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../contexts/LanguageContext';
+import { useCart, CartItem } from '../contexts/CartContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { OrderConfirmation } from '../components/OrderConfirmation';
 import { exportPosterHiResBlob } from '../lib/posterExport';
 import { uploadPosterFile } from '../lib/supabase';
-import type { DitherOptions } from '../lib/dither';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
-// ── Sizes & prices ────────────────────────────────────────────────────────────
-const SIZES = ['A5', 'A4', 'A3'] as const;
-type PosterSize = (typeof SIZES)[number];
-
-const SIZE_INFO: Record<PosterSize, { dims: string; price: number }> = {
-  A5: { dims: '14.8 × 21 cm', price: 700 },
-  A4: { dims: '21 × 29.7 cm', price: 900 },
-  A3: { dims: '29.7 × 42 cm', price: 1100 },
-};
-
-// ── Framing ───────────────────────────────────────────────────────────────────
-const FRAMES = ['none', 'black', 'white'] as const;
-type FrameOption = (typeof FRAMES)[number];
-
-const FRAME_INFO: Record<FrameOption, { label: string; description: string; extra: number }> = {
-  none:  { label: 'No frame',    description: 'Poster only',          extra: 0    },
-  black: { label: 'Black frame', description: 'Slim black wood frame', extra: 1000 },
-  white: { label: 'White frame', description: 'Slim white wood frame', extra: 1000 },
-};
-
-// ── Shipping ──────────────────────────────────────────────────────────────────
+const SIZE_PRICE: Record<string, number> = { A5: 700, A4: 900, A3: 1100 };
+const FRAME_EXTRA: Record<string, number> = { none: 0, black: 1000, white: 1000 };
 const SHIPPING_COST = 200;
 const FREE_SHIPPING_THRESHOLD = 4000;
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-interface CheckoutLocationState {
-  options?: DitherOptions;
-  imageFile?: File;
-  processedImage?: ImageData;
-  previewBlob?: Blob;
-  defaultSize?: string;
+function itemPrice(item: CartItem) {
+  return ((SIZE_PRICE[item.size] ?? 0) + (FRAME_EXTRA[item.frame] ?? 0)) * item.quantity;
 }
 
 interface FormState {
-  size: PosterSize;
-  quantity: number;
-  frame: FrameOption;
   name: string;
   address: string;
   city: string;
@@ -55,8 +29,7 @@ interface FormState {
   phone: string;
 }
 
-type FormKey = keyof Omit<FormState, 'size' | 'quantity'>;
-
+type FormKey = keyof FormState;
 const REQUIRED_FIELDS: FormKey[] = ['name', 'address', 'city', 'postalCode', 'country', 'phone'];
 
 function validate(form: FormState): Partial<Record<FormKey, string>> {
@@ -72,24 +45,17 @@ function validate(form: FormState): Partial<Record<FormKey, string>> {
   return errors;
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
 export function Checkout() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const state = (location.state ?? {}) as CheckoutLocationState;
   const { user, token } = useAuth();
-
-  const defaultSize = (state.defaultSize ?? state.options?.poster.aspectRatio ?? 'A4') as PosterSize;
-  const initialSize: PosterSize = SIZES.includes(defaultSize as PosterSize) ? defaultSize : 'A4';
+  const { t } = useT();
+  const { items, clearCart } = useCart();
 
   const savedShipping = (() => {
     try { return JSON.parse(localStorage.getItem('stampica_shipping') ?? 'null'); } catch { return null; }
   })();
 
   const [form, setForm] = useState<FormState>({
-    size: initialSize,
-    quantity: 1,
-    frame: 'none',
     name: user?.name ?? savedShipping?.name ?? '',
     address: savedShipping?.address ?? '',
     city: savedShipping?.city ?? '',
@@ -98,15 +64,17 @@ export function Checkout() {
     phone: savedShipping?.phone ?? '',
   });
   const [saveShipping, setSaveShipping] = useState(!!savedShipping);
-
   const [touched, setTouched] = useState<Partial<Record<FormKey, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
 
-  const previewUrl = state.previewBlob ? URL.createObjectURL(state.previewBlob) : null;
+  // Redirect to cart if empty
+  useEffect(() => {
+    if (items.length === 0 && !confirmedOrderNumber) navigate('/cart', { replace: true });
+  }, [items.length, confirmedOrderNumber]);
 
-  function update<K extends keyof FormState>(key: K, value: FormState[K]) {
+  function update(key: FormKey, value: string) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
@@ -119,18 +87,18 @@ export function Checkout() {
     Object.entries(errors).filter(([k]) => touched[k as FormKey])
   ) as Partial<Record<FormKey, string>>;
 
-  const itemPrice = (SIZE_INFO[form.size].price + FRAME_INFO[form.frame].extra) * form.quantity;
-  const shipping = itemPrice >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const totalPrice = itemPrice + shipping;
+  const subtotal = items.reduce((s, i) => s + itemPrice(i), 0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const total = subtotal + shipping;
+
+  const firstPreview = items[0]?.previewBlobUrl ?? null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!token) return;
 
-    // Mark all fields touched to show all errors
     const allTouched = Object.fromEntries(REQUIRED_FIELDS.map(k => [k, true]));
     setTouched(allTouched);
-
     if (Object.keys(errors).length > 0) return;
 
     setIsSubmitting(true);
@@ -149,45 +117,47 @@ export function Checkout() {
       const shippingAddress = `${form.name}, ${form.address}, ${form.city} ${form.postalCode}, ${form.country}`;
       const orderId = Date.now().toString(36);
 
-      let previewFileUrl: string | null = null;
-      let hiresFileUrl: string | null = null;
+      // Upload files for each item
+      const uploadedItems = await Promise.all(items.map(async (item, idx) => {
+        let previewFileUrl: string | null = null;
+        let hiresFileUrl: string | null = null;
 
-      if (state.previewBlob) {
-        previewFileUrl = await uploadPosterFile(state.previewBlob, `${orderId}_preview.jpg`).catch(() => null);
-      }
-
-      if (state.options) {
-        // Override aspect ratio to match the size the customer actually ordered
-        const exportOptions: DitherOptions = {
-          ...state.options,
-          poster: { ...state.options.poster, aspectRatio: form.size },
-        };
-        const hiresBlob = await exportPosterHiResBlob(exportOptions, state.imageFile ?? null, state.processedImage ?? null);
-        if (hiresBlob) {
-          hiresFileUrl = await uploadPosterFile(hiresBlob, `${orderId}_hires.png`).catch(err => {
-            console.error('Hi-res upload failed:', err);
-            return null;
-          });
+        if (item.previewBlob) {
+          previewFileUrl = await uploadPosterFile(item.previewBlob, `${orderId}_${idx}_preview.jpg`).catch(() => null);
         }
-      }
+
+        if (item.options) {
+          const exportOptions = { ...item.options, poster: { ...item.options.poster, aspectRatio: item.size } };
+          const hiresBlob = await exportPosterHiResBlob(exportOptions, item.imageFile ?? null, item.processedImage ?? null);
+          if (hiresBlob) {
+            hiresFileUrl = await uploadPosterFile(hiresBlob, `${orderId}_${idx}_hires.png`).catch(() => null);
+          }
+        }
+
+        return {
+          size: item.size,
+          quantity: item.quantity,
+          frame: item.frame,
+          previewUrl: previewFileUrl,
+          posterUrl: hiresFileUrl,
+          designData: item.options ?? {},
+        };
+      }));
 
       const res = await fetch(`${API_BASE}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          size: form.size,
-          quantity: form.quantity,
+          items: uploadedItems,
           shippingAddress,
           phone: form.phone,
-          designData: { ...(state.options ?? {}), frame: form.frame },
-          previewUrl: previewFileUrl,
-          posterUrl: hiresFileUrl,
         }),
       });
 
       const data = (await res.json()) as { order?: { order_number: string }; error?: string };
       if (!res.ok) throw new Error(data.error ?? 'Failed to place order');
       setConfirmedOrderNumber(data.order!.order_number);
+      clearCart();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -209,11 +179,25 @@ export function Checkout() {
     <div className="md:h-full bg-neutral-950 md:overflow-hidden">
       <div className="flex flex-col md:flex-row md:h-full">
 
-        {/* Left — poster preview (desktop: sticky full height, mobile: top strip) */}
+        {/* Left — poster preview */}
         <div className="md:w-1/2 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10 flex-shrink-0">
-          {previewUrl ? (
-            <img src={previewUrl} alt="Your poster"
-              className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800" />
+          {firstPreview ? (
+            <div className="relative w-full flex items-center justify-center h-full">
+              {items.length > 1 && (
+                <img src={items[1]?.previewBlobUrl} alt=""
+                  className="absolute left-1/2 -translate-x-1/2 max-h-[85%] max-w-[85%] object-contain rounded-xl border border-neutral-800 shadow-2xl opacity-40"
+                  style={{ transform: 'translateX(-46%) translateY(3%) rotate(-3deg)' }}
+                />
+              )}
+              <img src={firstPreview} alt="Your poster"
+                className="relative max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800 z-10"
+              />
+              {items.length > 1 && (
+                <div className="absolute top-4 right-4 z-20 bg-white text-black text-xs font-bold rounded-full px-2.5 py-1">
+                  {items.length} {t('items')}
+                </div>
+              )}
+            </div>
           ) : (
             <div className="w-full aspect-[1/1.41] max-h-full bg-neutral-800 rounded-xl flex items-center justify-center text-neutral-600 text-sm">
               No preview
@@ -225,167 +209,130 @@ export function Checkout() {
         <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8 md:h-full">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-8">
+              <button onClick={() => navigate('/cart')} className="text-neutral-500 hover:text-white transition-colors">
+                <ArrowLeft size={20} />
+              </button>
               <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center">
                 <ShoppingBag className="text-white" size={20} />
               </div>
-              <h1 className="text-2xl font-bold text-white">Order your poster</h1>
+              <h1 className="text-2xl font-bold text-white">{t('orderYourPoster')}</h1>
             </div>
 
-        {!user ? (
-          <div className="bg-neutral-900 rounded-2xl p-6 text-center border border-neutral-800">
-            <p className="text-neutral-400 mb-4 text-sm">Sign in to place your order</p>
-            <div className="flex justify-center">
-              <GoogleLoginButton />
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Print details */}
-            <section className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden">
-              <div className="px-6 py-4 border-b border-neutral-800">
-                <h2 className="font-semibold text-white">Print details</h2>
+            {!user ? (
+              <div className="bg-neutral-900 rounded-2xl p-6 text-center border border-neutral-800">
+                <p className="text-neutral-400 mb-4 text-sm">{t('signInToOrder')}</p>
+                <div className="flex justify-center">
+                  <GoogleLoginButton />
+                </div>
               </div>
-              <div className="p-6 space-y-5">
-                {/* Size */}
-                <div>
-                  <label className="block text-sm text-neutral-400 mb-3">Size</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {SIZES.map(s => (
-                      <button key={s} type="button" onClick={() => update('size', s)}
-                        className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all ${
-                          form.size === s
-                            ? 'bg-white text-black border-transparent'
-                            : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:border-neutral-500'
-                        }`}>
-                        <div className="font-bold">{s}</div>
-                        <div className={`text-[10px] mt-0.5 ${form.size === s ? 'text-black/60' : 'text-neutral-500'}`}>
-                          {SIZE_INFO[s].dims}
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Order summary */}
+                <section className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-neutral-800">
+                    <h2 className="font-semibold text-white">{t('printDetails')}</h2>
+                  </div>
+                  <div className="divide-y divide-neutral-800">
+                    {items.map((item) => (
+                      <div key={item.id} className="flex items-center gap-3 px-4 py-3">
+                        {item.previewBlobUrl
+                          ? <img src={item.previewBlobUrl} alt="" className="w-10 object-contain rounded border border-neutral-700 flex-shrink-0" />
+                          : <div className="w-10 aspect-[1/1.41] bg-neutral-800 rounded flex-shrink-0" />
+                        }
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white">{item.size} · {item.frame !== 'none' ? item.frame + ' frame · ' : ''}{item.quantity}×</p>
                         </div>
-                        <div className={`text-base font-bold mt-1.5 ${form.size === s ? 'text-black' : 'text-neutral-200'}`}>
-                          {SIZE_INFO[s].price} din
-                        </div>
-                      </button>
+                        <p className="text-sm font-bold text-white flex-shrink-0">{itemPrice(item)} din</p>
+                      </div>
                     ))}
                   </div>
-                </div>
-
-                {/* Framing */}
-                <div>
-                  <label className="block text-sm text-neutral-400 mb-3">Framing</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {FRAMES.map(f => (
-                      <button key={f} type="button" onClick={() => update('frame', f)}
-                        className={`py-3 px-2 rounded-xl text-sm font-medium border transition-all text-center ${
-                          form.frame === f
-                            ? 'bg-white text-black border-transparent'
-                            : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:border-neutral-500'
-                        }`}>
-                        <div className="font-bold text-xs">{FRAME_INFO[f].label}</div>
-                        <div className={`text-[10px] mt-0.5 ${form.frame === f ? 'text-black/60' : 'text-neutral-500'}`}>
-                          {FRAME_INFO[f].description}
-                        </div>
-                        {FRAME_INFO[f].extra > 0 && (
-                          <div className={`text-sm font-bold mt-1.5 ${form.frame === f ? 'text-black' : 'text-neutral-200'}`}>
-                            +{FRAME_INFO[f].extra} din
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quantity */}
-                <div>
-                  <label className="block text-sm text-neutral-400 mb-3">Quantity</label>
-                  <div className="flex items-center justify-center gap-4">
-                    <button type="button" onClick={() => update('quantity', Math.max(1, form.quantity - 1))}
-                      className="w-9 h-9 rounded-lg border border-neutral-700 flex items-center justify-center text-lg font-medium text-white hover:bg-neutral-800 transition-colors">−</button>
-                    <span className="w-8 text-center font-semibold text-white">{form.quantity}</span>
-                    <button type="button" onClick={() => update('quantity', Math.min(20, form.quantity + 1))}
-                      className="w-9 h-9 rounded-lg border border-neutral-700 flex items-center justify-center text-lg font-medium text-white hover:bg-neutral-800 transition-colors">+</button>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-neutral-800 space-y-1.5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-neutral-400">Subtotal</span>
-                      <span className="text-white">{itemPrice} din</span>
+                  <div className="px-4 py-3 border-t border-neutral-800 space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-400">{t('subtotal')}</span>
+                      <span className="text-white">{subtotal} din</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-neutral-400">Shipping</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-400">{t('shipping')}</span>
                       {shipping === 0
-                        ? <span className="text-green-400 font-medium">Free</span>
+                        ? <span className="text-green-400">{t('freeShipping')}</span>
                         : <span className="text-white">{shipping} din</span>
                       }
                     </div>
                     {shipping > 0 && (
-                      <p className="text-[11px] text-neutral-600">Free shipping on orders over {FREE_SHIPPING_THRESHOLD} din</p>
+                      <p className="text-[11px] text-neutral-600">{t('freeShippingNote', { amount: FREE_SHIPPING_THRESHOLD })}</p>
                     )}
-                    <div className="flex items-center justify-between pt-2 border-t border-neutral-800">
-                      <span className="text-sm text-neutral-400">Total</span>
-                      <span className="text-2xl font-bold text-white">{totalPrice} din</span>
+                    <div className="flex justify-between pt-2 border-t border-neutral-800">
+                      <span className="text-sm text-neutral-400">{t('total')}</span>
+                      <span className="text-2xl font-bold text-white">{total} din</span>
                     </div>
                   </div>
-                </div>
-              </div>
-            </section>
+                </section>
 
-            {/* Shipping details */}
-            <section className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden">
-              <div className="px-6 py-4 border-b border-neutral-800">
-                <h2 className="font-semibold text-white">Shipping details</h2>
-              </div>
-              <div className="p-6 space-y-3">
-                <Field label="Full name" value={form.name}
-                  onChange={v => update('name', v)} onBlur={() => touch('name')}
-                  error={visibleErrors.name} autoComplete="name" />
-                <Field label="Street address" value={form.address}
-                  onChange={v => update('address', v)} onBlur={() => touch('address')}
-                  error={visibleErrors.address} autoComplete="street-address" />
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="City" value={form.city}
-                    onChange={v => update('city', v)} onBlur={() => touch('city')}
-                    error={visibleErrors.city} autoComplete="address-level2" />
-                  <Field label="Postal code" value={form.postalCode}
-                    onChange={v => update('postalCode', v)} onBlur={() => touch('postalCode')}
-                    error={visibleErrors.postalCode} autoComplete="postal-code" />
+                {/* Payment notice */}
+                <div className="flex items-start gap-3 bg-neutral-800/60 border border-neutral-700 rounded-xl px-4 py-3">
+                  <span className="text-lg leading-none mt-0.5">💳</span>
+                  <div>
+                    <p className="text-sm font-medium text-white">{t('paymentOnDelivery')}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">{t('paymentOnDeliveryDesc')}</p>
+                  </div>
                 </div>
-                <Field label="Country" value={form.country}
-                  onChange={v => update('country', v)} onBlur={() => touch('country')}
-                  error={visibleErrors.country} autoComplete="country-name" />
-                <Field label="Phone number" value={form.phone}
-                  onChange={v => update('phone', v)} onBlur={() => touch('phone')}
-                  error={visibleErrors.phone} type="tel" autoComplete="tel" />
-                <label className="flex items-center gap-2.5 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    checked={saveShipping}
-                    onChange={e => setSaveShipping(e.target.checked)}
-                    className="w-4 h-4 rounded accent-white cursor-pointer"
-                  />
-                  <span className="text-sm text-neutral-400">Save shipping details for next time</span>
-                </label>
-              </div>
-            </section>
 
-            {submitError && (
-              <p className="text-red-400 text-sm bg-red-900/20 px-4 py-3 rounded-xl border border-red-900/30">{submitError}</p>
+                {/* Shipping details */}
+                <section className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-neutral-800">
+                    <h2 className="font-semibold text-white">{t('shippingDetails')}</h2>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    <Field label={t('fullName')} value={form.name}
+                      onChange={v => update('name', v)} onBlur={() => touch('name')}
+                      error={visibleErrors.name} autoComplete="name" />
+                    <Field label={t('streetAddress')} value={form.address}
+                      onChange={v => update('address', v)} onBlur={() => touch('address')}
+                      error={visibleErrors.address} autoComplete="street-address" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label={t('city')} value={form.city}
+                        onChange={v => update('city', v)} onBlur={() => touch('city')}
+                        error={visibleErrors.city} autoComplete="address-level2" />
+                      <Field label={t('postalCode')} value={form.postalCode}
+                        onChange={v => update('postalCode', v)} onBlur={() => touch('postalCode')}
+                        error={visibleErrors.postalCode} autoComplete="postal-code" />
+                    </div>
+                    <Field label={t('country')} value={form.country}
+                      onChange={v => update('country', v)} onBlur={() => touch('country')}
+                      error={visibleErrors.country} autoComplete="country-name" />
+                    <Field label={t('phoneNumber')} value={form.phone}
+                      onChange={v => update('phone', v)} onBlur={() => touch('phone')}
+                      error={visibleErrors.phone} type="tel" autoComplete="tel" />
+                    <label className="flex items-center gap-2.5 cursor-pointer pt-1">
+                      <input
+                        type="checkbox"
+                        checked={saveShipping}
+                        onChange={e => setSaveShipping(e.target.checked)}
+                        className="w-4 h-4 rounded accent-white cursor-pointer"
+                      />
+                      <span className="text-sm text-neutral-400">{t('saveShipping')}</span>
+                    </label>
+                  </div>
+                </section>
+
+                {submitError && (
+                  <p className="text-red-400 text-sm bg-red-900/20 px-4 py-3 rounded-xl border border-red-900/30">{submitError}</p>
+                )}
+
+                <button type="submit" disabled={isSubmitting}
+                  className="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-100 disabled:opacity-50 transition-all text-base">
+                  {isSubmitting ? t('uploading') : `${t('placeOrder')} · ${total} din`}
+                </button>
+                <div className="h-8" />
+              </form>
             )}
-
-            <button type="submit" disabled={isSubmitting}
-              className="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-100 disabled:opacity-50 transition-all text-base">
-              {isSubmitting ? 'Uploading & placing order…' : `Place order · ${totalPrice} din`}
-            </button>
-            <div className="h-8" />
-          </form>
-        )}
           </div>
         </div>
-
       </div>
     </div>
   );
 }
 
-// ── Field component ───────────────────────────────────────────────────────────
 function Field({ label, value, onChange, onBlur, type = 'text', autoComplete, error }: {
   label: string;
   value: string;

@@ -6,6 +6,8 @@ import { AdjustmentControls } from './controls/AdjustmentControls';
 import { ProjectControls } from './controls/ProjectControls';
 import { PosterProject } from '../lib/storage';
 import { Download, Upload, Copy, ShoppingCart } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
+import { Link } from 'react-router-dom';
 
 interface ControlsProps {
     options: DitherOptions;
@@ -18,6 +20,7 @@ interface ControlsProps {
     imageFile: File | null;
     onProjectLoad: (project: PosterProject) => void;
     isAdmin?: boolean;
+    cartCount?: number;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -30,10 +33,10 @@ export const Controls: React.FC<ControlsProps> = ({
     imageDimensions,
     imageFile,
     onProjectLoad,
-    isAdmin = false
+    isAdmin = false,
+    cartCount = 0,
 }) => {
-
-
+    const { t } = useT();
     const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'saved'>('design');
 
     return (
@@ -53,7 +56,7 @@ export const Controls: React.FC<ControlsProps> = ({
                 </div>
             </div>
 
-            {/* Scrollable content — key forces remount + fade on tab change */}
+            {/* Scrollable content */}
             <div key={activeTab} className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 custom-scrollbar animate-in fade-in duration-150">
                 {activeTab === 'design' && (
                     <DesignControls options={options} onOptionsChange={onOptionsChange} />
@@ -76,7 +79,6 @@ export const Controls: React.FC<ControlsProps> = ({
 
             {/* Footer Actions — Desktop */}
             <div className="hidden md:flex flex-col gap-2 p-3 border-t border-neutral-800 bg-black flex-shrink-0">
-                {/* Primary actions */}
                 <div className="flex gap-2">
                     <button
                         onClick={onUploadClick}
@@ -90,27 +92,46 @@ export const Controls: React.FC<ControlsProps> = ({
                         className="flex-1 bg-white text-black font-bold py-2.5 rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                     >
                         <ShoppingCart className="w-3.5 h-3.5" />
-                        Order
+                        {t('addToCart')}
                     </button>
                 </div>
+                {/* View cart — shown when cart has items */}
+                {cartCount > 0 && (
+                    <Link
+                        to="/cart"
+                        className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider bg-neutral-800 text-white hover:bg-neutral-700 transition-colors font-bold"
+                    >
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        {t('viewCart')}
+                        <span className="bg-white text-black text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>
+                    </Link>
+                )}
+                {/* Hi-res download — coming soon */}
+                <button
+                    disabled
+                    title={t('hiresDescription')}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider text-neutral-600 bg-neutral-900/50 cursor-not-allowed"
+                >
+                    <Download className="w-3.5 h-3.5" />
+                    {t('downloadHires')}
+                    <span className="text-[9px] bg-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded font-normal normal-case tracking-normal">{t('comingSoon')}</span>
+                </button>
                 {/* Admin-only actions */}
                 {isAdmin && (
                     <div className="flex gap-2">
                         <button
                             onClick={onCopy}
                             className="flex-1 bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider"
-                            title="Copy image"
                         >
                             <Copy className="w-3.5 h-3.5" />
-                            Copy
+                            {t('copy')}
                         </button>
                         <button
                             onClick={onExport}
                             className="flex-1 bg-neutral-900 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 py-2 rounded-lg text-xs uppercase tracking-wider"
-                            title="Download hi-res"
                         >
                             <Download className="w-3.5 h-3.5" />
-                            Download
+                            {t('export')}
                         </button>
                     </div>
                 )}
@@ -131,7 +152,7 @@ export const Controls: React.FC<ControlsProps> = ({
                     className="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white text-black hover:bg-neutral-200 transition-colors"
                 >
                     <ShoppingCart className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest font-bold">Order</span>
+                    <span className="text-[8px] uppercase tracking-widest font-bold">Cart</span>
                 </button>
                 {isAdmin && (
                     <>

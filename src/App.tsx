@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { useCart } from './contexts/CartContext';
 import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
@@ -138,6 +139,7 @@ function App() {
 
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { addItem, items: cartItems } = useCart();
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
     const [options, setOptions] = useState<DitherOptions>(DEFAULT_OPTIONS);
@@ -425,9 +427,21 @@ function App() {
 
     async function handleOrderPoster() {
         const previewBlob = await exportPosterPreviewBlob(options, processedImage);
-        navigate('/checkout', {
-            state: { options, imageFile, processedImage, previewBlob, defaultSize: options.poster.aspectRatio },
+        const previewBlobUrl = previewBlob ? URL.createObjectURL(previewBlob) : '';
+        const size = (['A5', 'A4', 'A3'] as const).includes(options.poster.aspectRatio as 'A5' | 'A4' | 'A3')
+            ? (options.poster.aspectRatio as 'A5' | 'A4' | 'A3')
+            : 'A4';
+        addItem({
+            options,
+            imageFile,
+            processedImage,
+            previewBlob: previewBlob ?? null,
+            previewBlobUrl,
+            size,
+            quantity: 1,
+            frame: 'none',
         });
+        navigate('/cart');
     }
 
     return (
@@ -445,6 +459,7 @@ function App() {
                     imageFile={imageFile}
                     onProjectLoad={handleProjectLoad}
                     isAdmin={user?.role === 'admin'}
+                    cartCount={cartItems.length}
                 />
             </aside>
 
@@ -530,6 +545,7 @@ function App() {
                         imageFile={imageFile}
                         onProjectLoad={handleProjectLoad}
                         isAdmin={user?.role === 'admin'}
+                        cartCount={cartItems.length}
                     />
                 </div>
             </main>

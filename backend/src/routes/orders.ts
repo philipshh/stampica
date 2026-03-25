@@ -32,41 +32,50 @@ function generateOrderNumber(): string {
   return `STP-${timestamp}-${random}`;
 }
 
+interface OrderItem {
+  size: string;
+  quantity: number;
+  frame: string;
+  previewUrl?: string | null;
+  posterUrl?: string | null;
+  designData?: Record<string, unknown>;
+}
+
 // POST /api/orders – create a new order
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const { user } = res.locals;
-    const { size, quantity, shippingAddress, phone, designData, previewUrl, posterUrl } = req.body as {
-      size: string;
-      quantity: number;
+    const { items, shippingAddress, phone } = req.body as {
+      items: OrderItem[];
       shippingAddress: string;
       phone: string;
-      designData: Record<string, unknown>;
-      previewUrl?: string;
-      posterUrl?: string;
     };
 
-    if (!size || !quantity || !shippingAddress || !phone) {
-      res.status(400).json({ error: 'size, quantity, shippingAddress, and phone are required' });
+    if (!Array.isArray(items) || items.length === 0 || !shippingAddress || !phone) {
+      res.status(400).json({ error: 'items, shippingAddress, and phone are required' });
       return;
     }
 
     const supabase = getSupabase();
     const orderNumber = generateOrderNumber();
 
+    // Use first item for legacy columns (backwards compat with admin dashboard)
+    const first = items[0];
+
     const { data: order, error } = await supabase
       .from('orders')
       .insert({
         user_id: user.userId,
         order_number: orderNumber,
-        design_data: designData ?? {},
-        size,
-        quantity,
+        design_data: first.designData ?? {},
+        size: first.size,
+        quantity: first.quantity,
         status: 'pending',
         shipping_address: shippingAddress,
         phone,
-        preview_url: previewUrl ?? null,
-        poster_url: posterUrl ?? null,
+        preview_url: first.previewUrl ?? null,
+        poster_url: first.posterUrl ?? null,
+        items,
       })
       .select()
       .single();
@@ -78,13 +87,9 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       orderNumber,
       customerEmail: user.email,
       customerName: user.name,
-      size,
-      quantity,
-      frame: (designData?.frame as string | undefined) ?? null,
+      items,
       shippingAddress,
       phone,
-      previewUrl: previewUrl ?? null,
-      posterUrl: posterUrl ?? null,
     };
 
     sendOrderConfirmationToCustomer(emailData).catch(console.error);

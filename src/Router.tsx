@@ -1,9 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { CartProvider } from './contexts/CartContext';
 import { TopBar } from './components/TopBar';
 import { Footer } from './components/Footer';
 import App from './App';
 import { Landing } from './pages/Landing';
+import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { OrderTracking } from './pages/OrderTracking';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -45,9 +48,12 @@ function EditorLayout() {
 export function Router() {
   return (
     <BrowserRouter>
+    <LanguageProvider>
+    <CartProvider>
       <Routes>
         <Route path="/" element={<Layout><Landing /></Layout>} />
         <Route path="/create" element={<EditorLayout />} />
+        <Route path="/cart" element={<Layout><Cart /></Layout>} />
         <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
         <Route path="/orders" element={<Layout><OrderTracking /></Layout>} />
         <Route path="/admin" element={<AdminGuard><Layout><AdminDashboard /></Layout></AdminGuard>} />
@@ -58,6 +64,8 @@ export function Router() {
         <Route path="/dev" element={<Layout><DevNav /></Layout>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </CartProvider>
+    </LanguageProvider>
     </BrowserRouter>
   );
 }

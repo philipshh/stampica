@@ -19,6 +19,14 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
+interface OrderItem {
+  size: string;
+  quantity: number;
+  frame: string;
+  previewUrl?: string | null;
+  posterUrl?: string | null;
+}
+
 interface Order {
   id: string;
   order_number: string;
@@ -30,6 +38,7 @@ interface Order {
   tracking_number: string | null;
   preview_url: string | null;
   poster_url: string | null;
+  items: OrderItem[] | null;
   created_at: string;
   users: { name: string; email: string } | null;
 }
@@ -215,9 +224,17 @@ function OrderRow({
           <div className="w-14 md:w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0 flex items-center justify-center text-neutral-600 text-xs">–</div>
         )}
         <div className="flex-1 min-w-0">
-          <span className="font-mono font-bold text-sm">#{order.order_number}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono font-bold text-sm">#{order.order_number}</span>
+            {order.items && order.items.length > 1 && (
+              <span className="text-[10px] bg-neutral-700 text-neutral-300 px-1.5 py-0.5 rounded-full font-medium">{order.items.length} items</span>
+            )}
+          </div>
           <p className="text-sm text-neutral-400 mt-0.5 truncate">
-            {order.users?.name ?? 'Unknown'} · {order.size} × {order.quantity}
+            {order.users?.name ?? 'Unknown'} · {order.items
+              ? order.items.map(i => `${i.size}×${i.quantity}`).join(', ')
+              : `${order.size} × ${order.quantity}`
+            }
           </p>
           <p className="text-xs text-neutral-600 mt-0.5">
             {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -243,9 +260,16 @@ function OrderRow({
 
         {/* Actions — right */}
         <div className="flex items-center gap-1">
-          {order.poster_url && (
+          {(order.poster_url || order.items?.some(i => i.posterUrl)) && (
             <button
-              onClick={() => handleDownload(order.poster_url!, `poster-${order.order_number}.png`)}
+              onClick={() => {
+                if (order.items?.length) {
+                  // For multi-item, expand to show per-item download links
+                  setExpanded(true);
+                } else if (order.poster_url) {
+                  handleDownload(order.poster_url, `poster-${order.order_number}.png`);
+                }
+              }}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
               title="Download hi-res"
             >
@@ -287,6 +311,35 @@ function OrderRow({
               <p>{order.shipping_address}</p>
             </div>
           </div>
+
+          {/* Multi-item breakdown */}
+          {order.items && order.items.length > 0 && (
+            <div>
+              <p className="text-neutral-500 text-xs mb-2">Items</p>
+              <div className="space-y-2">
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-3 bg-neutral-800/60 rounded-lg px-3 py-2">
+                    {item.previewUrl
+                      ? <img src={item.previewUrl} alt="" className="w-8 object-contain rounded border border-neutral-700 flex-shrink-0" />
+                      : <div className="w-8 aspect-[1/1.41] bg-neutral-700 rounded flex-shrink-0" />
+                    }
+                    <span className="text-xs text-neutral-300 flex-1">
+                      {item.size}{item.frame !== 'none' ? ` · ${item.frame} frame` : ''} × {item.quantity}
+                    </span>
+                    {item.posterUrl && (
+                      <button
+                        onClick={() => handleDownload(item.posterUrl!, `poster-${order.order_number}-${idx + 1}.png`)}
+                        className="flex items-center gap-1 px-2 py-1 text-[11px] text-neutral-400 hover:text-white bg-neutral-700 hover:bg-neutral-600 rounded transition-colors"
+                      >
+                        <Download size={11} /> Hi-res
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2 items-center">
             <input
               value={tracking}
@@ -302,7 +355,9 @@ function OrderRow({
               Save
             </button>
           </div>
-          {!order.poster_url && <p className="text-xs text-neutral-600">No hi-res file attached</p>}
+          {!order.poster_url && !order.items?.some(i => i.posterUrl) && (
+            <p className="text-xs text-neutral-600">No hi-res file attached</p>
+          )}
         </div>
       )}
     </div>

@@ -2,12 +2,20 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Package, Printer, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../contexts/LanguageContext';
 import { Lightbox } from '../components/Lightbox';
 import { SkeletonCard } from '../components/Skeleton';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 type OrderStatus = 'pending' | 'confirmed' | 'printing' | 'shipped' | 'delivered' | 'cancelled';
+
+interface OrderItem {
+  size: string;
+  quantity: number;
+  frame: string;
+  previewUrl?: string | null;
+}
 
 interface Order {
   id: string;
@@ -18,15 +26,16 @@ interface Order {
   shipping_address: string;
   tracking_number: string | null;
   preview_url: string | null;
+  items: OrderItem[] | null;
   created_at: string;
 }
 
-const STATUS_STEPS: { status: OrderStatus; label: string; icon: React.ElementType }[] = [
-  { status: 'pending',   label: 'Received',  icon: Clock },
-  { status: 'confirmed', label: 'Confirmed', icon: CheckCircle },
-  { status: 'printing',  label: 'Printing',  icon: Printer },
-  { status: 'shipped',   label: 'Shipped',   icon: Truck },
-  { status: 'delivered', label: 'Delivered', icon: Package },
+const STATUS_STEP_DEFS: { status: OrderStatus; icon: React.ElementType }[] = [
+  { status: 'pending',   icon: Clock },
+  { status: 'confirmed', icon: CheckCircle },
+  { status: 'printing',  icon: Printer },
+  { status: 'shipped',   icon: Truck },
+  { status: 'delivered', icon: Package },
 ];
 
 const STATUS_ORDER: Record<OrderStatus, number> = {
@@ -37,6 +46,7 @@ export function OrderTracking() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const highlightOrderNumber = searchParams.get('highlight') ?? undefined;
+  const { t } = useT();
 
   const { user, token } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -67,13 +77,13 @@ export function OrderTracking() {
     <div className="min-h-full bg-neutral-950 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-white">Your orders</h1>
+          <h1 className="text-2xl font-bold text-white">{t('myOrdersTitle')}</h1>
           {!user && (
             <button
               onClick={() => navigate('/checkout')}
               className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
             >
-              Sign in to view orders
+              {t('signInToOrder')}
             </button>
           )}
         </div>
@@ -88,9 +98,9 @@ export function OrderTracking() {
         {!isLoading && !error && orders.length === 0 && (
           <div className="text-center py-16 text-neutral-400">
             <Package size={40} className="mx-auto mb-3 opacity-40" />
-            <p>No orders yet</p>
+            <p>{t('noOrders')}</p>
             <Link to="/create" className="mt-4 inline-block text-sm text-neutral-600 hover:text-neutral-900 dark:hover:text-white transition-colors">
-              Create your first poster →
+              {t('noOrdersDesc')} →
             </Link>
           </div>
         )}
@@ -117,9 +127,12 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
   const [lightbox, setLightbox] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const { token } = useAuth();
+  const { t } = useT();
+
+  const STATUS_STEPS = STATUS_STEP_DEFS.map(s => ({ ...s, label: t(s.status) }));
 
   async function handleCancel() {
-    if (!confirm(`Cancel order #${order.order_number}? This cannot be undone.`)) return;
+    if (!confirm(t('cancelOrderConfirm'))) return;
     setCancelling(true);
     try {
       await fetch(`${API_BASE}/api/orders/${order.id}/cancel`, {
@@ -140,8 +153,21 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
         <Lightbox src={order.preview_url} alt={`Poster #${order.order_number}`} onClose={() => setLightbox(false)} />
       )}
       <div className="flex gap-4 p-5">
-        {/* Poster thumbnail */}
-        {order.preview_url ? (
+        {/* Poster thumbnail(s) */}
+        {order.items && order.items.length > 1 ? (
+          <div className="flex-shrink-0 flex gap-1 self-start">
+            {order.items.slice(0, 3).map((item, idx) => (
+              item.previewUrl
+                ? <img key={idx} src={item.previewUrl} alt="" className="w-12 object-contain rounded border border-neutral-700" />
+                : <div key={idx} className="w-12 aspect-[1/1.41] bg-neutral-800 rounded border border-neutral-700" />
+            ))}
+            {order.items.length > 3 && (
+              <div className="w-12 aspect-[1/1.41] bg-neutral-800 rounded border border-neutral-700 flex items-center justify-center text-xs text-neutral-500">
+                +{order.items.length - 3}
+              </div>
+            )}
+          </div>
+        ) : order.preview_url ? (
           <img
             src={order.preview_url}
             alt="Poster"
@@ -161,14 +187,23 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{order.size}</p>
-              <p className="text-xs text-neutral-400">qty {order.quantity}</p>
+              {order.items ? (
+                <>
+                  <p className="text-sm font-medium text-neutral-300">{order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
+                  <p className="text-xs text-neutral-400">{order.items.map(i => i.size).join(', ')}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{order.size}</p>
+                  <p className="text-xs text-neutral-400">qty {order.quantity}</p>
+                </>
+              )}
             </div>
           </div>
 
           {isCancelled ? (
             <div className="flex items-center gap-2 text-red-500 text-sm">
-              <XCircle size={16} /> Cancelled
+              <XCircle size={16} /> {t('cancelled')}
             </div>
           ) : (
             <>
@@ -209,7 +244,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
           {order.tracking_number && (
             <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center gap-2 text-sm">
               <Truck size={14} className="text-neutral-400" />
-              <span className="text-neutral-400">Tracking:</span>
+              <span className="text-neutral-400">{t('trackingNumber')}:</span>
               <span className="font-mono font-medium text-white">{order.tracking_number}</span>
             </div>
           )}
@@ -222,7 +257,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
                 disabled={cancelling}
                 className="text-xs text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
               >
-                {cancelling ? 'Cancelling…' : 'Cancel order'}
+                {cancelling ? '…' : t('cancelOrder')}
               </button>
             ) : (
               <span />
@@ -231,7 +266,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
               to={`/support?order=${order.order_number}`}
               className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
             >
-              {order.status === 'pending' ? 'Need help?' : 'Contact support'}
+              {t('contactSupport')}
             </Link>
           </div>
         </div>
