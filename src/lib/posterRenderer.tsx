@@ -193,8 +193,9 @@ export async function drawPosterToCanvas(
         // Title
         ctx.fillStyle = options.poster.titleColor || options.poster.textColor;
         ctx.font = `600 ${titleFontSize}px ${options.poster.titleFont || 'Inter'}, sans-serif`;
+        const titleLetterSpacingEm = options.poster.titleLetterSpacing ?? -0.05;
         if (ctx.letterSpacing !== undefined) {
-            ctx.letterSpacing = '-0.05em';
+            ctx.letterSpacing = `${titleLetterSpacingEm}em`;
         }
         ctx.textAlign = options.poster.titleAlignment;
         ctx.textBaseline = 'top';
@@ -204,8 +205,10 @@ export async function drawPosterToCanvas(
         if (options.poster.titleAlignment === 'right') titleX = POSTER_WIDTH - padding;
 
         const titleText = options.poster.title || 'UNTITLED';
-        const titleLineHeight = titleFontSize * 1.0;
-        const titleLines = wrapText(ctx, titleText, titleX, sectionY, contentWidth, titleLineHeight, dryRun);
+        const titleLineHeightMultiplier = options.poster.titleLineHeight ?? 1.0;
+        const titleLineHeight = titleFontSize * titleLineHeightMultiplier;
+        const noWrap = options.poster.textOverflow === 'clip';
+        const titleLines = wrapText(ctx, titleText, titleX, sectionY, contentWidth, titleLineHeight, dryRun, noWrap);
 
         sectionY += (titleLines * titleLineHeight);
 
@@ -713,6 +716,7 @@ export async function drawPosterToCanvas(
     }
 
     // Apply text-only vertical alignment
+    let textOnlyGap = gap; // may be overridden for center/space-between mode
     if (options.poster.textOnly) {
         const enabledTextSections = options.poster.layoutOrder.filter(s => isSectionEnabled(s) && s !== 'image');
         const vAlign = options.poster.contentVerticalAlign ?? 'center';
@@ -722,11 +726,9 @@ export async function drawPosterToCanvas(
             // Distribute sections evenly across full height (space-between)
             const numSections = enabledTextSections.length;
             if (numSections > 1) {
-                const distributedGap = (availableHeight - totalFixedContentHeight) / (numSections - 1);
-                // Store for use during rendering — override the regular gap
-                (options as any).__textOnlyDistributedGap = Math.max(gap, distributedGap);
+                const distributed = (availableHeight - totalFixedContentHeight) / (numSections - 1);
+                textOnlyGap = Math.max(gap, distributed);
             }
-            // currentY stays at padding (sections render top-to-bottom with distributed gap)
         } else if (vAlign === 'bottom') {
             const numGaps = Math.max(0, enabledTextSections.length - 1);
             currentY = POSTER_HEIGHT - padding - totalFixedContentHeight - numGaps * gap;
@@ -799,8 +801,7 @@ export async function drawPosterToCanvas(
             const enabledSections = options.poster.layoutOrder.filter(s => isSectionEnabled(s));
             const isLast = enabledSections[enabledSections.length - 1] === section;
             if (!isLast) {
-                const activeGap = (options as any).__textOnlyDistributedGap ?? gap;
-                currentY += activeGap;
+                currentY += options.poster.textOnly ? textOnlyGap : gap;
             }
         }
     }
@@ -850,15 +851,22 @@ function wrapText(
     y: number,
     maxWidth: number,
     lineHeight: number,
-    dryRun: boolean = false
+    dryRun: boolean = false,
+    noWrap: boolean = false
 ): number {
+    // Clip mode: render first line of each paragraph without wrapping
+    if (noWrap) {
+        const lines = text.split('\n');
+        if (!dryRun && lines[0]) ctx.fillText(lines[0], x, y);
+        return 1;
+    }
+
     const paragraphs = text.split('\n');
     let totalLineCount = 0;
     let currentY = y;
 
     for (const paragraph of paragraphs) {
         if (paragraph.length === 0) {
-            // Empty newline
             currentY += lineHeight;
             totalLineCount++;
             continue;
@@ -886,8 +894,7 @@ function wrapText(
         let line = '';
         for (let n = 0; n < processedWords.length; n++) {
             const testLine = line + processedWords[n] + ' ';
-            const metrics = ctx.measureText(testLine);
-            const testWidth = metrics.width;
+            const testWidth = ctx.measureText(testLine).width;
 
             if (testWidth > maxWidth && n > 0) {
                 if (!dryRun) ctx.fillText(line.trim(), x, currentY);
@@ -898,7 +905,6 @@ function wrapText(
                 line = testLine;
             }
         }
-        // Draw last line of paragraph
         if (!dryRun) ctx.fillText(line.trim(), x, currentY);
         currentY += lineHeight;
         totalLineCount++;

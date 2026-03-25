@@ -196,6 +196,9 @@ export interface DitherOptions {
         textOnly?: boolean;
         contentVerticalAlign?: 'top' | 'center' | 'bottom';
         contentHorizontalAlign?: 'left' | 'center' | 'right';
+        titleLetterSpacing?: number; // em units, e.g. -0.05
+        titleLineHeight?: number;    // multiplier, e.g. 1.0
+        textOverflow?: 'wrap' | 'clip';
     };
 }
 

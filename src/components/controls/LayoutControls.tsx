@@ -171,6 +171,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     </button>
                 </Field>
                 {p.textOnly && (
+                    <>
                     <Field label="Content position">
                         <div className="flex flex-col items-center gap-1">
                             {(['top', 'center', 'bottom'] as const).map(vAlign => (
@@ -200,6 +201,46 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                             {(p.contentVerticalAlign ?? 'center')} · {(p.contentHorizontalAlign ?? 'center')}
                         </p>
                     </Field>
+
+                    <Field label="Letter spacing">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="range" min={-0.2} max={1.0} step={0.05}
+                                value={p.titleLetterSpacing ?? -0.05}
+                                onChange={e => set({ titleLetterSpacing: parseFloat(e.target.value) })}
+                                className="flex-1 appearance-none cursor-pointer accent-white h-1 bg-neutral-700 rounded-full"
+                            />
+                            <span className="text-[10px] font-mono text-neutral-400 w-10 text-right">
+                                {((p.titleLetterSpacing ?? -0.05) * 100).toFixed(0)}%
+                            </span>
+                        </div>
+                    </Field>
+
+                    <Field label="Line height">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="range" min={0.7} max={2.5} step={0.05}
+                                value={p.titleLineHeight ?? 1.0}
+                                onChange={e => set({ titleLineHeight: parseFloat(e.target.value) })}
+                                className="flex-1 appearance-none cursor-pointer accent-white h-1 bg-neutral-700 rounded-full"
+                            />
+                            <span className="text-[10px] font-mono text-neutral-400 w-10 text-right">
+                                {(p.titleLineHeight ?? 1.0).toFixed(2)}
+                            </span>
+                        </div>
+                    </Field>
+
+                    <Field label="Text overflow">
+                        <div className="grid grid-cols-2 gap-1.5">
+                            {(['wrap', 'clip'] as const).map(v => (
+                                <button key={v} onClick={() => set({ textOverflow: v })}
+                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${(p.textOverflow ?? 'wrap') === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    {v}
+                                </button>
+                            ))}
+                        </div>
+                    </Field>
+                    </>
                 )}
             </SectionCard>
 

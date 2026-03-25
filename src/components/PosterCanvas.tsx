@@ -164,14 +164,18 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
         title: options.poster.showTitle ? (
             <div key="title" className="relative z-10 w-full flex flex-col" style={{ gap: `${scaled(options.poster.subtitleMargin)}px` }}>
                 <h1
-                    className="leading-none break-words w-full"
+                    className="w-full"
                     style={{
                         color: options.poster.titleColor || textColor,
                         fontSize: `${scaled(titleFontSize)}px`,
                         textAlign: titleAlignment,
-                        letterSpacing: '-0.05em',
+                        letterSpacing: `${options.poster.titleLetterSpacing ?? -0.05}em`,
+                        lineHeight: options.poster.titleLineHeight ?? 1,
                         fontWeight: 600,
-                        fontFamily: `${options.poster.titleFont || 'Inter'}, sans-serif`
+                        fontFamily: `${options.poster.titleFont || 'Inter'}, sans-serif`,
+                        overflow: options.poster.textOverflow === 'clip' ? 'hidden' : undefined,
+                        whiteSpace: options.poster.textOverflow === 'clip' ? 'nowrap' : 'normal',
+                        wordBreak: options.poster.textOverflow === 'clip' ? undefined : 'break-word',
                     }}
                 >
                     {title || 'UNTITLED'}
@@ -372,15 +376,16 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                 height: '100%',
                 backgroundColor: paperColor,
                 color: textColor,
-                padding: `${scaled(getBasePadding())}px`,
+                padding: options.poster.textOnly ? 0 : `${scaled(getBasePadding())}px`,
                 fontFamily: `${options.poster.bodyFont || 'Inter'}, sans-serif`,
                 gap: options.poster.textOnly ? 0 : `${scaled(options.poster.gap)}px`,
             }}
         >
             {options.poster.textOnly ? (
                 <div
-                    className="flex-1 flex flex-col w-full min-h-0"
+                    className="absolute inset-0 flex flex-col"
                     style={{
+                        padding: `${scaled(getBasePadding())}px`,
                         gap: `${scaled(options.poster.gap)}px`,
                         justifyContent:
                             options.poster.contentVerticalAlign === 'top' ? 'flex-start' :
