@@ -149,7 +149,11 @@ export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Pr
 
     <p style="margin:28px 0 0;color:#999;font-size:13px;line-height:1.6;">
       You'll receive another email with tracking info once your order ships.
-    </p>`;
+    </p>
+
+    <div style="margin-top:20px;">
+      <a href="${APP_URL}/orders" style="display:inline-block;background:#0a0a0a;color:#fff;padding:11px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Track your order →</a>
+    </div>`;
 
   await getClient().transactionalEmails.sendTransacEmail({
     sender: { email: FROM_EMAIL, name: FROM_NAME },

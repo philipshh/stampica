@@ -50,7 +50,7 @@ export const Controls: React.FC<ControlsProps> = ({
                             onClick={() => setActiveTab(tab)}
                             className={`py-2 text-center uppercase transition-all rounded-md text-[10px] tracking-wide font-medium ${activeTab === tab ? 'bg-neutral-700 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-300'}`}
                         >
-                            {tab === 'adjust' ? 'Effects' : tab}
+                            {tab === 'design' ? t('tabDesign') : tab === 'layout' ? t('tabLayout') : tab === 'adjust' ? t('tabEffects') : t('tabSaved')}
                         </button>
                     ))}
                 </div>
@@ -85,7 +85,7 @@ export const Controls: React.FC<ControlsProps> = ({
                         className="flex-1 bg-neutral-900 text-white font-bold py-2.5 rounded-lg hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                     >
                         <Upload className="w-3.5 h-3.5" />
-                        Upload
+                        {t('tabUpload')}
                     </button>
                     <button
                         onClick={onOrder}
@@ -144,7 +144,7 @@ export const Controls: React.FC<ControlsProps> = ({
                     className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors"
                 >
                     <Upload className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest">Upload</span>
+                    <span className="text-[8px] uppercase tracking-widest">{t('tabUpload')}</span>
                 </button>
                 <div className="w-px bg-neutral-800" />
                 <button

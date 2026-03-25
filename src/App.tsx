@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, X } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useCart } from './contexts/CartContext';
+import { useT } from './contexts/LanguageContext';
 import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
@@ -137,9 +139,10 @@ const DEFAULT_OPTIONS: DitherOptions = {
 
 function App() {
 
-    const navigate = useNavigate();
     const { user } = useAuth();
     const { addItem, items: cartItems } = useCart();
+    const { t } = useT();
+    const [showCartModal, setShowCartModal] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
     const [options, setOptions] = useState<DitherOptions>(DEFAULT_OPTIONS);
@@ -441,11 +444,48 @@ function App() {
             quantity: 1,
             frame: 'none',
         });
-        navigate('/cart');
+        setShowCartModal(true);
     }
 
     return (
         <div className="flex w-full flex-1 bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
+
+        {/* Add-to-cart modal */}
+        {showCartModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+                    <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                                <ShoppingCart size={18} className="text-white" />
+                            </div>
+                            <div>
+                                <p className="font-semibold text-white text-sm">{t('addedToCart')}</p>
+                                <p className="text-xs text-neutral-400 mt-0.5">{t('addedToCartDesc')}</p>
+                            </div>
+                        </div>
+                        <button onClick={() => setShowCartModal(false)} className="text-neutral-600 hover:text-white transition-colors ml-2 flex-shrink-0">
+                            <X size={16} />
+                        </button>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setShowCartModal(false)}
+                            className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-sm text-neutral-300 hover:text-white hover:border-neutral-500 transition-colors"
+                        >
+                            {t('continuecreating')}
+                        </button>
+                        <Link
+                            to="/cart"
+                            onClick={() => setShowCartModal(false)}
+                            className="flex-1 py-2.5 rounded-xl bg-white text-black text-sm font-semibold text-center hover:bg-neutral-100 transition-colors"
+                        >
+                            {t('goToCart')}
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        )}
             {/* Sidebar — hidden on mobile, fixed width on desktop */}
             <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 border-r border-neutral-800 bg-black md:flex-col">
                 <Controls

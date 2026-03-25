@@ -1,15 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ShoppingCart, Pencil, Package, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
+import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from './GoogleLoginButton';
 
 export function TopBar() {
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useT();
+  const { items } = useCart();
   const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const cartCount = items.length;
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -28,13 +32,30 @@ export function TopBar() {
     return (
       <Link
         to={to}
-        className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${
+        className={`hidden md:inline-flex text-sm px-3 py-1.5 rounded-lg transition-colors ${
           active
             ? 'bg-neutral-800 text-white'
             : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
         }`}
       >
         {label}
+      </Link>
+    );
+  }
+
+  function iconLink(to: string, icon: React.ReactNode, label: string) {
+    const active = location.pathname === to;
+    return (
+      <Link
+        to={to}
+        title={label}
+        className={`md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+          active
+            ? 'bg-neutral-800 text-white'
+            : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+        }`}
+      >
+        {icon}
       </Link>
     );
   }
@@ -54,11 +75,31 @@ export function TopBar() {
       </Link>
 
       <div className="flex items-center gap-1">
+        {/* Desktop text nav */}
         {navLink('/create', t('create'))}
         {user && navLink('/orders', t('orders'))}
         {user?.role === 'admin' && navLink('/admin', 'Admin')}
 
-        <div className="w-px h-4 bg-neutral-800 mx-2" />
+        {/* Mobile icon nav */}
+        {iconLink('/create', <Pencil size={17} />, t('create'))}
+        {user && iconLink('/orders', <Package size={17} />, t('orders'))}
+        {user?.role === 'admin' && iconLink('/admin', <ShieldCheck size={17} />, 'Admin')}
+
+        <div className="w-px h-4 bg-neutral-800 mx-1 md:mx-2" />
+
+        {/* Cart icon */}
+        <Link
+          to="/cart"
+          title={t('viewCart')}
+          className="relative flex items-center justify-center w-9 h-9 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800/60 transition-colors"
+        >
+          <ShoppingCart size={18} />
+          {cartCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-white text-black text-[9px] font-bold rounded-full leading-none">
+              {cartCount > 9 ? '9+' : cartCount}
+            </span>
+          )}
+        </Link>
 
         {/* Language toggle */}
         <button

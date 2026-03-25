@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../contexts/LanguageContext';
 import { useEffect, useRef } from 'react';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
@@ -38,6 +39,7 @@ function cardTransform(i: number, n: number, rot: number): string {
 // ── Component ─────────────────────────────────────────────────────────────────
 export function Landing() {
   const { user } = useAuth();
+  const { t } = useT();
 
   const source = CAROUSEL_IMAGES.length > 0
     ? CAROUSEL_IMAGES
@@ -81,7 +83,7 @@ export function Landing() {
         <div className="space-y-4 max-w-xl mb-10">
           <img src="/logo-text.svg" alt="Stampica" className="w-52 md:w-80 max-w-full mx-auto" />
           <p className="text-neutral-400 text-lg md:text-xl leading-relaxed">
-            Design dithered posters, order prints — delivered to your door.
+            {t('landingSubtitle')}
           </p>
         </div>
 
@@ -90,7 +92,7 @@ export function Landing() {
             to="/create"
             className="px-8 py-3.5 bg-white text-black font-semibold rounded-xl hover:bg-neutral-100 transition-colors text-base"
           >
-            Create
+            {t('create')}
           </Link>
 
           {user && (
@@ -98,7 +100,7 @@ export function Landing() {
               to="/orders"
               className="px-8 py-3.5 border border-neutral-700 text-white font-semibold rounded-xl hover:border-neutral-400 transition-colors text-base"
             >
-              Orders
+              {t('orders')}
             </Link>
           )}
 

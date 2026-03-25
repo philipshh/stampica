@@ -3,6 +3,7 @@ import { DitherOptions } from '../../lib/dither';
 import { getPosterDimensions } from '../../lib/posterRenderer';
 import { GripVertical, Eye, EyeOff } from 'lucide-react';
 import { SectionCard } from './SectionCard';
+import { useT } from '../../contexts/LanguageContext';
 
 interface LayoutControlsProps {
     options: DitherOptions;
@@ -24,6 +25,7 @@ const segBtn = (active: boolean) =>
 
 export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange }) => {
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
+    const { t } = useT();
 
     const handleDragStart = (e: React.DragEvent, index: number) => {
         setDraggedItem(index);
@@ -68,15 +70,17 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
         }
     };
 
-    const getSectionLabel = (section: string) =>
-        ({ header: 'Header', title: 'Title', image: 'Image', footer: 'Footer', list: 'List', icons: 'Icons' }[section] ?? section);
+    const getSectionLabel = (section: string): string => ({
+        header: t('sectHeader'), title: t('fieldTitle'), image: t('sectImage'),
+        footer: t('sectFooter'), list: t('sectList'), icons: t('sectIcons'),
+    }[section] ?? section);
 
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            <SectionCard title="Layout order">
+            <SectionCard title={t('sectionLayoutOrder')}>
                 <div className="space-y-1.5">
                     {p.layoutOrder.filter(s => s !== 'icons').map((section, index) => (
                         <div
@@ -100,19 +104,19 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         onClick={() => set({ layoutOrder: [...p.layoutOrder].sort(() => Math.random() - 0.5) })}
                         className="py-2 bg-neutral-800 text-neutral-300 text-xs rounded-lg hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-1.5"
                     >
-                        🎲 Shuffle
+                        🎲 {t('btnShuffle')}
                     </button>
                     <button
                         onClick={() => set({ layoutOrder: ['header', 'image', 'title', 'list', 'footer'] })}
                         className="py-2 rounded-lg border border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-white transition-colors text-xs"
                     >
-                        Reset
+                        {t('btnReset')}
                     </button>
                 </div>
             </SectionCard>
 
-            <SectionCard title="Poster size">
-                <Field label="Format">
+            <SectionCard title={t('sectionPosterSize')}>
+                <Field label={t('fieldFormat')}>
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['A5', 'A4', 'A3'] as const).map(size => {
                             const cmLabels: Record<string, string> = { A5: '14.8×21', A4: '21×29.7', A3: '29.7×42' };
@@ -133,8 +137,8 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 </Field>
             </SectionCard>
 
-            <SectionCard title="Spacing">
-                <Field label="Poster padding">
+            <SectionCard title={t('sectionSpacing')}>
+                <Field label={t('fieldPosterPadding')}>
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['S', 'M', 'L'] as const).map(size => (
                             <button key={size} onClick={() => set({ paddingSize: size })}
@@ -145,7 +149,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     </div>
                 </Field>
 
-                <Field label="Layout gap">
+                <Field label={t('fieldLayoutGap')}>
                     <div className="flex gap-1.5">
                         {[16, 24, 32, 40].map(size => (
                             <button key={size} onClick={() => set({ gap: size })} className={segBtn(p.gap === size)}>{size}</button>
@@ -157,8 +161,8 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 </Field>
             </SectionCard>
 
-            <SectionCard title="Image">
-                <Field label="Padding">
+            <SectionCard title={t('sectionImage')}>
+                <Field label={t('fieldImagePadding')}>
                     <div className="grid grid-cols-2 gap-1.5">
                         {(['none', 'same-as-poster'] as const).map(v => (
                             <button key={v} onClick={() => set({ imagePadding: v })}
@@ -169,7 +173,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     </div>
                 </Field>
 
-                <Field label="Scale">
+                <Field label={t('fieldImageScale')}>
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['fit', 'fill', 'original'] as const).map(v => (
                             <button key={v} onClick={() => set({ imageScale: v })}
@@ -181,7 +185,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 </Field>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <Field label="Align X">
+                    <Field label={t('fieldAlignX')}>
                         <div className="grid grid-cols-3 gap-1">
                             {(['left', 'center', 'right'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignX: v })}
@@ -191,7 +195,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                             ))}
                         </div>
                     </Field>
-                    <Field label="Align Y">
+                    <Field label={t('fieldAlignY')}>
                         <div className="grid grid-cols-3 gap-1">
                             {(['top', 'center', 'bottom'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignY: v })}

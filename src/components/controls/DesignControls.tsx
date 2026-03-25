@@ -2,6 +2,7 @@ import React from 'react';
 import { DitherOptions } from '../../lib/dither';
 import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { SectionCard } from './SectionCard';
+import { useT } from '../../contexts/LanguageContext';
 
 interface DesignControlsProps {
     options: DitherOptions;
@@ -24,22 +25,23 @@ const sizeBtn = (active: boolean) =>
 
 export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
     if (options.designMode !== 'poster') return null;
+    const { t } = useT();
 
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-200">
-            <SectionCard title="Text content">
+            <SectionCard title={t('sectionTextContent')}>
                 {/* Director */}
-                <Field label="Director / Studio">
+                <Field label={t('fieldDirector')}>
                     <input type="text" value={p.director} onChange={e => set({ director: e.target.value })} className={inputClass} />
                 </Field>
 
                 {/* Title */}
                 <Field label={
                     <span className="flex items-center justify-between">
-                        <span>Title</span>
+                        <span>{t('fieldTitle')}</span>
                         <div className="flex gap-1">
                             {(['left', 'center', 'right'] as const).map(align => (
                                 <button key={align} onClick={() => set({ titleAlignment: align })}
@@ -63,7 +65,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                 </Field>
 
                 {/* Subtitle */}
-                <Field label="Subtitle">
+                <Field label={t('fieldSubtitle')}>
                     <input type="text" value={p.subtitle} onChange={e => set({ subtitle: e.target.value })} className={inputClass} />
                     <div className="flex gap-1 mt-1.5">
                         {[16, 24, 32, 40].map(size => (
@@ -75,12 +77,12 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                 </Field>
 
                 {/* Year */}
-                <Field label="Year">
+                <Field label={t('fieldYear')}>
                     <input type="text" value={p.year} onChange={e => set({ year: e.target.value })} className={inputClass} />
                 </Field>
 
                 {/* Description */}
-                <Field label="Description">
+                <Field label={t('fieldDescription')}>
                     <textarea
                         value={p.description[0] || ''}
                         onChange={e => set({ description: [e.target.value], descriptionColumns: 1 })}
@@ -91,10 +93,10 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                 </Field>
             </SectionCard>
 
-            <SectionCard title="Cast & credits">
+            <SectionCard title={t('sectionCastCredits')}>
                 <Field label={
                     <span className="flex items-center justify-between">
-                        <span>List items (one per line)</span>
+                        <span>{t('fieldListItems')}</span>
                         <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1 bg-neutral-800 rounded-lg border border-neutral-700 px-1.5 h-6">
                                 <span className="text-[9px] text-neutral-500 uppercase">Cols</span>

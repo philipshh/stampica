@@ -23,6 +23,49 @@ const translations = {
     comingSoon: 'Soon',
     hiresDescription: 'Pay to download full resolution file',
 
+    // Editor tabs
+    tabDesign: 'Design',
+    tabLayout: 'Layout',
+    tabEffects: 'Effects',
+    tabSaved: 'Saved',
+    tabUpload: 'Upload',
+
+    // DesignControls section/field labels
+    sectionTextContent: 'Text content',
+    sectionCastCredits: 'Cast & credits',
+    fieldDirector: 'Director / Studio',
+    fieldTitle: 'Title',
+    fieldSubtitle: 'Subtitle',
+    fieldYear: 'Year',
+    fieldDescription: 'Description',
+    fieldListItems: 'List items (one per line)',
+
+    // LayoutControls section/field labels
+    sectionLayoutOrder: 'Layout order',
+    sectionPosterSize: 'Poster size',
+    sectionSpacing: 'Spacing',
+    sectionImage: 'Image',
+    fieldFormat: 'Format',
+    fieldPosterPadding: 'Poster padding',
+    fieldLayoutGap: 'Layout gap',
+    fieldImagePadding: 'Padding',
+    fieldImageScale: 'Scale',
+    fieldAlignX: 'Align X',
+    fieldAlignY: 'Align Y',
+    btnShuffle: 'Shuffle',
+    btnReset: 'Reset',
+    sectHeader: 'Header',
+    sectImage: 'Image',
+    sectFooter: 'Footer',
+    sectList: 'List',
+    sectIcons: 'Icons',
+
+    // Add-to-cart modal
+    addedToCart: 'Added to cart!',
+    addedToCartDesc: 'Your poster has been added to the cart.',
+    continuecreating: 'Continue creating',
+    goToCart: 'Go to cart',
+
     // Checkout
     orderYourPoster: 'Order your poster',
     printDetails: 'Print details',
@@ -132,6 +175,49 @@ const translations = {
     downloadHires: 'Preuzmi hi-res',
     comingSoon: 'Uskoro',
     hiresDescription: 'Plati i preuzmi fajl u punoj rezoluciji',
+
+    // Editor tabs
+    tabDesign: 'Dizajn',
+    tabLayout: 'Raspored',
+    tabEffects: 'Efekti',
+    tabSaved: 'Sačuvano',
+    tabUpload: 'Otpremi',
+
+    // DesignControls section/field labels
+    sectionTextContent: 'Sadržaj teksta',
+    sectionCastCredits: 'Glumci i ekipa',
+    fieldDirector: 'Režiser / Studio',
+    fieldTitle: 'Naslov',
+    fieldSubtitle: 'Podnaslov',
+    fieldYear: 'Godina',
+    fieldDescription: 'Opis',
+    fieldListItems: 'Stavke liste (jedna po redu)',
+
+    // LayoutControls section/field labels
+    sectionLayoutOrder: 'Redosled elemenata',
+    sectionPosterSize: 'Veličina postera',
+    sectionSpacing: 'Razmaci',
+    sectionImage: 'Slika',
+    fieldFormat: 'Format',
+    fieldPosterPadding: 'Margine postera',
+    fieldLayoutGap: 'Razmak između elemenata',
+    fieldImagePadding: 'Margine slike',
+    fieldImageScale: 'Skaliranje',
+    fieldAlignX: 'Poravnanje X',
+    fieldAlignY: 'Poravnanje Y',
+    btnShuffle: 'Izmešaj',
+    btnReset: 'Resetuj',
+    sectHeader: 'Zaglavlje',
+    sectImage: 'Slika',
+    sectFooter: 'Podnožje',
+    sectList: 'Lista',
+    sectIcons: 'Ikone',
+
+    // Add-to-cart modal
+    addedToCart: 'Dodato u korpu!',
+    addedToCartDesc: 'Poster je dodat u korpu.',
+    continuecreating: 'Nastavi kreiranje',
+    goToCart: 'Idi u korpu',
 
     // Checkout
     orderYourPoster: 'Naruči poster',

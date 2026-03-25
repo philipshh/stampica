@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Package, Printer, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Package, Printer, Truck, CheckCircle, Clock, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { Lightbox } from '../components/Lightbox';
@@ -124,12 +124,20 @@ export function OrderTracking() {
 function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight: boolean; onCancelled: (id: string) => void }) {
   const currentStep = STATUS_ORDER[order.status];
   const isCancelled = order.status === 'cancelled';
-  const [lightbox, setLightbox] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [previewIdx, setPreviewIdx] = useState(0);
   const [cancelling, setCancelling] = useState(false);
   const { token } = useAuth();
   const { t } = useT();
 
   const STATUS_STEPS = STATUS_STEP_DEFS.map(s => ({ ...s, label: t(s.status) }));
+
+  // Collect all preview URLs for this order
+  const previewUrls: string[] = order.items
+    ? order.items.filter(i => i.previewUrl).map(i => i.previewUrl!)
+    : order.preview_url ? [order.preview_url] : [];
+  const hasMultiple = previewUrls.length > 1;
+  const currentPreview = previewUrls[previewIdx] ?? null;
 
   async function handleCancel() {
     if (!confirm(t('cancelOrderConfirm'))) return;
@@ -149,34 +157,53 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
     <div className={`bg-neutral-900 rounded-2xl border transition-all overflow-hidden ${
       highlight ? 'border-white ring-2 ring-white/10' : 'border-neutral-800'
     }`}>
-      {lightbox && order.preview_url && (
-        <Lightbox src={order.preview_url} alt={`Poster #${order.order_number}`} onClose={() => setLightbox(false)} />
+      {lightboxIdx !== null && previewUrls.length > 0 && (
+        <Lightbox
+          srcs={previewUrls}
+          initialIndex={lightboxIdx}
+          alt={`Poster #${order.order_number}`}
+          onClose={() => setLightboxIdx(null)}
+        />
       )}
       <div className="flex gap-4 p-5">
-        {/* Poster thumbnail(s) */}
-        {order.items && order.items.length > 1 ? (
-          <div className="flex-shrink-0 flex gap-1 self-start">
-            {order.items.slice(0, 3).map((item, idx) => (
-              item.previewUrl
-                ? <img key={idx} src={item.previewUrl} alt="" className="w-12 object-contain rounded border border-neutral-700" />
-                : <div key={idx} className="w-12 aspect-[1/1.41] bg-neutral-800 rounded border border-neutral-700" />
-            ))}
-            {order.items.length > 3 && (
-              <div className="w-12 aspect-[1/1.41] bg-neutral-800 rounded border border-neutral-700 flex items-center justify-center text-xs text-neutral-500">
-                +{order.items.length - 3}
+        {/* Poster thumbnail with prev/next switcher */}
+        <div className="flex-shrink-0 self-start relative group">
+          {currentPreview ? (
+            <img
+              src={currentPreview}
+              alt="Poster"
+              onClick={() => setLightboxIdx(previewIdx)}
+              className="w-20 object-contain rounded-lg border border-neutral-700 cursor-zoom-in hover:opacity-80 transition-opacity"
+            />
+          ) : (
+            <div className="w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg" />
+          )}
+          {hasMultiple && (
+            <>
+              <button
+                onClick={() => setPreviewIdx(i => (i - 1 + previewUrls.length) % previewUrls.length)}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white hover:bg-neutral-700 transition-colors opacity-0 group-hover:opacity-100 z-10"
+              >
+                <ChevronLeft size={12} />
+              </button>
+              <button
+                onClick={() => setPreviewIdx(i => (i + 1) % previewUrls.length)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white hover:bg-neutral-700 transition-colors opacity-0 group-hover:opacity-100 z-10"
+              >
+                <ChevronRight size={12} />
+              </button>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                {previewUrls.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPreviewIdx(i)}
+                    className={`w-1 h-1 rounded-full transition-all ${i === previewIdx ? 'bg-white' : 'bg-neutral-600 hover:bg-neutral-400'}`}
+                  />
+                ))}
               </div>
-            )}
-          </div>
-        ) : order.preview_url ? (
-          <img
-            src={order.preview_url}
-            alt="Poster"
-            onClick={() => setLightbox(true)}
-            className="w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start cursor-zoom-in hover:opacity-80 transition-opacity"
-          />
-        ) : (
-          <div className="w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0" />
-        )}
+            </>
+          )}
+        </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-3">
