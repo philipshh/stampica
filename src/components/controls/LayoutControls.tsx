@@ -172,34 +172,33 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 </Field>
                 {p.textOnly && (
                     <>
-                    <Field label="Content position">
-                        <div className="flex flex-col items-center gap-1">
-                            {(['top', 'center', 'bottom'] as const).map(vAlign => (
-                                <div key={vAlign} className="flex gap-1">
-                                    {(['left', 'center', 'right'] as const).map(hAlign => {
-                                        const isActive =
-                                            (p.contentVerticalAlign ?? 'center') === vAlign &&
-                                            (p.contentHorizontalAlign ?? 'center') === hAlign;
-                                        return (
-                                            <button
-                                                key={hAlign}
-                                                onClick={() => set({
-                                                    contentVerticalAlign: vAlign,
-                                                    contentHorizontalAlign: hAlign,
-                                                    titleAlignment: hAlign,
-                                                })}
-                                                className={`w-7 h-7 rounded flex items-center justify-center border transition-colors ${isActive ? 'bg-white border-white' : 'border-neutral-700 hover:border-neutral-400'}`}
-                                            >
-                                                <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-black' : 'bg-neutral-500'}`} />
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                    <Field label="Title text">
+                        <div className="flex items-center gap-1 mb-1.5">
+                            {(['left', 'center', 'right'] as const).map(align => (
+                                <button key={align}
+                                    onClick={() => set({ titleAlignment: align, contentHorizontalAlign: align })}
+                                    className={`flex-1 py-1 rounded-lg border text-[10px] uppercase transition-colors ${p.titleAlignment === align ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    {align}
+                                </button>
                             ))}
                         </div>
-                        <p className="text-[10px] text-neutral-600 mt-1 text-center">
-                            {(p.contentVerticalAlign ?? 'center')} · {(p.contentHorizontalAlign ?? 'center')}
-                        </p>
+                        <input
+                            type="text"
+                            value={p.title}
+                            onChange={e => set({ title: e.target.value })}
+                            className="w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-neutral-500 transition-colors"
+                        />
+                        <div className="flex gap-1 mt-1.5">
+                            {[40, 48, 56, 64, 80, 96].map(size => (
+                                <button key={size} onClick={() => set({ titleFontSize: size })}
+                                    className={`flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${p.titleFontSize === size ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    {size}
+                                </button>
+                            ))}
+                            <input type="number" value={p.titleFontSize}
+                                onChange={e => set({ titleFontSize: parseInt(e.target.value) || 48 })}
+                                className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
+                        </div>
                     </Field>
 
                     <Field label="Letter spacing">

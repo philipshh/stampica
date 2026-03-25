@@ -387,10 +387,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                     style={{
                         padding: `${scaled(getBasePadding())}px`,
                         gap: `${scaled(options.poster.gap)}px`,
-                        justifyContent:
-                            options.poster.contentVerticalAlign === 'top' ? 'flex-start' :
-                            options.poster.contentVerticalAlign === 'bottom' ? 'flex-end' :
-                            'space-between',
+                        justifyContent: 'space-between',
                     }}
                 >
                     {orderedSections.filter(section => section !== null)}

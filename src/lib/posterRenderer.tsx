@@ -715,25 +715,16 @@ export async function drawPosterToCanvas(
         totalFixedContentHeight += h;
     }
 
-    // Apply text-only vertical alignment
-    let textOnlyGap = gap; // may be overridden for center/space-between mode
+    // Text-only: always distribute sections evenly across full height (space-between)
+    let textOnlyGap = gap;
     if (options.poster.textOnly) {
         const enabledTextSections = options.poster.layoutOrder.filter(s => isSectionEnabled(s) && s !== 'image');
-        const vAlign = options.poster.contentVerticalAlign ?? 'center';
-        const availableHeight = POSTER_HEIGHT - 2 * padding;
-
-        if (vAlign === 'center') {
-            // Distribute sections evenly across full height (space-between)
-            const numSections = enabledTextSections.length;
-            if (numSections > 1) {
-                const distributed = (availableHeight - totalFixedContentHeight) / (numSections - 1);
-                textOnlyGap = Math.max(gap, distributed);
-            }
-        } else if (vAlign === 'bottom') {
-            const numGaps = Math.max(0, enabledTextSections.length - 1);
-            currentY = POSTER_HEIGHT - padding - totalFixedContentHeight - numGaps * gap;
+        const numSections = enabledTextSections.length;
+        if (numSections > 1) {
+            const availableHeight = POSTER_HEIGHT - 2 * padding;
+            const distributed = (availableHeight - totalFixedContentHeight) / (numSections - 1);
+            textOnlyGap = Math.max(gap, distributed);
         }
-        // 'top' keeps currentY = padding (default)
     }
 
     // 2. Render sections
