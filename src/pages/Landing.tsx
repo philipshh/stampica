@@ -81,13 +81,24 @@ export function Landing() {
       {/* Hero — 200px from header on mobile, centered on desktop */}
       <div className="flex-1 flex flex-col items-center justify-start md:justify-center px-6 pt-[100px] pb-24 md:pt-20 md:pb-[380px] text-center">
         <div className="space-y-4 max-w-xl mb-10">
-          <img src="/logo-text.svg" alt="Stampica" className="w-52 md:w-80 max-w-full mx-auto" />
-          <p className="text-neutral-400 text-lg md:text-xl leading-relaxed">
+          <img
+            src="/logo-text.svg"
+            alt="Stampica"
+            className="w-52 md:w-80 max-w-full mx-auto animate-fade-up"
+            style={{ animationDelay: '0.05s' }}
+          />
+          <p
+            className="text-neutral-400 text-lg md:text-xl leading-relaxed animate-fade-up"
+            style={{ animationDelay: '0.2s' }}
+          >
             {t('landingSubtitle')}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 animate-fade-up"
+          style={{ animationDelay: '0.35s' }}
+        >
           <Link
             to="/create"
             className="px-8 py-3.5 bg-white text-black font-semibold rounded-xl hover:bg-neutral-100 transition-colors text-base"
@@ -123,8 +134,8 @@ export function Landing() {
 
       {/* Arch carousel — desktop only (rAF-driven) */}
       <div
-        className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none hidden md:block"
-        style={{ height: CAROUSEL_H }}
+        className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none hidden md:block animate-fade-up"
+        style={{ height: CAROUSEL_H, animationDelay: '0.5s' }}
       >
         <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-neutral-950 to-transparent z-10" />
         <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
@@ -155,8 +166,8 @@ export function Landing() {
 
       {/* Mobile marquee — CSS-only, bottom: -10vh so posters sink below fold */}
       <div
-        className="md:hidden absolute left-0 right-0 overflow-hidden pointer-events-none"
-        style={{ bottom: '-10vh', height: '48vh' }}
+        className="md:hidden absolute left-0 right-0 overflow-hidden pointer-events-none animate-fade-up"
+        style={{ bottom: '-10vh', height: '48vh', animationDelay: '0.5s' }}
       >
         <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
         <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
