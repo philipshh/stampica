@@ -1,4 +1,5 @@
 import { BrevoClient } from '@getbrevo/brevo';
+import { itemPrice, orderTotals } from '../../shared/pricing.js';
 
 function getClient() {
   const apiKey = process.env.BREVO_API_KEY;
@@ -6,7 +7,7 @@ function getClient() {
   return new BrevoClient({ apiKey });
 }
 
-const FROM_EMAIL = process.env.EMAIL_USER ?? 'stampicastudio@gmail.com';
+const FROM_EMAIL = process.env.EMAIL_FROM ?? 'stampicastudio@gmail.com';
 const FROM_NAME = 'Stampica';
 const APP_URL = process.env.APP_URL ?? 'https://stampica.studio';
 
@@ -84,15 +85,6 @@ function emailShell(body: string) {
 
 // ── Emails ────────────────────────────────────────────────────────────────────
 
-const SIZE_PRICE: Record<string, number> = { A5: 700, A4: 900, A3: 1100 };
-const FRAME_EXTRA: Record<string, number> = { none: 0, black: 1000, white: 1000 };
-const SHIPPING_COST = 200;
-const FREE_SHIPPING_THRESHOLD = 4000;
-
-function itemPrice(item: OrderEmailItem): number {
-  return ((SIZE_PRICE[item.size] ?? 0) + (FRAME_EXTRA[item.frame] ?? 0)) * item.quantity;
-}
-
 function itemsHtml(items: OrderEmailItem[]): string {
   return items.map((item, i) => {
     const frameLabel = item.frame && item.frame !== 'none'
@@ -116,9 +108,7 @@ function itemsHtml(items: OrderEmailItem[]): string {
 export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Promise<void> {
   const { street, cityPostal, country } = parseAddress(order.shippingAddress);
   const firstName = order.customerName.split(' ')[0];
-  const subtotal = order.items.reduce((s, i) => s + itemPrice(i), 0);
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const total = subtotal + shipping;
+  const { shipping, total } = orderTotals(order.items);
 
   const body = `
     <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Your order is confirmed!</h2>
@@ -168,9 +158,7 @@ export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData)
   if (!shopEmail) throw new Error('PRINT_SHOP_EMAIL not configured');
 
   const { street, cityPostal, country } = parseAddress(order.shippingAddress);
-  const subtotal = order.items.reduce((s, i) => s + itemPrice(i), 0);
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const total = subtotal + shipping;
+  const { shipping, total } = orderTotals(order.items);
 
   const downloadLinks = order.items
     .filter(i => i.posterUrl)

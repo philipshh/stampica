@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../lib/api';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { CheckCircle } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 const SUBJECTS = [
   'Question about my order',

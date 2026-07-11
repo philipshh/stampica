@@ -2,18 +2,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart, CartItem, PosterSize, FrameOption } from '../contexts/CartContext';
 import { useT } from '../contexts/LanguageContext';
+import { SIZE_PRICE, FRAME_EXTRA, SHIPPING_COST, FREE_SHIPPING_THRESHOLD, itemPrice as itemTotal } from '../../shared/pricing';
 
 const SIZES: PosterSize[] = ['A5', 'A4', 'A3'];
 const FRAMES: FrameOption[] = ['none', 'black', 'white'];
 
-const SIZE_PRICE: Record<PosterSize, number> = { A5: 700, A4: 900, A3: 1100 };
-const FRAME_EXTRA: Record<FrameOption, number> = { none: 0, black: 1000, white: 1000 };
-const SHIPPING_COST = 200;
-const FREE_SHIPPING_THRESHOLD = 4000;
-
-function itemTotal(item: CartItem) {
-  return (SIZE_PRICE[item.size] + FRAME_EXTRA[item.frame]) * item.quantity;
-}
 
 export function Cart() {
   const { items, removeItem, updateItem } = useCart();

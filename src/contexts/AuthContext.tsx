@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { API_BASE } from '../lib/api';
 
 export interface AuthUser {
   id: string;
@@ -18,7 +19,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 const TOKEN_KEY = 'stampica_token';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

@@ -1,24 +1,17 @@
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../lib/api';
+import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD, itemPrice } from '../../shared/pricing';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
-import { useCart, CartItem } from '../contexts/CartContext';
+import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { OrderConfirmation } from '../components/OrderConfirmation';
 import { exportPosterHiResBlob } from '../lib/posterExport';
 import { uploadPosterFile } from '../lib/supabase';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
-const SIZE_PRICE: Record<string, number> = { A5: 700, A4: 900, A3: 1100 };
-const FRAME_EXTRA: Record<string, number> = { none: 0, black: 1000, white: 1000 };
-const SHIPPING_COST = 200;
-const FREE_SHIPPING_THRESHOLD = 4000;
-
-function itemPrice(item: CartItem) {
-  return ((SIZE_PRICE[item.size] ?? 0) + (FRAME_EXTRA[item.frame] ?? 0)) * item.quantity;
-}
 
 interface FormState {
   name: string;

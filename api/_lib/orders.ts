@@ -1,30 +1,11 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { createClient } from '@supabase/supabase-js';
-import { extractBearerToken, verifyJWT } from '../services/auth.js';
+import { getSupabase } from './supabase.js';
+import { requireUser } from './auth.js';
+import { orderTotals } from '../../shared/pricing.js';
 import {
   sendOrderConfirmationToCustomer,
   sendNewOrderNotificationToPrintShop,
-} from '../services/email.js';
-
-const router = Router();
-
-function getSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
-
-// Middleware: require a valid JWT
-function requireAuth(req: Request, res: Response, next: NextFunction) {
-  try {
-    const token = extractBearerToken(req.headers.authorization);
-    res.locals.user = verifyJWT(token);
-    next();
-  } catch {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-}
+} from './email.js';
+import type { ApiRequest, ApiResponse } from './types.js';
 
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString(36).toUpperCase();
@@ -32,7 +13,7 @@ function generateOrderNumber(): string {
   return `STP-${timestamp}-${random}`;
 }
 
-interface OrderItem {
+export interface OrderItem {
   size: string;
   quantity: number;
   frame: string;
@@ -41,10 +22,14 @@ interface OrderItem {
   designData?: Record<string, unknown>;
 }
 
+const VALID_SIZES = ['A5', 'A4', 'A3'];
+const VALID_FRAMES = ['none', 'black', 'white'];
+
 // POST /api/orders – create a new order
-router.post('/', requireAuth, async (req: Request, res: Response) => {
+export async function createOrder(req: ApiRequest, res: ApiResponse) {
+  const user = requireUser(req, res);
+  if (!user) return;
   try {
-    const { user } = res.locals;
     const { items, shippingAddress, phone } = req.body as {
       items: OrderItem[];
       shippingAddress: string;
@@ -55,9 +40,24 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       res.status(400).json({ error: 'items, shippingAddress, and phone are required' });
       return;
     }
+    const invalid = items.find(
+      (i) =>
+        !VALID_SIZES.includes(i.size) ||
+        !VALID_FRAMES.includes(i.frame ?? 'none') ||
+        !Number.isInteger(i.quantity) ||
+        i.quantity < 1 ||
+        i.quantity > 20,
+    );
+    if (invalid) {
+      res.status(400).json({ error: 'Invalid item size, frame, or quantity' });
+      return;
+    }
 
     const supabase = getSupabase();
     const orderNumber = generateOrderNumber();
+    // Totals are computed server-side from the shared price list; the client
+    // never sends prices.
+    const { subtotal, shipping, total } = orderTotals(items);
 
     // Use first item for legacy columns (backwards compat with admin dashboard)
     const first = items[0];
@@ -76,6 +76,9 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
         preview_url: first.previewUrl ?? null,
         poster_url: first.posterUrl ?? null,
         items,
+        subtotal_amount: subtotal,
+        shipping_amount: shipping,
+        total_amount: total,
       })
       .select()
       .single();
@@ -92,42 +95,44 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       phone,
     };
 
-    sendOrderConfirmationToCustomer(emailData).catch(console.error);
-    sendNewOrderNotificationToPrintShop(emailData).catch(console.error);
+    sendOrderConfirmationToCustomer(emailData).catch((err) =>
+      console.error('[orders/email/customer]', orderNumber, err),
+    );
+    sendNewOrderNotificationToPrintShop(emailData).catch((err) =>
+      console.error('[orders/email/printshop]', orderNumber, err),
+    );
 
     res.status(201).json({ order });
   } catch (err) {
     console.error('[orders/create]', err);
     res.status(500).json({ error: 'Failed to create order' });
   }
-});
+}
 
 // GET /api/orders – list orders for the current user
-router.get('/', requireAuth, async (req: Request, res: Response) => {
+export async function listOrders(req: ApiRequest, res: ApiResponse) {
+  const user = requireUser(req, res);
+  if (!user) return;
   try {
-    const { user } = res.locals;
-    const supabase = getSupabase();
-
-    const { data: orders, error } = await supabase
+    const { data: orders, error } = await getSupabase()
       .from('orders')
       .select('*')
       .eq('user_id', user.userId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-
-    res.json({ orders });
+    res.status(200).json({ orders });
   } catch (err) {
     console.error('[orders/list]', err);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
-});
+}
 
 // PATCH /api/orders/:id/cancel – cancel a pending order (owner only)
-router.patch('/:id/cancel', requireAuth, async (req: Request, res: Response) => {
+export async function cancelOrder(req: ApiRequest, res: ApiResponse, id: string) {
+  const user = requireUser(req, res);
+  if (!user) return;
   try {
-    const { user } = res.locals;
-    const { id } = req.params;
     const supabase = getSupabase();
 
     const { data: order, error: fetchError } = await supabase
@@ -155,22 +160,19 @@ router.patch('/:id/cancel', requireAuth, async (req: Request, res: Response) => 
       .eq('id', id);
 
     if (updateError) throw updateError;
-
-    res.json({ ok: true });
+    res.status(200).json({ ok: true });
   } catch (err) {
     console.error('[orders/cancel]', err);
     res.status(500).json({ error: 'Failed to cancel order' });
   }
-});
+}
 
 // GET /api/orders/:orderNumber – get a single order by order number
-router.get('/:orderNumber', requireAuth, async (req: Request, res: Response) => {
+export async function getOrderByNumber(req: ApiRequest, res: ApiResponse, orderNumber: string) {
+  const user = requireUser(req, res);
+  if (!user) return;
   try {
-    const { user } = res.locals;
-    const { orderNumber } = req.params;
-    const supabase = getSupabase();
-
-    const { data: order, error } = await supabase
+    const { data: order, error } = await getSupabase()
       .from('orders')
       .select('*')
       .eq('order_number', orderNumber)
@@ -181,12 +183,9 @@ router.get('/:orderNumber', requireAuth, async (req: Request, res: Response) => 
       res.status(404).json({ error: 'Order not found' });
       return;
     }
-
-    res.json({ order });
+    res.status(200).json({ order });
   } catch (err) {
     console.error('[orders/get]', err);
     res.status(500).json({ error: 'Failed to fetch order' });
   }
-});
-
-export default router;
+}

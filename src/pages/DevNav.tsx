@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -73,10 +74,9 @@ export function DevNav() {
 
 function BackendStatus() {
   const [status, setStatus] = useState<'checking' | 'ok' | 'error'>('checking');
-  const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-
+  
   useState(() => {
-    fetch(`${API_BASE}/health`)
+    fetch(`${API_BASE}/api/health`)
       .then((r) => setStatus(r.ok ? 'ok' : 'error'))
       .catch(() => setStatus('error'));
   });

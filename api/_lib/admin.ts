@@ -1,47 +1,25 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { createClient } from '@supabase/supabase-js';
-import { extractBearerToken, verifyJWT } from '../services/auth.js';
-import { sendShippingNotification } from '../services/email.js';
-
-const router = Router();
-
-function getSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
-
-// Middleware: require admin role
-function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  try {
-    const token = extractBearerToken(req.headers.authorization);
-    const user = verifyJWT(token);
-    if (user.role !== 'admin') {
-      res.status(403).json({ error: 'Forbidden' });
-      return;
-    }
-    res.locals.user = user;
-    next();
-  } catch {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-}
+import { getSupabase } from './supabase.js';
+import { requireAdmin } from './auth.js';
+import { sendShippingNotification } from './email.js';
+import type { ApiRequest, ApiResponse } from './types.js';
+import { queryParam } from './types.js';
 
 type OrderStatus = 'pending' | 'confirmed' | 'printing' | 'shipped' | 'delivered' | 'cancelled';
 
 const PAGE_SIZE = 25;
 
 // GET /api/admin/orders – list all orders (admin only), paginated
-router.get('/orders', requireAdmin, async (req: Request, res: Response) => {
+export async function adminListOrders(req: ApiRequest, res: ApiResponse) {
+  if (!requireAdmin(req, res)) return;
   try {
-    const supabase = getSupabase();
-    const { status, search, page } = req.query as { status?: OrderStatus; search?: string; page?: string };
+    const status = queryParam(req, 'status') as OrderStatus | undefined;
+    const search = queryParam(req, 'search');
+    const page = queryParam(req, 'page');
     const pageNum = Math.max(0, parseInt(page ?? '0', 10) || 0);
     const from = pageNum * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
-    let query = supabase
+    let query = getSupabase()
       .from('orders')
       .select('*, users(name, email)', { count: 'exact' })
       .order('created_at', { ascending: false })
@@ -53,17 +31,17 @@ router.get('/orders', requireAdmin, async (req: Request, res: Response) => {
     const { data: orders, error, count } = await query;
     if (error) throw error;
 
-    res.json({ orders, total: count ?? 0, page: pageNum, pageSize: PAGE_SIZE });
+    res.status(200).json({ orders, total: count ?? 0, page: pageNum, pageSize: PAGE_SIZE });
   } catch (err) {
     console.error('[admin/orders/list]', err);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
-});
+}
 
 // PATCH /api/admin/orders/:id – update order status (and optionally tracking number)
-router.patch('/orders/:id', requireAdmin, async (req: Request, res: Response) => {
+export async function adminUpdateOrder(req: ApiRequest, res: ApiResponse, id: string) {
+  if (!requireAdmin(req, res)) return;
   try {
-    const { id } = req.params;
     const { status, trackingNumber } = req.body as {
       status?: OrderStatus;
       trackingNumber?: string;
@@ -74,13 +52,11 @@ router.patch('/orders/:id', requireAdmin, async (req: Request, res: Response) =>
       return;
     }
 
-    const supabase = getSupabase();
-
     const updatePayload: Record<string, unknown> = {};
     if (status) updatePayload.status = status;
     if (trackingNumber) updatePayload.tracking_number = trackingNumber;
 
-    const { data: order, error } = await supabase
+    const { data: order, error } = await getSupabase()
       .from('orders')
       .update(updatePayload)
       .eq('id', id)
@@ -100,34 +76,25 @@ router.patch('/orders/:id', requireAdmin, async (req: Request, res: Response) =>
         order.users.name,
         order.order_number,
         tracking,
-      ).catch(console.error);
+      ).catch((err) => console.error('[admin/email/shipping]', order.order_number, err));
     }
 
-    res.json({ order });
+    res.status(200).json({ order });
   } catch (err) {
     console.error('[admin/orders/update]', err);
     res.status(500).json({ error: 'Failed to update order' });
   }
-});
+}
 
 // DELETE /api/admin/orders/:id – permanently delete an order
-router.delete('/orders/:id', requireAdmin, async (req: Request, res: Response) => {
+export async function adminDeleteOrder(req: ApiRequest, res: ApiResponse, id: string) {
+  if (!requireAdmin(req, res)) return;
   try {
-    const { id } = req.params;
-    const supabase = getSupabase();
-
-    const { error } = await supabase
-      .from('orders')
-      .delete()
-      .eq('id', id);
-
+    const { error } = await getSupabase().from('orders').delete().eq('id', id);
     if (error) throw error;
-
-    res.json({ ok: true });
+    res.status(200).json({ ok: true });
   } catch (err) {
     console.error('[admin/orders/delete]', err);
     res.status(500).json({ error: 'Failed to delete order' });
   }
-});
-
-export default router;
+}

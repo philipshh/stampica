@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
+import { API_BASE } from '../lib/api';
 import { ChevronDown, Trash2, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Lightbox } from '../components/Lightbox';
 import { SkeletonCard } from '../components/Skeleton';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 type OrderStatus = 'pending' | 'confirmed' | 'printing' | 'shipped' | 'delivered' | 'cancelled';
 

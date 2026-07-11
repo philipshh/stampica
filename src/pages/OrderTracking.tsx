@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE } from '../lib/api';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Package, Printer, Truck, CheckCircle, Clock, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,7 +7,6 @@ import { useT } from '../contexts/LanguageContext';
 import { Lightbox } from '../components/Lightbox';
 import { SkeletonCard } from '../components/Skeleton';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 type OrderStatus = 'pending' | 'confirmed' | 'printing' | 'shipped' | 'delivered' | 'cancelled';
 
