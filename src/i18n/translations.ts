@@ -8,10 +8,25 @@ const translations = {
     myOrders: 'My orders',
 
     // Landing
-    landingSubtitle: 'Design dithered posters, order prints — delivered to your door.',
+    landingSubtitle: 'Design dithered posters. Printed and delivered to your door.',
     create: 'Create',
     orders: 'Orders',
     seeExamples: 'See examples',
+
+    // Landing sections
+    howItWorksTitle: 'How it works',
+    howStep1Title: 'Upload a photo',
+    howStep1Text: 'Any image works: a concert shot, your dog, a city skyline.',
+    howStep2Title: 'Dial in the dither',
+    howStep2Text: 'Pick an algorithm, a palette and a layout until it feels right.',
+    howStep3Title: 'Printed & shipped',
+    howStep3Text: 'We print it on quality paper and ship it to your door. Pay on delivery.',
+    pricingTitle: 'Sizes & prices',
+    pricingFrame: 'Framing (black or white)',
+    pricingShipping: 'Shipping',
+    pricingFreeShipping: 'Free over {amount} din',
+    pricingDin: 'din',
+    finalCtaTitle: 'Your photo wants to be a poster.',
 
     // Controls / Editor sidebar
     order: 'Order',
@@ -88,7 +103,7 @@ const translations = {
     phoneNumber: 'Phone number',
     saveShipping: 'Save shipping details for next time',
     signInToOrder: 'Sign in to place your order',
-    paymentOnDelivery: 'Payment on delivery — Plaćanje pouzećem',
+    paymentOnDelivery: 'Payment on delivery (Plaćanje pouzećem)',
     paymentOnDeliveryDesc: 'You pay when your order arrives. No online payment required.',
     noFrame: 'No frame',
     posterOnly: 'Poster only',
@@ -161,10 +176,25 @@ const translations = {
     myOrders: 'Moje porudžbine',
 
     // Landing
-    landingSubtitle: 'Dizajniraj diterovane postere, naruči štampu — dostava na kućnu adresu.',
+    landingSubtitle: 'Dizajniraj diterovane postere. Štampamo i dostavljamo na tvoju adresu.',
     create: 'Kreiraj',
     orders: 'Porudžbine',
     seeExamples: 'Pogledaj primere',
+
+    // Landing sections
+    howItWorksTitle: 'Kako funkcioniše',
+    howStep1Title: 'Ubaci fotografiju',
+    howStep1Text: 'Bilo koja slika: fotka sa koncerta, tvoj pas, gradski horizont.',
+    howStep2Title: 'Podesi diter',
+    howStep2Text: 'Izaberi algoritam, paletu i raspored dok ne bude kako treba.',
+    howStep3Title: 'Štampa i dostava',
+    howStep3Text: 'Štampamo na kvalitetnom papiru i šaljemo na tvoju adresu. Plaćanje pouzećem.',
+    pricingTitle: 'Veličine i cene',
+    pricingFrame: 'Ram (crni ili beli)',
+    pricingShipping: 'Dostava',
+    pricingFreeShipping: 'Besplatna preko {amount} din',
+    pricingDin: 'din',
+    finalCtaTitle: 'Tvoja fotografija želi da bude poster.',
 
     // Controls / Editor sidebar
     order: 'Naruči',
