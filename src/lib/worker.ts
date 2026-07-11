@@ -249,7 +249,7 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
     const bias = (128 - threshold) / 128 * mid;
 
     // For multi-color thresholding, sort palette by luminance
-    let sortedPalette = [...workingPalette].sort((a, b) => {
+    const sortedPalette = [...workingPalette].sort((a, b) => {
         return getLuminance(a[0], a[1], a[2]) - getLuminance(b[0], b[1], b[2]);
     });
 

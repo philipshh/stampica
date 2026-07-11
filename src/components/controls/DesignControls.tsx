@@ -24,8 +24,8 @@ const sizeBtn = (active: boolean) =>
     `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`;
 
 export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
-    if (options.designMode !== 'poster') return null;
     const { t } = useT();
+    if (options.designMode !== 'poster') return null;
 
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });

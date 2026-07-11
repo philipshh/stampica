@@ -266,7 +266,7 @@ export async function drawPosterToCanvas(
             let colY = sectionY;
             const colItems = content.slice(col * itemsPerColumn, (col + 1) * itemsPerColumn);
 
-            let colX = padding + (col * (columnWidth + columnGap));
+            const colX = padding + (col * (columnWidth + columnGap));
 
             // Adjust X based on alignment if needed, but usually grid columns are fixed width
             // Alignment mainly affects text alignment within the column
@@ -292,7 +292,7 @@ export async function drawPosterToCanvas(
     const renderFooter = (y: number, dryRun: boolean = false) => {
         if (!options.poster.showFooter) return 0;
 
-        let sectionY = y;
+        const sectionY = y;
 
         const footerPaddingTop = 32 * SCALE;
 
@@ -543,10 +543,10 @@ export async function drawPosterToCanvas(
         if (!options.poster.showImage) return;
 
         const isImagePaddingNone = options.poster.imagePadding === 'none';
-        let imageAreaWidth = isImagePaddingNone ? POSTER_WIDTH : contentWidth;
-        let imageAreaHeight = height;
-        let imageStartY = y;
-        let imageX = isImagePaddingNone ? 0 : padding;
+        const imageAreaWidth = isImagePaddingNone ? POSTER_WIDTH : contentWidth;
+        const imageAreaHeight = height;
+        const imageStartY = y;
+        const imageX = isImagePaddingNone ? 0 : padding;
 
         const getCornerRadius = () => {
             switch (options.poster.imageRoundedCorners) {
