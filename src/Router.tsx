@@ -61,7 +61,7 @@ export function Router() {
         <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
         <Route path="/shipping" element={<Layout><Shipping /></Layout>} />
         <Route path="/support" element={<Layout><Support /></Layout>} />
-        <Route path="/dev" element={<Layout><DevNav /></Layout>} />
+        {import.meta.env.DEV && <Route path="/dev" element={<Layout><DevNav /></Layout>} />}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </CartProvider>

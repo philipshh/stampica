@@ -20,7 +20,8 @@ export interface ImageAsset {
 const DB_NAME = 'PostersVSDatabase';
 const STORE_PROJECTS = 'projects';
 const STORE_ASSETS = 'assets';
-const DB_VERSION = 2; // Incremented for folder structure change
+const STORE_CART = 'cart';
+const DB_VERSION = 3; // v3: cart store
 
 export const openDB = (): Promise<IDBDatabase> => {
     return new Promise((resolve, reject) => {
@@ -33,6 +34,9 @@ export const openDB = (): Promise<IDBDatabase> => {
             }
             if (!db.objectStoreNames.contains(STORE_ASSETS)) {
                 db.createObjectStore(STORE_ASSETS, { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains(STORE_CART)) {
+                db.createObjectStore(STORE_CART, { keyPath: 'id' });
             }
         };
 
@@ -115,6 +119,30 @@ export const getAsset = async (id: string): Promise<ImageAsset | undefined> => {
         const store = transaction.objectStore(STORE_ASSETS);
         const request = store.get(id);
         request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+// --- Cart Persistence ---
+// The whole cart is stored as one record. Items contain File/Blob/ImageData,
+// which IndexedDB persists via structured clone (localStorage cannot).
+
+export const saveCart = async (items: unknown[]): Promise<void> => {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_CART, 'readwrite');
+        const request = transaction.objectStore(STORE_CART).put({ id: 'cart', items });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const loadCart = async (): Promise<unknown[]> => {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_CART, 'readonly');
+        const request = transaction.objectStore(STORE_CART).get('cart');
+        request.onsuccess = () => resolve(request.result?.items ?? []);
         request.onerror = () => reject(request.error);
     });
 };

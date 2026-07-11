@@ -42,7 +42,6 @@ export async function drawPosterToCanvas(
     imageData: ImageData | null,
     dimensions: { width: number; height: number }
 ): Promise<HTMLCanvasElement> {
-    console.log('[RENDERER] Starting drawPosterToCanvas', { dimensions, hasImage: !!imageData, iconSectionEnabled: options.poster.iconSection.enabled });
 
     const canvas = document.createElement('canvas');
     const POSTER_WIDTH = dimensions.width;
@@ -395,7 +394,6 @@ export async function drawPosterToCanvas(
         const items = options.poster.iconSection.items;
         if (!items || items.length === 0) return 0;
 
-        console.log('[RENDERER] renderIcons called', { dryRun, itemCount: items.length, icons: items.map(i => i.icon) });
 
         const gap_icons = 16 * SCALE;
         const cols = 4;
@@ -433,7 +431,6 @@ export async function drawPosterToCanvas(
                 // 1. Draw Icon
                 ctx.save();
                 try {
-                    console.log(`[RENDERER] Fetching icon: ${item.icon}`);
 
                     // Timeout promise for fetch and image load
                     const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
@@ -457,7 +454,6 @@ export async function drawPosterToCanvas(
                             if (resp.ok) {
                                 svgContent = await resp.text();
                                 svgContent = svgContent.replace(/stroke="currentColor"/g, `stroke="${rawColor}"`);
-                                console.log(`[RENDERER] ✓ Lucide icon fetched: ${item.icon}`);
                             }
                         } catch (e) {
                             console.warn(`[RENDERER] ✗ Lucide fetch failed: ${item.icon}`, e);
@@ -476,7 +472,6 @@ export async function drawPosterToCanvas(
 
                             if (resp.ok) {
                                 svgContent = await resp.text();
-                                console.log(`[RENDERER] ✓ Iconify icon fetched: ${iconToTry}`);
                             } else if (!hasPrefix) {
                                 const base = item.icon.replace(/_/g, '-');
                                 const variants = [`${base}-outline`, `${item.icon}-outline`];
@@ -484,7 +479,6 @@ export async function drawPosterToCanvas(
                                     const vResp = await fetch(`https://api.iconify.design/material-symbols:${v}.svg?color=${encodedColor}`);
                                     if (vResp.ok) {
                                         svgContent = await vResp.text();
-                                        console.log(`[RENDERER] ✓ Iconify variant fetched: material-symbols:${v}`);
                                         break;
                                     }
                                 }
@@ -829,7 +823,6 @@ export async function drawPosterToCanvas(
         }
     }
 
-    console.log('[RENDERER] ✓ drawPosterToCanvas complete, returning canvas');
     return canvas;
 }
 

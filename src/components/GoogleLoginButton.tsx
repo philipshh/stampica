@@ -19,52 +19,65 @@ declare global {
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
+// GSI must be initialized exactly once per page; multiple buttons can be
+// mounted (top bar + checkout), so the initialize call delegates to whichever
+// button registered its handler most recently.
+let gsiInitialized = false;
+let activeCredentialHandler: ((credential: string) => void) | null = null;
+
 export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
   const { loginWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const initialized = useRef(false);
+  const handlerRef = useRef<(credential: string) => void>(() => {});
+
+  handlerRef.current = async (credential: string) => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      await loginWithGoogle(credential);
+      onSuccess?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!CLIENT_ID || initialized.current) return;
+    if (!CLIENT_ID) return;
+
+    const ownHandler = (credential: string) => handlerRef.current(credential);
+    activeCredentialHandler = ownHandler;
 
     function initGSI() {
-      if (!window.google) return;
-      initialized.current = true;
+      if (!window.google || gsiInitialized) return;
+      gsiInitialized = true;
       window.google.accounts.id.initialize({
         client_id: CLIENT_ID,
-        callback: async ({ credential }) => {
-          setError(null);
-          setIsLoading(true);
-          try {
-            await loginWithGoogle(credential);
-            onSuccess?.();
-          } catch (err) {
-            setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-          } finally {
-            setIsLoading(false);
-          }
-        },
+        callback: ({ credential }) => activeCredentialHandler?.(credential),
       });
     }
 
     if (window.google) {
       initGSI();
-      return;
+    } else {
+      const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (existing) {
+        existing.addEventListener('load', initGSI);
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.onload = initGSI;
+        script.onerror = () => setError('Failed to load Google sign-in.');
+        document.head.appendChild(script);
+      }
     }
 
-    const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-    if (existing) {
-      existing.addEventListener('load', initGSI);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.onload = initGSI;
-    script.onerror = () => setError('Failed to load Google sign-in.');
-    document.head.appendChild(script);
-  }, [loginWithGoogle, onSuccess]);
+    return () => {
+      if (activeCredentialHandler === ownHandler) activeCredentialHandler = null;
+    };
+  }, []);
 
   function handleClick() {
     if (window.google) {

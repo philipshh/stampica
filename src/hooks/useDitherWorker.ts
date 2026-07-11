@@ -21,13 +21,6 @@ export function useDitherWorker(onResult: (imageData: ImageData) => void) {
 
             if (e.data?.imageData) {
                 onResultRef.current(e.data.imageData);
-
-                if (import.meta.env.MODE !== 'production') {
-                    const d = e.data.imageData.data;
-                    let count = 0;
-                    for (let i = 3; i < d.length; i += 4) if (d[i] === 0) count++;
-                    console.log('[SANITY] transparent pixels:', count);
-                }
             }
         };
 

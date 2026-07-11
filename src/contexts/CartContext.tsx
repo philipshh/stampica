@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { DitherOptions } from '../lib/dither';
+import { saveCart, loadCart } from '../lib/storage';
 
 export type PosterSize = 'A5' | 'A4' | 'A3';
 export type FrameOption = 'none' | 'black' | 'white';
@@ -10,7 +11,7 @@ export interface CartItem {
   imageFile: File | null;
   processedImage: ImageData | null;
   previewBlob: Blob | null;
-  previewBlobUrl: string;   // Object URL — revoke on remove
+  previewBlobUrl: string;   // Object URL — recreated on load, revoke on remove
   size: PosterSize;
   quantity: number;
   frame: FrameOption;
@@ -28,6 +29,32 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const hydrated = useRef(false);
+
+  // Rehydrate the cart from IndexedDB on first mount (object URLs don't
+  // survive a reload, so recreate them from the stored preview blobs).
+  useEffect(() => {
+    loadCart()
+      .then((stored) => {
+        const restored = (stored as CartItem[]).map((item) => ({
+          ...item,
+          previewBlobUrl: item.previewBlob ? URL.createObjectURL(item.previewBlob) : '',
+        }));
+        setItems((current) => (current.length === 0 ? restored : current));
+      })
+      .catch((err) => console.error('[cart] failed to restore', err))
+      .finally(() => {
+        hydrated.current = true;
+      });
+  }, []);
+
+  // Persist on every change after hydration. Object URLs are session-scoped,
+  // so strip them before storing.
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const toStore = items.map(({ previewBlobUrl: _url, ...rest }) => ({ ...rest, previewBlobUrl: '' }));
+    saveCart(toStore).catch((err) => console.error('[cart] failed to persist', err));
+  }, [items]);
 
   function addItem(item: Omit<CartItem, 'id'>) {
     const id = crypto.randomUUID();

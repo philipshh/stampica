@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { API_BASE } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -75,11 +75,11 @@ export function DevNav() {
 function BackendStatus() {
   const [status, setStatus] = useState<'checking' | 'ok' | 'error'>('checking');
   
-  useState(() => {
+  useEffect(() => {
     fetch(`${API_BASE}/api/health`)
       .then((r) => setStatus(r.ok ? 'ok' : 'error'))
       .catch(() => setStatus('error'));
-  });
+  }, []);
 
   return (
     <div className="p-4 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-between text-sm">
