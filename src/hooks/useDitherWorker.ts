@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { toastError } from '../lib/toast';
 import { WorkerResponse, WorkerErrorResponse } from '../lib/dither';
 import Worker from '../lib/worker?worker';
 
@@ -15,7 +16,7 @@ export function useDitherWorker(onResult: (imageData: ImageData) => void) {
         workerRef.current.onmessage = (e: MessageEvent<WorkerMessage>) => {
             if ('error' in e.data) {
                 console.error('Worker error:', e.data.error);
-                try { alert(`Dither engine error: ${e.data.error}`); } catch { /* ignore */ }
+                toastError(`Dither engine error: ${e.data.error}`);
                 return;
             }
 

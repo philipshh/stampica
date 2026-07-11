@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toastError, toastSuccess } from '../../lib/toast';
 import { DitherOptions } from '../../lib/dither';
 import {
     PosterProject,
@@ -114,7 +115,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
             await loadProjects();
         } catch (err) {
             console.error('Failed to save project:', err);
-            alert('Failed to save project');
+            toastError('Failed to save project');
         } finally {
             setIsLoading(false);
         }
@@ -136,7 +137,7 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
             a.download = `poster-backup-${new Date().toISOString().split('T')[0]}.zip`;
             a.click();
             URL.revokeObjectURL(a.href);
-        } catch (err) { alert('Backup failed'); }
+        } catch { toastError('Backup failed'); }
         finally { setIsLoading(false); }
     };
 
@@ -148,8 +149,8 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
             setIsLoading(true);
-            try { await importProjectBackup(file); await loadProjects(); alert('Projects restored!'); }
-            catch { alert('Restore failed: Invalid ZIP backup'); }
+            try { await importProjectBackup(file); await loadProjects(); toastSuccess('Projects restored!'); }
+            catch { toastError('Restore failed: Invalid ZIP backup'); }
             finally { setIsLoading(false); }
         };
         input.click();

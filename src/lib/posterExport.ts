@@ -1,4 +1,5 @@
 import { DitherOptions, WorkerResponse } from './dither';
+import { toastError } from './toast';
 import { drawPosterToCanvas, getPosterDimensions } from './posterRenderer';
 import Worker from './worker?worker';
 
@@ -74,11 +75,11 @@ export async function exportPoster(options: DitherOptions, imageFile: File | nul
 
     if (!options.poster.enabled) {
         if (!isGrid && !imageFile) {
-            alert('Please upload an image to export a dithered image.');
+            toastError('Please upload an image to export a dithered image.');
             return;
         }
         if (isGrid && !options.grid.images.some((s) => s.file)) {
-            alert('Please upload images to the grid to export.');
+            toastError('Please upload images to the grid to export.');
             return;
         }
     }
@@ -110,7 +111,7 @@ export async function exportPoster(options: DitherOptions, imageFile: File | nul
             const canvas = await drawPosterToCanvas(exportOptions, finalImageData, dimensions);
 
             canvas.toBlob((blob) => {
-                if (!blob) { alert('Failed to export poster - canvas blob is empty'); return; }
+                if (!blob) { toastError('Failed to export poster - canvas blob is empty'); return; }
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.download = fileName;
@@ -120,7 +121,7 @@ export async function exportPoster(options: DitherOptions, imageFile: File | nul
             }, `image/${format}`);
         } catch (error) {
             console.error('Poster export failed:', error);
-            alert('Export failed: ' + error);
+            toastError('Export failed: ' + error);
         }
         return;
     }
