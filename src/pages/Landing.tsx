@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BeforeAfter } from '../components/BeforeAfter';
+import { HowItWorksVideo } from '../components/HowItWorksVideo';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
@@ -193,9 +194,12 @@ export function Landing() {
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-24 md:py-32 w-full">
-        <h2 className="font-display font-extrabold text-4xl md:text-5xl mb-14 md:mb-20 tracking-[-0.02em]">
+        <h2 className="font-display font-extrabold text-4xl md:text-5xl mb-10 md:mb-14 tracking-[-0.02em]">
           {t('howItWorksTitle')}
         </h2>
+        <div className="mb-16 md:mb-20">
+          <HowItWorksVideo title={t('howItWorksTitle')} soundOnLabel={t('videoSoundOn')} soundOffLabel={t('videoSoundOff')} />
+        </div>
         <div className="grid md:grid-cols-3 gap-12 md:gap-10">
           {steps.map((step, i) => (
             <div key={i} className="flex md:flex-col gap-5 md:gap-0 items-start">
