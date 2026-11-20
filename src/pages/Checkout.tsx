@@ -7,7 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { FramedPoster } from '../components/FramedPoster';
 import { Lightbox } from '../components/Lightbox';
-import { DIGITAL_PRICE } from '../../shared/pricing';
+import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
 import { POSTER_SIZES } from '../lib/posterSizes';
 import { startDigitalCheckout } from '../lib/digitalCheckout';
 
@@ -21,7 +21,7 @@ export function Checkout() {
   const [progress, setProgress] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wallImages = items.map(i => i.previewBlobUrl).filter(Boolean);
-  const total = items.length * DIGITAL_PRICE;
+  const total = items.length * DIGITAL_PRICE_CENTS;
 
   useEffect(() => {
     if (items.length === 0) navigate('/cart', { replace: true });
@@ -117,7 +117,7 @@ export function Checkout() {
             <div className="bg-surface rounded-2xl border border-line p-5 space-y-3 mb-5">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutDesigns', { count: items.length })}</span>
-                <span>{items.length} × {DIGITAL_PRICE} din</span>
+                <span>{items.length} × {formatPrice(DIGITAL_PRICE_CENTS)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutSizes')}</span>
@@ -125,7 +125,7 @@ export function Checkout() {
               </div>
               <div className="flex justify-between items-baseline pt-3 border-t border-line">
                 <span className="font-semibold">{t('total')}</span>
-                <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{total} din</span>
+                <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total)}</span>
               </div>
             </div>
 
@@ -146,7 +146,7 @@ export function Checkout() {
                   {busy ? <Loader2 size={18} className="animate-spin" /> : <Lock size={16} />}
                   {busy
                     ? (progress ? t('checkoutUploading', { done: progress[0], total: progress[1] }) : t('checkoutPreparing'))
-                    : t('payAndDownload', { total })}
+                    : t('payAndDownload', { total: formatPrice(total) })}
                 </button>
                 {error && <p className="mt-3 text-sm text-vermilion text-center">{error}</p>}
                 <p className="mt-4 text-xs text-ink-faint text-center leading-relaxed">

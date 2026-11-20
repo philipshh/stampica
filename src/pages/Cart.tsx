@@ -3,7 +3,7 @@ import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useT } from '../contexts/LanguageContext';
 import { FramedPoster } from '../components/FramedPoster';
-import { DIGITAL_PRICE } from '../../shared/pricing';
+import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
 import { POSTER_SIZES } from '../lib/posterSizes';
 
 // Digital cart: one entry per design. Every design unlocks all sizes, so there
@@ -14,7 +14,7 @@ export function Cart() {
   const { items, removeItem } = useCart();
   const { t } = useT();
   const navigate = useNavigate();
-  const total = items.length * DIGITAL_PRICE;
+  const total = items.length * DIGITAL_PRICE_CENTS;
 
   if (items.length === 0) {
     return (
@@ -48,7 +48,7 @@ export function Cart() {
                 ? <FramedPoster src={item.previewBlobUrl} eager />
                 : <div className="aspect-[1/1.41] bg-surface border border-line" />}
               <figcaption className="mt-3 flex items-center justify-between text-sm">
-                <span className="font-semibold">{DIGITAL_PRICE} din</span>
+                <span className="font-semibold">{formatPrice(DIGITAL_PRICE_CENTS)}</span>
                 <button onClick={() => removeItem(item.id)} aria-label={t('removeItem')} className="text-ink-faint hover:text-vermilion transition-colors p-1">
                   <Trash2 size={15} />
                 </button>
@@ -60,7 +60,7 @@ export function Cart() {
         <div className="max-w-md ml-auto bg-surface border border-line rounded-2xl p-5">
           <div className="flex justify-between items-baseline">
             <span className="font-semibold">{t('total')}</span>
-            <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{total} din</span>
+            <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total)}</span>
           </div>
           {items.length > MAX_ITEMS && <p className="mt-2 text-xs text-vermilion">{t('cartTooMany', { max: MAX_ITEMS })}</p>}
           <button

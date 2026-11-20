@@ -4,7 +4,7 @@ import { presignUpload, presignDownload, deleteObjects } from './storage.js';
 import { requireUser } from './auth.js';
 import { getDodo, dodoEnvironment, dodoProductId } from './dodo.js';
 import { sendDownloadEmail } from './email.js';
-import { DIGITAL_PRICE } from '../../shared/pricing.js';
+import { DIGITAL_PRICE_CENTS } from '../../shared/pricing.js';
 import type { ApiRequest, ApiResponse } from './types.js';
 
 const MAX_ITEMS = 20;                     // Dodo carts hold at most 20 lines
@@ -98,7 +98,7 @@ export async function createDigitalCheckout(req: ApiRequest, res: ApiResponse) {
     const [order] = await sql()`
       INSERT INTO digital_orders (user_id, order_number, livemode, items, item_count, unit_price)
       VALUES (${user.userId}, ${number}, ${dodoEnvironment() === 'live_mode'},
-              ${JSON.stringify(items)}::jsonb, ${items.length}, ${DIGITAL_PRICE})
+              ${JSON.stringify(items)}::jsonb, ${items.length}, ${DIGITAL_PRICE_CENTS})
       RETURNING id` as { id: string }[];
 
     const session = await getDodo().checkoutSessions.create({
