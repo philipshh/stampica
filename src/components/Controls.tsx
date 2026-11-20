@@ -48,7 +48,7 @@ export const Controls: React.FC<ControlsProps> = ({
     };
 
     return (
-        <div className="w-full md:w-80 bg-paper flex flex-col h-full text-xs md:border-r border-line" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+        <div className="w-full md:w-80 bg-paper flex flex-col h-full text-xs md:border-r border-line">
             {/* Tabs */}
             <div className="px-3 pt-3 pb-2 flex-shrink-0">
                 <div className="grid grid-cols-4 bg-line/50 rounded-lg p-1 gap-1">

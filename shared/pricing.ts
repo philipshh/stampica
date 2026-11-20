@@ -7,6 +7,9 @@ export type FrameOption = 'none' | 'black' | 'white';
 export const SIZE_PRICE: Record<PosterSize, number> = { A5: 700, A4: 900, A3: 1100 };
 export const FRAME_EXTRA: Record<FrameOption, number> = { none: 0, black: 1000, white: 1000 };
 export const SHIPPING_COST = 200;
+
+// Digital download: one price per design, unlocks every size.
+export const DIGITAL_PRICE = 390;
 export const FREE_SHIPPING_THRESHOLD = 4000;
 
 export interface PricedItem {

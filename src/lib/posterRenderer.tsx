@@ -1,18 +1,7 @@
 import { DitherOptions } from './dither';
+import { getPosterSize, getPixelSize } from './posterSizes';
 
 export const getPosterDimensions = (options: DitherOptions, aspectRatio: string, resolution: 'high' | 'low' = 'high'): { width: number; height: number } => {
-    const POSTER_SIZES = {
-        'A5': { width: 1748, height: 2480 },
-        'A4': { width: 2480, height: 3508 },
-        'A3': { width: 3508, height: 4961 },
-        'A2': { width: 4961, height: 7016 }, // Default
-        'A1': { width: 7016, height: 9933 },
-        'A0': { width: 9933, height: 14043 },
-        '18x24': { width: 5400, height: 7200 },
-        '24x36': { width: 7200, height: 10800 },
-        '27x40': { width: 8100, height: 12000 },
-    };
-
     let size;
     if (aspectRatio === 'custom' && options.poster.customDimensions) {
         size = {
@@ -20,7 +9,8 @@ export const getPosterDimensions = (options: DitherOptions, aspectRatio: string,
             height: options.poster.customDimensions.height || 2000
         };
     } else {
-        size = POSTER_SIZES[aspectRatio as keyof typeof POSTER_SIZES] || POSTER_SIZES['A4'];
+        const { width, height } = getPixelSize(getPosterSize(aspectRatio));
+        size = { width, height };
     }
 
     if (resolution === 'low') {

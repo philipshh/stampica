@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DitherOptions } from '../../lib/dither';
-import { getPosterDimensions } from '../../lib/posterRenderer';
-import { GripVertical, Eye, EyeOff } from 'lucide-react';
+import { SIZE_FAMILIES, sizesInFamily, getPosterSize } from '../../lib/posterSizes';
+import { GripVertical, Eye, EyeOff, Dices } from 'lucide-react';
 import { SectionCard } from './SectionCard';
 import { useT } from '../../contexts/LanguageContext';
 
@@ -105,7 +105,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         onClick={() => set({ layoutOrder: [...p.layoutOrder].sort(() => Math.random() - 0.5) })}
                         className="py-2 bg-ink/5 text-ink text-xs rounded-lg hover:bg-ink/10 transition-colors flex items-center justify-center gap-1.5"
                     >
-                        🎲 {t('btnShuffle')}
+                        <Dices className="w-3.5 h-3.5" /> {t('btnShuffle')}
                     </button>
                     <button
                         onClick={() => set({ layoutOrder: ['header', 'image', 'title', 'list', 'footer'] })}
@@ -117,25 +117,34 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
             </SectionCard>}
 
             <SectionCard title={t('sectionPosterSize')}>
-                <Field label={t('fieldFormat')}>
-                    <div className="grid grid-cols-3 gap-1.5">
-                        {(['A5', 'A4', 'A3'] as const).map(size => {
-                            const cmLabels: Record<string, string> = { A5: '14.8×21', A4: '21×29.7', A3: '29.7×42' };
-                            return (
-                                <button key={size}
-                                    onClick={() => {
-                                        const baseDims = getPosterDimensions(options, options.poster.aspectRatio || 'A4', options.poster.resolution || 'high');
-                                        set({ aspectRatio: size, customDimensions: { width: baseDims.width, height: baseDims.height, keepRatio: true } });
-                                    }}
-                                    className={`py-2 rounded-lg border transition-colors flex flex-col items-center text-[9px] uppercase ${p.aspectRatio === size ? 'bg-ink text-paper border-transparent font-bold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}
-                                >
-                                    <span>{size}</span>
-                                    <span className="opacity-60 mt-0.5">{cmLabels[size]}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </Field>
+                <div className="space-y-3">
+                    {SIZE_FAMILIES.map(family => {
+                        const sizes = sizesInFamily(family.id);
+                        const ratio = sizes[0].widthMm / sizes[0].heightMm;
+                        const activeFamily = getPosterSize(p.aspectRatio).family === family.id;
+                        return (
+                            <div key={family.id}>
+                                <div className={`flex items-center gap-2 mb-1.5 text-[10px] ${activeFamily ? 'text-ink font-semibold' : 'text-ink-faint'}`}>
+                                    <span
+                                        className={`inline-block border ${activeFamily ? 'border-ink bg-ink/10' : 'border-ink-faint/50'}`}
+                                        style={{ height: 14, width: Math.round(14 * ratio) }}
+                                    />
+                                    {family.label}
+                                </div>
+                                <div className="grid grid-cols-3 gap-1.5">
+                                    {sizes.map(size => (
+                                        <button key={size.id}
+                                            onClick={() => set({ aspectRatio: size.id })}
+                                            className={`py-1.5 rounded-lg border transition-colors text-[10px] whitespace-nowrap ${getPosterSize(p.aspectRatio).id === size.id ? 'bg-ink text-paper border-transparent font-semibold' : 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'}`}
+                                        >
+                                            {size.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </SectionCard>
 
             <SectionCard title={t('sectionSpacing')}>

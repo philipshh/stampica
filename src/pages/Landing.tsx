@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
-import { SIZE_PRICE, FRAME_EXTRA, SHIPPING_COST, FREE_SHIPPING_THRESHOLD, PosterSize } from '../../shared/pricing';
+import { DIGITAL_PRICE } from '../../shared/pricing';
+import { POSTER_SIZES, SIZE_FAMILIES, sizesInFamily } from '../lib/posterSizes';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
@@ -17,14 +18,6 @@ const CAROUSEL_IMAGES: string[] = [
   '/carousel/poster-9.png',
   '/carousel/poster-10.png',
   '/carousel/poster-11.png',
-];
-
-// ── Sizes section: rectangles proportional to real paper sizes ────────────────
-// A3 297×420mm, A4 210×297mm, A5 148×210mm
-const SIZE_SPECS: { size: PosterSize; w: number }[] = [
-  { size: 'A5', w: 90 },
-  { size: 'A4', w: 127 },
-  { size: 'A3', w: 180 },
 ];
 
 /** A poster pinned to the wall with a piece of translucent tape. */
@@ -69,11 +62,11 @@ export function Landing() {
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-[1.1fr_1fr] gap-10 items-center min-h-[72dvh] py-16 md:py-20">
           <div className="relative z-10">
             <h1
-              className="font-display font-semibold text-5xl md:text-7xl leading-[1.02] tracking-tight animate-fade-up"
+              className="font-display font-extrabold text-5xl md:text-7xl leading-[1.1] tracking-[-0.03em] pb-1 animate-fade-up"
               style={{ animationDelay: '0.05s' }}
             >
               {t('heroPre')}
-              <em className="text-vermilion">{t('heroEm')}</em>
+              <em className="text-vermilion italic">{t('heroEm')}</em>
               {t('heroPost')}
             </h1>
             <p
@@ -148,7 +141,7 @@ export function Landing() {
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-24 md:py-32 w-full">
-        <h2 className="font-display font-semibold text-4xl md:text-5xl mb-14 md:mb-20 tracking-tight">
+        <h2 className="font-display font-extrabold text-4xl md:text-5xl mb-14 md:mb-20 tracking-[-0.02em]">
           {t('howItWorksTitle')}
         </h2>
         <div className="grid md:grid-cols-3 gap-12 md:gap-10">
@@ -165,12 +158,12 @@ export function Landing() {
                     className="w-full aspect-[1/1.414] object-cover"
                   />
                 </div>
-                <span className="absolute -top-3 -left-3 w-9 h-9 rounded-full bg-vermilion text-paper font-display font-semibold text-sm flex items-center justify-center shadow-card">
+                <span className="absolute -top-3 -left-3 w-9 h-9 rounded-full bg-vermilion text-paper font-display font-bold text-sm flex items-center justify-center shadow-card">
                   {i + 1}
                 </span>
               </div>
               <div>
-                <h3 className="font-display font-semibold text-xl md:text-2xl mb-2">{step.title}</h3>
+                <h3 className="font-display font-bold text-xl md:text-2xl mb-2 tracking-[-0.01em]">{step.title}</h3>
                 <p className="text-ink-soft text-sm leading-relaxed">{step.text}</p>
               </div>
             </div>
@@ -180,44 +173,46 @@ export function Landing() {
 
       {/* ── Sizes & prices ───────────────────────────────────────────────── */}
       <section className="border-y border-line bg-surface">
-        <div className="max-w-5xl mx-auto px-6 py-24 md:py-32 w-full">
-          <h2 className="font-display font-semibold text-4xl md:text-5xl mb-14 md:mb-20 tracking-tight text-right">
-            {t('pricingTitle')}
-          </h2>
-          <div className="flex items-end justify-center gap-6 md:gap-12">
-            {SIZE_SPECS.map(({ size, w }) => (
-              <div key={size} className="flex flex-col items-center gap-4">
-                <div
-                  className="border border-ink/25 bg-white shadow-card flex items-center justify-center"
-                  style={{ width: `clamp(${w * 0.5}px, ${w / 5}vw, ${w}px)`, aspectRatio: '1 / 1.414' }}
-                >
-                  <span className="font-display font-semibold text-xl md:text-2xl text-ink">{size}</span>
-                </div>
-                <p className="text-sm md:text-base">
-                  <span className="font-semibold">{SIZE_PRICE[size]}</span>{' '}
-                  <span className="text-ink-faint">{t('pricingDin')}</span>
-                </p>
-              </div>
-            ))}
+        <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 w-full grid md:grid-cols-[0.9fr_1.1fr] gap-14 md:gap-16 items-center">
+          <div>
+            <h2 className="font-display font-extrabold text-4xl md:text-5xl tracking-[-0.02em] leading-[1.05]">
+              {t('pricingDigitalTitle')}
+            </h2>
+            <p className="mt-5 text-ink-soft text-base md:text-lg leading-relaxed max-w-[42ch]">
+              {t('pricingDigitalText', { count: POSTER_SIZES.length })}
+            </p>
+            <p className="mt-8 flex items-baseline gap-2">
+              <span className="font-display font-extrabold text-6xl tracking-[-0.03em]">{DIGITAL_PRICE}</span>
+              <span className="text-ink-soft">{t('pricingPerDesign')}</span>
+            </p>
           </div>
-          <div className="mt-14 max-w-md mx-auto space-y-2 text-sm md:text-base">
-            <div className="flex justify-between text-ink-soft">
-              <span>{t('pricingFrame')}</span>
-              <span className="text-ink font-medium">+{FRAME_EXTRA.black} {t('pricingDin')}</span>
-            </div>
-            <div className="flex justify-between text-ink-soft">
-              <span>{t('pricingShipping')}</span>
-              <span className="text-ink font-medium">
-                {SHIPPING_COST} {t('pricingDin')} · {t('pricingFreeShipping', { amount: FREE_SHIPPING_THRESHOLD })}
-              </span>
-            </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-5 gap-y-10">
+            {SIZE_FAMILIES.map(family => {
+              const sizes = sizesInFamily(family.id);
+              const ratio = sizes[0].widthMm / sizes[0].heightMm;
+              return (
+                <div key={family.id} className="flex flex-col">
+                  <div className="h-24 flex items-end mb-4">
+                    <div
+                      className="bg-white border border-ink/20 shadow-card"
+                      style={{ height: '100%', aspectRatio: `${ratio}` }}
+                    />
+                  </div>
+                  <p className="font-display font-bold text-lg tracking-[-0.01em]">{family.label}</p>
+                  <ul className="mt-1 text-sm text-ink-soft leading-relaxed">
+                    {sizes.map(sz => <li key={sz.id} className="whitespace-nowrap">{sz.label}</li>)}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ── Final CTA ────────────────────────────────────────────────────── */}
       <section className="px-6 py-28 md:py-40 text-center">
-        <h2 className="font-display font-semibold text-4xl md:text-6xl max-w-3xl mx-auto mb-10 leading-tight tracking-tight">
+        <h2 className="font-display font-extrabold text-4xl md:text-6xl max-w-3xl mx-auto mb-10 leading-[1.05] tracking-[-0.03em]">
           {t('finalCtaTitle')}
         </h2>
         <Link

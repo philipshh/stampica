@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DitherOptions, ColorPreset } from '../../lib/dither';
 import { QUADTONE_THEMES, DUOTONE_THEMES, TRITONE_THEMES } from '../../lib/colorUtils';
-import { Save, Minus, Plus } from 'lucide-react';
+import { Save, Minus, Plus, Dices } from 'lucide-react';
 import { SectionCard } from './SectionCard';
 import { EffectsGallery } from './EffectsGallery';
 
@@ -198,6 +198,9 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
             <SectionCard title="Effects">
                 <EffectsGallery options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
+                {options.algorithm !== 'none' && (
+                    <SliderField label="Threshold" value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
+                )}
             </SectionCard>
 
             <SectionCard title="Colors">
@@ -256,7 +259,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                         <div className="grid grid-cols-2 gap-2">
                             <button onClick={() => handleThemeSelect(QUADTONE_THEMES[Math.floor(Math.random() * QUADTONE_THEMES.length)].name)}
                                 className="py-2 bg-ink/5 text-ink text-xs rounded-lg hover:bg-ink/10 transition-colors flex items-center justify-center gap-1.5">
-                                🎲 Shuffle
+                                <Dices className="w-3.5 h-3.5" /> Shuffle
                             </button>
                             <button onClick={() => handleThemeSelect('Base Reference')}
                                 className="py-2 rounded-lg border border-line text-ink-faint hover:border-ink/40 hover:text-ink transition-colors text-xs">
@@ -290,7 +293,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
             {advanced && (
                 <SectionCard title="Effect tuning">
-                    <SliderField label="Threshold" value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
                     <SliderField label="Point size" value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
                 </SectionCard>
             )}

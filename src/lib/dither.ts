@@ -43,7 +43,8 @@ export const EFFECTS: EffectInfo[] = [
     { id: 'lines', label: 'Lines', category: 'pattern' },
     { id: 'diagonal', label: 'Diagonal', category: 'pattern' },
 ];
-export type AspectRatio = 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
+// A size id from posterSizes.ts (e.g. 'A4', '50x70cm', '8x10in') or 'custom'
+export type AspectRatio = string;
 
 export type PaddingSize = 'S' | 'M' | 'L';
 export type ImagePadding = 'none' | 'same-as-poster';

@@ -13,15 +13,10 @@ import { computePaletteFromColorMode, interpolateColors, rgbToHex } from './lib/
 import { exportPoster, copyPosterToClipboard, exportPosterPreviewBlob } from './lib/posterExport';
 import { useImageDimensions } from './hooks/useImageDimensions';
 import { useDitherWorker } from './hooks/useDitherWorker';
+import { getPosterSize } from './lib/posterSizes';
 import { usePasteHandler } from './hooks/usePasteHandler';
 
 
-const ASPECT_RATIO_VALUES: Record<string, string> = {
-    A5: '148 / 210',
-    A4: '210 / 297',
-    A3: '297 / 420',
-    A2: '420 / 594',
-};
 
 const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 
@@ -361,7 +356,8 @@ function App() {
         setOptions(loadedOptions);
     };
 
-    const aspectRatioValue = ASPECT_RATIO_VALUES[options.poster.aspectRatio] ?? '420 / 594';
+    const sizeSpec = getPosterSize(options.poster.aspectRatio);
+    const aspectRatioValue = `${sizeSpec.widthMm} / ${sizeSpec.heightMm}`;
 
     const [zoom, setZoom] = useState<number | 'fit'>('fit');
     const [refreshKey, setRefreshKey] = useState(0);
@@ -410,8 +406,8 @@ function App() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        boxShadow: '0 24px 60px rgba(40, 30, 10, 0.28), 0 2px 8px rgba(40, 30, 10, 0.12)',
-        border: '1px solid #E0DACC',
+        boxShadow: '0 24px 60px rgba(20, 20, 18, 0.22), 0 2px 8px rgba(20, 20, 18, 0.10)',
+        border: '1px solid #DDDDD8',
         background: '#fff',
     };
 
