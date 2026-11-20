@@ -10,6 +10,7 @@ import { Lightbox } from '../components/Lightbox';
 import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
 import { POSTER_SIZES } from '../lib/posterSizes';
 import { startDigitalCheckout } from '../lib/digitalCheckout';
+import { API_BASE } from '../lib/api';
 
 export function Checkout() {
   const navigate = useNavigate();
@@ -22,6 +23,14 @@ export function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const wallImages = items.map(i => i.previewBlobUrl).filter(Boolean);
   const total = items.length * DIGITAL_PRICE_CENTS;
+  const [testMode, setTestMode] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/health`)
+      .then(r => r.json())
+      .then((d: { payments?: string }) => setTestMode(d.payments === 'test'))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (items.length === 0) navigate('/cart', { replace: true });
@@ -152,6 +161,12 @@ export function Checkout() {
                 <p className="mt-4 text-xs text-ink-faint text-center leading-relaxed">
                   {t('checkoutNote', { email: user.email })}
                 </p>
+                {testMode && (
+                  <div className="mt-4 rounded-xl border border-vermilion/40 p-3 text-xs text-ink-soft leading-relaxed">
+                    <p className="font-semibold text-vermilion uppercase tracking-wider mb-1">{t('dlTestMode')}</p>
+                    <p>{t('checkoutTestCard')}</p>
+                  </div>
+                )}
               </>
             )}
           </div>

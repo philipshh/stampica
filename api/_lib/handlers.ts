@@ -1,6 +1,7 @@
 import { sql } from './db.js';
 import { verifyGoogleToken, signJWT } from './auth.js';
 import { sendSupportEmail } from './email.js';
+import { dodoEnvironment } from './dodo.js';
 import type { ApiRequest, ApiResponse } from './types.js';
 
 // POST /api/auth/google
@@ -64,5 +65,5 @@ export async function support(req: ApiRequest, res: ApiResponse) {
 }
 
 export function health(_req: ApiRequest, res: ApiResponse) {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'ok', payments: dodoEnvironment() === 'live_mode' ? 'live' : 'test', timestamp: new Date().toISOString() });
 }
