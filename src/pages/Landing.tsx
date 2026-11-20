@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { BeforeAfter } from '../components/BeforeAfter';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
@@ -8,9 +10,17 @@ const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
 // Real-photo showcase posters (rendered by /dev/posters) and the original
 // movie posters, interleaved so the marquee shows both directions.
-const SHOWCASE = ['ana-marko', 'luna', 'hram', 'mila-luka', 'kiki', 'durmitor', 'max', 'sava', 'petrovic', 'miso', 'alps', 'knez']
+const SHOWCASE = ['ana-marko', 'luna', 'hram', 'mila-luka', 'wildflowers', 'kiki', 'durmitor', 'bella', 'max', 'zemun', 'sava', 'baby', 'petrovic', 'pobednik', 'alps', 'deda', 'knez', 'jelena-maja', 'rex', 'louise', 'buba']
   .map(id => `/showcase/${id}.jpg`);
 const MOVIE_POSTERS = Array.from({ length: 11 }, (_, i) => `/carousel/poster-${i + 1}.png`);
+// Effect names stay untranslated: they match the labels in the editor
+const LOOKS: { id: string; label?: string; big?: boolean }[] = [
+  { id: 'kiki-ascii', big: true },
+  { id: 'kiki-halftone', label: 'Halftone' },
+  { id: 'kiki-pop', label: 'Threshold' },
+  { id: 'kiki-lines', label: 'Lines' },
+  { id: 'kiki-film', label: 'Atkinson' },
+];
 const CAROUSEL_IMAGES: string[] = SHOWCASE.flatMap((src, i) => (MOVIE_POSTERS[i] ? [src, MOVIE_POSTERS[i]] : [src]));
 
 /** A poster pinned to the wall with a piece of translucent tape. */
@@ -38,6 +48,8 @@ function TapedPoster({ src, rotate, className = '', width = 200, delay = 0 }: {
 export function Landing() {
   const { user } = useAuth();
   const { t } = useT();
+  // A different trio of showcase posters on every visit
+  const [featured] = useState(() => [...SHOWCASE].sort(() => Math.random() - 0.5).slice(0, 3));
 
   const source = CAROUSEL_IMAGES;
 
@@ -71,7 +83,7 @@ export function Landing() {
             <div className="mt-8 flex items-center gap-4 animate-fade-up" style={{ animationDelay: '0.35s' }}>
               <Link
                 to="/create"
-                className="px-8 py-3.5 bg-ink text-paper font-semibold rounded-full hover:bg-black transition-colors text-base"
+                className="press px-8 py-3.5 bg-ink text-paper font-semibold rounded-full hover:bg-black transition-colors text-base"
               >
                 {t('create')}
               </Link>
@@ -101,15 +113,15 @@ export function Landing() {
 
           {/* Taped poster collage — desktop */}
           <div className="relative hidden md:block h-[480px]">
-            <TapedPoster src="/showcase/ana-marko.jpg" rotate={-4} className="left-0 top-6" width={210} delay={0.3} />
-            <TapedPoster src="/showcase/luna.jpg" rotate={3} className="left-[46%] top-24" width={200} delay={0.45} />
-            <TapedPoster src="/showcase/mila-luka.jpg" rotate={-2} className="left-[22%] top-56" width={185} delay={0.6} />
+            <TapedPoster src={featured[0]} rotate={-4} className="left-0 top-6" width={210} delay={0.3} />
+            <TapedPoster src={featured[1]} rotate={3} className="left-[46%] top-24" width={200} delay={0.45} />
+            <TapedPoster src={featured[2]} rotate={-2} className="left-[22%] top-56" width={185} delay={0.6} />
           </div>
 
           {/* Single taped poster — mobile */}
           <div className="relative md:hidden h-[320px] -mx-2">
-            <TapedPoster src="/showcase/ana-marko.jpg" rotate={-3} className="left-[6%] top-4" width={170} delay={0.3} />
-            <TapedPoster src="/showcase/luna.jpg" rotate={4} className="right-[6%] top-16" width={160} delay={0.45} />
+            <TapedPoster src={featured[0]} rotate={-3} className="left-[6%] top-4" width={170} delay={0.3} />
+            <TapedPoster src={featured[1]} rotate={4} className="right-[6%] top-16" width={160} delay={0.45} />
           </div>
         </div>
       </section>
@@ -129,6 +141,53 @@ export function Landing() {
                 className="w-full h-auto" draggable={false} />
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── Before / after ─────────────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-6 py-24 md:py-32 w-full grid md:grid-cols-[1fr_1.1fr] gap-12 md:gap-20 items-center">
+        <div className="md:order-2 max-w-md">
+          <h2 className="font-display font-extrabold text-4xl md:text-5xl tracking-[-0.02em] leading-[1.05]">
+            {t('beforeAfterTitle')}
+          </h2>
+          <p className="mt-5 text-ink-soft text-base md:text-lg leading-relaxed">{t('beforeAfterText')}</p>
+          <Link to="/create" className="press mt-8 inline-block px-8 py-3.5 bg-ink text-paper font-semibold rounded-full hover:bg-black transition-colors">
+            {t('create')}
+          </Link>
+        </div>
+        <div className="md:order-1 w-full max-w-[420px] mx-auto md:mx-0">
+          <BeforeAfter
+            before="/showcase/kiki-photo.jpg"
+            after="/showcase/kiki-dither.jpg"
+            beforeLabel={t('photoLabel')}
+            afterLabel={t('posterLabel')}
+            ariaLabel={t('beforeAfterAria')}
+            width={640}
+            height={960}
+          />
+        </div>
+      </section>
+
+      {/* ── One photo, many looks ──────────────────────────────────────── */}
+      <section className="bg-surface border-y border-line">
+        <div className="max-w-6xl mx-auto px-6 py-24 md:py-32 w-full">
+          <h2 className="font-display font-extrabold text-4xl md:text-6xl tracking-[-0.03em] leading-[1.02] max-w-2xl">
+            {t('onePhotoTitle')}
+          </h2>
+          <p className="mt-5 text-ink-soft text-base md:text-lg leading-relaxed max-w-[48ch]">{t('onePhotoText')}</p>
+          <div className="mt-14 grid grid-cols-2 md:grid-cols-12 gap-x-5 gap-y-10 items-start">
+            {LOOKS.map((look, i) => (
+              <figure
+                key={look.id}
+                className={look.big ? 'col-span-2 md:col-span-6 md:row-span-2' : `md:col-span-3 ${i % 2 ? 'md:mt-16' : ''}`}
+              >
+                <div className="poster-lift bg-white p-1.5 border border-line shadow-card">
+                  <img src={`/showcase/${look.id}.jpg`} alt="" width={480} height={680} loading="lazy" className="w-full h-auto" />
+                </div>
+                <figcaption className="mt-3 text-sm text-ink-soft">{look.label ?? t('looksAscii')}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -204,13 +263,13 @@ export function Landing() {
       </section>
 
       {/* ── Final CTA ────────────────────────────────────────────────────── */}
-      <section className="px-6 py-28 md:py-40 text-center">
+      <section className="px-6 py-28 md:py-40 text-center bg-vermilion text-ink">
         <h2 className="font-display font-extrabold text-4xl md:text-6xl max-w-3xl mx-auto mb-10 leading-[1.05] tracking-[-0.03em]">
           {t('finalCtaTitle')}
         </h2>
         <Link
           to="/create"
-          className="inline-block px-10 py-4 bg-ink text-paper font-semibold rounded-full hover:bg-black transition-colors text-lg"
+          className="press inline-block px-10 py-4 bg-ink text-paper font-semibold rounded-full hover:bg-black transition-colors text-lg"
         >
           {t('create')}
         </Link>

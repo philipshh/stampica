@@ -169,7 +169,7 @@ function App() {
                 const settingsHash = JSON.stringify([
                     options.algorithm, options.threshold, options.palette,
                     options.brightness, options.contrast, options.gamma, options.pointSize,
-                    options.previewResolution, options.colorPipeline, options.invert,
+                    options.previewResolution, options.colorPipeline, options.invert, options.asciiText,
                 ]);
 
                 const needsProcessing = options.grid.images.some(
@@ -216,6 +216,7 @@ function App() {
         options.previewResolution,
         options.colorPipeline,
         options.invert,
+        options.asciiText,
     ]);
 
     const handleExport = () => exportPoster(options, imageFile);

@@ -115,6 +115,7 @@ export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptio
         options.invert,
         options.threshold,
         options.colorPipeline,
+        options.asciiText,
     ]);
 
     useEffect(() => {

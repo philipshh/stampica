@@ -30,6 +30,10 @@ interface ShowcaseSpec {
     align?: 'left' | 'center' | 'right';
     threshold?: number;
     brightness?: number;
+    asciiText?: string;
+    invert?: boolean;
+    // Effect only, no poster layout (for the landing before/after slider)
+    raw?: boolean;
     contrast?: number;
     paper?: string;
     ink?: string;
@@ -43,8 +47,6 @@ export const SHOWCASE: ShowcaseSpec[] = [
       title: 'Luna', subtitle: 'Best girl, every single day', year: '2021', director: 'Golden retriever', font: 'Unbounded', titleSize: 104 },
     { id: 'max', photo: 'dogdad-woods', size: '30x40cm', algorithm: 'bayer-4', mode: 'tritone', theme: 'Forest Dusk',
       title: 'Max & me', year: '2023', director: 'Fruška gora', order: ['header', 'title', 'image', 'footer'], titleSize: 96 },
-    { id: 'miso', photo: 'cat-dark', size: 'A3', algorithm: 'ascii', mode: 'duotone', mono: undefined, theme: 'Cold Neon Night',
-      title: 'Mišo', subtitle: 'Chief napping officer', year: '2020', director: 'Tabby', brightness: 30, contrast: 45, paper: '#111111', ink: '#F2F2EE', font: 'Syne', titleSize: 110, imagePadding: 'none' },
     { id: 'hram', photo: 'bg-temple', size: '50x70cm', algorithm: 'lines', mode: 'tritone', theme: 'Blueprint Tech',
       title: 'Hram Svetog Save', subtitle: 'Vračar', year: '1935', director: 'Beograd', align: 'center', titleSize: 76 },
     { id: 'sava', photo: 'bg-bridge', size: '8x10in', algorithm: 'diagonal', mode: 'duotone', theme: 'Ice & Steel',
@@ -61,6 +63,39 @@ export const SHOWCASE: ShowcaseSpec[] = [
       title: 'Mila + Luka', subtitle: 'Est. Dorćol', year: '2022', director: 'Wedding day', font: 'Syne', titleSize: 96 },
     { id: 'kiki', photo: 'cat-white', size: 'A4', algorithm: 'bayer-2', mode: 'quadtone', theme: 'Midnight Coral',
       title: 'Kiki', subtitle: 'Queen of the windowsill', year: '2018', director: 'Calico', font: 'Unbounded', titleSize: 120 },
+    { id: 'wildflowers', photo: 'couple-flowers', size: '50x70cm', algorithm: 'sierra', mode: 'tritone', theme: 'Desert Sunset',
+      title: 'Wildflowers', subtitle: 'The day you said yes', year: '2025', director: 'Vojvodina', font: 'Playfair Display', titleSize: 92, align: 'center' },
+    { id: 'bella', photo: 'dogmom-hug', size: '8x10in', algorithm: 'halftone', mode: 'duotone', theme: 'Midnight Coral',
+      title: 'Bella', subtitle: 'Snow dog, warm heart', year: '2022', director: 'Samoyed', font: 'Unbounded', titleSize: 110 },
+    { id: 'rex', photo: 'dogdad-black', size: 'A4', algorithm: 'jarvis', mode: 'quadtone', theme: 'Forest Dusk',
+      title: 'Rex', subtitle: 'Hiking buddy since day one', year: '2021', director: 'Border collie', order: ['header', 'title', 'image', 'footer'], titleSize: 120 },
+    { id: 'zemun', photo: 'bg-rooftops', size: '30x40cm', algorithm: 'burkes', mode: 'quadtone', theme: 'Desert Sunset',
+      title: 'Zemun', subtitle: 'Gardoš rooftops', year: '1896', director: 'Beograd', titleSize: 104 },
+    { id: 'louise', photo: 'lake-louise', size: '61x91cm', algorithm: 'halftone', mode: 'tritone', theme: 'Ice & Steel',
+      title: 'Lake Louise', subtitle: 'Banff', year: '2019', director: 'Honeymoon', align: 'center', titleSize: 84 },
+    { id: 'baby', photo: 'family-baby', size: 'A3', algorithm: 'atkinson', mode: 'duotone', theme: 'Graphite Rose',
+      title: 'Hello, Sofija', subtitle: '3.2 kg of pure joy', year: '2025', director: 'Welcome home', font: 'Playfair Display', titleSize: 84 },
+    { id: 'pobednik', photo: 'bg-pobednik', size: '40x60cm', algorithm: 'bayer-4', mode: 'duotone', theme: 'Blueprint Tech',
+      title: 'Pobednik', subtitle: 'Kalemegdan', year: '1928', director: 'Beograd', font: 'Syne', titleSize: 110, align: 'right' },
+    { id: 'deda', photo: 'grandpa-walk', size: '40x50cm', algorithm: 'floyd-steinberg', mode: 'quadtone', theme: 'Warm Analog Film',
+      title: 'Deda i ja', subtitle: 'Sunday walks', year: '2024', director: 'Family', order: ['header', 'title', 'image', 'footer'], font: 'Playfair Display', titleSize: 96 },
+    { id: 'jelena-maja', photo: 'friends-sea', size: '12x18in', algorithm: 'lines', mode: 'duotone', theme: 'Electric Sunset',
+      title: 'Summer \'24', subtitle: 'Jelena & Maja, Budva', year: '2024', director: 'Best friends', font: 'Unbounded', titleSize: 104 },
+    { id: 'buba', photo: 'car-beetle', size: '13x18cm', algorithm: 'threshold', mode: 'monochrome', mono: { dark: '#1F4F5A', light: '#F3EEE4' },
+      title: 'Buba', subtitle: 'My first car', year: '1972', director: 'Volkswagen', titleSize: 120 },
+    // One photo, many looks (landing "same photo" section)
+    { id: 'kiki-halftone', photo: 'cat-white', size: '30x40cm', algorithm: 'halftone', mode: 'duotone', theme: 'Ice & Steel',
+      title: 'Kiki', subtitle: 'Halftone', year: '2018', director: 'Calico', titleSize: 120 },
+    { id: 'kiki-ascii', photo: 'cat-white', size: 'A4', algorithm: 'ascii', mode: 'duotone', theme: 'Desert Sunset', asciiText: 'KIKI ', invert: true, threshold: 30,
+      title: 'Kiki', subtitle: 'Her name, in letters', year: '2018', director: 'Calico', font: 'Syne', titleSize: 120 },
+    { id: 'kiki-lines', photo: 'cat-white', size: '40x50cm', algorithm: 'lines', mode: 'tritone', theme: 'Blueprint Tech',
+      title: 'Kiki', subtitle: 'Line screen', year: '2018', director: 'Calico', order: ['header', 'title', 'image', 'footer'], titleSize: 120 },
+    { id: 'kiki-pop', photo: 'cat-white', size: '8x10in', algorithm: 'threshold', mode: 'monochrome', mono: { dark: '#E8491D', light: '#F6F1E7' },
+      title: 'KIKI', subtitle: 'Two colors, no fuss', year: '2018', director: 'Calico', font: 'Unbounded', titleSize: 120, align: 'center' },
+    { id: 'kiki-film', photo: 'cat-white', size: '20x30cm', algorithm: 'atkinson', mode: 'quadtone', theme: 'Warm Analog Film',
+      title: 'Kiki', subtitle: 'Queen of the windowsill', year: '2018', director: 'Calico', font: 'Playfair Display', titleSize: 110 },
+    { id: 'kiki-dither', photo: 'cat-white', size: '20x30cm', algorithm: 'bayer-2', mode: 'quadtone', theme: 'Midnight Coral',
+      title: '', year: '', director: '', raw: true },
 ];
 
 function buildOptions(spec: ShowcaseSpec): DitherOptions {
@@ -69,6 +104,8 @@ function buildOptions(spec: ShowcaseSpec): DitherOptions {
     o.colorMode = spec.mode;
     o.threshold = spec.threshold ?? 128;
     o.brightness = spec.brightness ?? 0;
+    o.asciiText = spec.asciiText ?? '';
+    o.invert = spec.invert ?? false;
     o.contrast = spec.contrast ?? 0;
     if (spec.mono) o.monochromeColors = spec.mono;
     if (spec.theme) {
@@ -109,9 +146,18 @@ async function renderSpec(spec: ShowcaseSpec): Promise<Blob> {
     const opts = buildOptions(spec);
     const res = await fetch(`/_src/${spec.photo}.jpg`);
     const file = new File([await res.blob()], `${spec.photo}.jpg`, { type: 'image/jpeg' });
-    const dims = getPosterDimensions(opts, spec.size, 'low');
-    const imageData = await getDitheredImageData(file, opts, Math.max(dims.width, dims.height));
-    const canvas = await drawPosterToCanvas(opts, imageData, dims);
+    let canvas: HTMLCanvasElement;
+    if (spec.raw) {
+        const imageData = await getDitheredImageData(file, opts, 960);
+        canvas = document.createElement('canvas');
+        canvas.width = imageData.width;
+        canvas.height = imageData.height;
+        canvas.getContext('2d')!.putImageData(imageData, 0, 0);
+    } else {
+        const dims = getPosterDimensions(opts, spec.size, 'low');
+        const imageData = await getDitheredImageData(file, opts, Math.max(dims.width, dims.height));
+        canvas = await drawPosterToCanvas(opts, imageData, dims);
+    }
     return new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob'))), 'image/jpeg', 0.88));
 }
 
@@ -120,7 +166,8 @@ export function PosterStudio() {
     const [log, setLog] = useState<string[]>([]);
 
     const renderAll = async (save: boolean) => {
-        for (const spec of SHOWCASE) {
+        const only = new URLSearchParams(location.search).get('only')?.split(',');
+        for (const spec of SHOWCASE.filter(x => !only || only.includes(x.id))) {
             try {
                 const blob = await renderSpec(spec);
                 setUrls(u => ({ ...u, [spec.id]: URL.createObjectURL(blob) }));

@@ -116,6 +116,8 @@ export interface GridSettings {
 export interface DitherOptions {
     algorithm: DitherAlgorithm;
     threshold: number;
+    // ASCII effect: custom characters (e.g. names). Empty = classic density ramp.
+    asciiText?: string;
     palette: [number, number, number][];
     brightness: number; // -100 to 100
     contrast: number;   // -100 to 100

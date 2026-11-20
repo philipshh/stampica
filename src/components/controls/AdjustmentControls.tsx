@@ -201,6 +201,18 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                 {options.algorithm !== 'none' && (
                     <SliderField label="Threshold" value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
                 )}
+                {options.algorithm === 'ascii' && (
+                    <Field label="Characters">
+                        <input
+                            type="text"
+                            value={options.asciiText ?? ''}
+                            maxLength={40}
+                            onChange={e => update('asciiText', e.target.value)}
+                            placeholder="Your names, a word, or leave empty"
+                            className="w-full bg-surface border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 placeholder:text-ink-faint"
+                        />
+                    </Field>
+                )}
             </SectionCard>
 
             <SectionCard title="Colors">

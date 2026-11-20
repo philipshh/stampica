@@ -297,6 +297,8 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
         // light → dark glyph ramp
         const ramp = [' ', '.', ':', '-', '=', 'o', 'c', 'x', '%', '#', '@'];
         const bias255 = (128 - threshold) / 128 * 128;
+        const customText = [...(options.asciiText ?? '').replace(/\s+/g, ' ').trim()];
+        const cols = Math.ceil(width / cell);
 
         // Palette in display (sRGB) space for drawing
         const displayPalette = palette;
@@ -304,12 +306,14 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
             (a, b) => getLuminance(b[0], b[1], b[2]) - getLuminance(a[0], a[1], a[2])
         );
         const bg = sorted[0]; // lightest
+        // Glyphs never use the background color, or light cells would draw invisible text
+        const inkPalette = sorted.length > 1 ? sorted.slice(1) : sorted;
 
         const canvas = new OffscreenCanvas(width, height);
         const ctx = canvas.getContext('2d')!;
         ctx.fillStyle = `rgb(${bg[0]},${bg[1]},${bg[2]})`;
         ctx.fillRect(0, 0, width, height);
-        ctx.font = `${cell}px Menlo, Consolas, monospace`;
+        ctx.font = `${customText.length ? 'bold ' : ''}${cell}px Menlo, Consolas, monospace`;
         ctx.textBaseline = 'top';
 
         for (let cy = 0; cy < height; cy += cell) {
@@ -331,10 +335,16 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
                 const idx = Math.min(ramp.length - 1, Math.floor((1 - lum / 256) * ramp.length));
                 if (ramp[idx] === ' ') continue;
 
+                // Custom text tiles across the grid in reading order so words stay legible
+                const glyph = customText.length
+                    ? customText[((cy / cell) * cols + cx / cell) % customText.length]
+                    : ramp[idx];
+                if (glyph === ' ') continue;
+
                 // glyph drawn in the palette color closest to the cell average
-                const glyphColor = findClosestColor(r, g, b, displayPalette, 'default');
+                const glyphColor = findClosestColor(r, g, b, inkPalette, 'default');
                 ctx.fillStyle = `rgb(${glyphColor[0]},${glyphColor[1]},${glyphColor[2]})`;
-                ctx.fillText(ramp[idx], cx, cy);
+                ctx.fillText(glyph, cx, cy);
             }
         }
 

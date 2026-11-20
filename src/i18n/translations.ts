@@ -33,6 +33,14 @@ const translations = {
     pricingDigitalTitle: 'One price. Every size.',
     pricingDigitalText: 'Pay once per design and download it in all {count} sizes, from A5 to 61×91 cm. Print it anywhere.',
     pricingPerDesign: 'din per design',
+    beforeAfterTitle: 'Same photo. Now it\'s a poster.',
+    beforeAfterText: 'Drag to compare. Effects run right in your browser, so every change shows up instantly.',
+    beforeAfterAria: 'Compare the original photo with the poster',
+    photoLabel: 'Photo',
+    posterLabel: 'Poster',
+    onePhotoTitle: 'One photo. Endless posters.',
+    onePhotoText: 'Same cat, five looks. Type a name and the ASCII effect draws her with its letters.',
+    looksAscii: 'ASCII, typed "KIKI"',
 
     // Controls / Editor sidebar
     advancedControls: 'Advanced controls',
@@ -208,6 +216,14 @@ const translations = {
     pricingDigitalTitle: 'Jedna cena. Sve veličine.',
     pricingDigitalText: 'Platiš dizajn jednom i preuzmeš ga u svih {count} veličina, od A5 do 61×91 cm. Odštampaj gde god želiš.',
     pricingPerDesign: 'din po dizajnu',
+    beforeAfterTitle: 'Ista fotografija. Sad je poster.',
+    beforeAfterText: 'Prevuci da uporediš. Efekti rade u tvom pregledaču, pa svaku promenu vidiš odmah.',
+    beforeAfterAria: 'Uporedi originalnu fotografiju sa posterom',
+    photoLabel: 'Fotografija',
+    posterLabel: 'Poster',
+    onePhotoTitle: 'Jedna fotografija. Bezbroj postera.',
+    onePhotoText: 'Ista mačka, pet izgleda. Upiši ime i ASCII efekat je nacrta njegovim slovima.',
+    looksAscii: 'ASCII, upisano "KIKI"',
 
     // Controls / Editor sidebar
     advancedControls: 'Napredne opcije',
