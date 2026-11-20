@@ -118,9 +118,12 @@ export const extractColors = async (imageSource: File | HTMLImageElement, count:
 };
 
 export const hexToRgb = (hex: string): [number, number, number] => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+    let h = hex.startsWith('#') ? hex.slice(1) : hex;
+    // Expand shorthand hex (#000 → #000000)
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    const r = parseInt(h.slice(0, 2), 16) || 0;
+    const g = parseInt(h.slice(2, 4), 16) || 0;
+    const b = parseInt(h.slice(4, 6), 16) || 0;
     return [r, g, b];
 };
 

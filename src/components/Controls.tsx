@@ -65,7 +65,7 @@ export const Controls: React.FC<ControlsProps> = ({
                     <LayoutControls options={options} onOptionsChange={onOptionsChange} imageDimensions={imageDimensions} />
                 )}
                 {activeTab === 'adjust' && (
-                    <AdjustmentControls options={options} onOptionsChange={onOptionsChange} />
+                    <AdjustmentControls options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
                 )}
                 {activeTab === 'saved' && (
                     <ProjectControls

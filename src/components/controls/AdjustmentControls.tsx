@@ -3,10 +3,12 @@ import { DitherOptions, ColorPreset } from '../../lib/dither';
 import { QUADTONE_THEMES, DUOTONE_THEMES, TRITONE_THEMES } from '../../lib/colorUtils';
 import { Save, Minus, Plus } from 'lucide-react';
 import { SectionCard } from './SectionCard';
+import { EffectsGallery } from './EffectsGallery';
 
 interface AdjustmentControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
+    imageFile?: File | null;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -142,7 +144,7 @@ const ThemeSelect: React.FC<{
     );
 };
 
-export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options, onOptionsChange }) => {
+export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options, onOptionsChange, imageFile = null }) => {
     const [presets, setPresets] = useState<ColorPreset[]>([]);
 
     useEffect(() => {
@@ -191,17 +193,11 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            <SectionCard title="Dither">
-                <Field label="Algorithm">
-                    <div className="grid grid-cols-2 gap-1.5">
-                        {(['none', 'atkinson', 'stucki', 'threshold'] as const).map(algo => (
-                            <button key={algo} onClick={() => update('algorithm', algo)} className={segBtn(options.algorithm === algo)}>
-                                {algo}
-                            </button>
-                        ))}
-                    </div>
-                </Field>
+            <SectionCard title="Effects">
+                <EffectsGallery options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
+            </SectionCard>
 
+            <SectionCard title="Dither">
                 <Field label="Color mode">
                     <div className="grid grid-cols-5 gap-1">
                         {colorModes.map(mode => (

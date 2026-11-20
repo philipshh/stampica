@@ -2,7 +2,47 @@ export type DitherAlgorithm =
     | 'none'
     | 'atkinson'
     | 'threshold'
-    | 'stucki';
+    | 'stucki'
+    | 'floyd-steinberg'
+    | 'jarvis'
+    | 'burkes'
+    | 'sierra'
+    | 'bayer-2'
+    | 'bayer-4'
+    | 'bayer-8'
+    | 'halftone'
+    | 'lines'
+    | 'diagonal'
+    | 'noise'
+    | 'ascii';
+
+export type EffectCategory = 'classic' | 'diffusion' | 'pattern';
+
+export interface EffectInfo {
+    id: DitherAlgorithm;
+    label: string;
+    category: EffectCategory;
+}
+
+// Effect gallery metadata — order defines display order
+export const EFFECTS: EffectInfo[] = [
+    { id: 'none', label: 'Original', category: 'classic' },
+    { id: 'threshold', label: 'Threshold', category: 'classic' },
+    { id: 'noise', label: 'Grain', category: 'classic' },
+    { id: 'ascii', label: 'ASCII', category: 'classic' },
+    { id: 'atkinson', label: 'Atkinson', category: 'diffusion' },
+    { id: 'floyd-steinberg', label: 'Floyd', category: 'diffusion' },
+    { id: 'stucki', label: 'Stucki', category: 'diffusion' },
+    { id: 'jarvis', label: 'Jarvis', category: 'diffusion' },
+    { id: 'burkes', label: 'Burkes', category: 'diffusion' },
+    { id: 'sierra', label: 'Sierra', category: 'diffusion' },
+    { id: 'bayer-2', label: 'Bayer S', category: 'pattern' },
+    { id: 'bayer-4', label: 'Bayer M', category: 'pattern' },
+    { id: 'bayer-8', label: 'Bayer L', category: 'pattern' },
+    { id: 'halftone', label: 'Halftone', category: 'pattern' },
+    { id: 'lines', label: 'Lines', category: 'pattern' },
+    { id: 'diagonal', label: 'Diagonal', category: 'pattern' },
+];
 export type AspectRatio = 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
 
 export type ProductType = 'poster' | 'tshirt' | 'tote' | 'cap';
