@@ -32,7 +32,7 @@ const translations = {
     videoUnmute: 'Sound on',
     madeWithLove: 'Made with love in Serbia',
     checkoutTitle: 'Checkout',
-    checkoutDesigns: '{count} posters',
+    checkoutDesigns: 'Posters: {count}',
     checkoutSizes: 'Sizes',
     checkoutAllSizes: 'All {count} included',
     signInToBuy: 'Sign in with Google to buy. Your posters stay in your account so you can download them again later.',

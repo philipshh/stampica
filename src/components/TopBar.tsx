@@ -48,14 +48,15 @@ export function TopBar() {
     return (
       <Link
         to={to}
-        title={label}
-        className={`md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+        aria-label={label}
+        className={`md:hidden flex flex-col items-center justify-center gap-0.5 min-w-12 px-1 h-12 rounded-lg transition-colors ${
           active
             ? 'bg-ink text-paper'
             : 'text-ink-soft hover:text-ink hover:bg-line/50'
         }`}
       >
         {icon}
+        <span className="text-[10px] font-medium leading-none">{label}</span>
       </Link>
     );
   }
@@ -69,7 +70,7 @@ export function TopBar() {
     .toUpperCase() ?? '';
 
   return (
-    <header className="h-[72px] flex-shrink-0 flex items-center justify-between px-5 bg-paper border-b border-line z-50">
+    <header className="sticky top-0 h-16 md:h-[72px] flex-shrink-0 flex items-center justify-between pl-4 pr-3 md:px-5 bg-paper/90 backdrop-blur border-b border-line z-50 pt-[env(safe-area-inset-top)] box-content">
       <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
         <img src="/logo.png" alt="Stampica" className="h-9 w-auto object-contain brightness-0" />
       </Link>
@@ -88,12 +89,13 @@ export function TopBar() {
         {/* Cart icon */}
         <Link
           to="/cart"
-          title={t('viewCart')}
-          className="relative flex items-center justify-center w-9 h-9 rounded-lg text-ink-soft hover:text-ink hover:bg-line/50 transition-colors"
+          aria-label={t('viewCart')}
+          className={`relative flex flex-col items-center justify-center gap-0.5 w-12 h-12 md:w-9 md:h-9 rounded-lg transition-colors ${location.pathname === '/cart' ? 'bg-ink text-paper md:bg-transparent md:text-ink' : 'text-ink-soft hover:text-ink hover:bg-line/50'}`}
         >
           <ShoppingCart size={18} />
+          <span className="md:hidden text-[10px] font-medium leading-none">{t('cartShort')}</span>
           {cartCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-vermilion text-paper text-[9px] font-bold rounded-full leading-none">
+            <span className="absolute top-0.5 right-1 md:-top-0.5 md:-right-0.5 w-4 h-4 flex items-center justify-center bg-vermilion text-paper text-[9px] font-bold rounded-full leading-none">
               {cartCount > 9 ? '9+' : cartCount}
             </span>
           )}
@@ -102,8 +104,8 @@ export function TopBar() {
         {/* Language toggle */}
         <button
           onClick={() => setLang(lang === 'en' ? 'sr' : 'en')}
-          className="text-xs font-medium px-2 py-1 rounded-lg text-ink-faint hover:text-ink hover:bg-line/50 transition-colors"
-          title="Switch language"
+          className="text-xs font-semibold w-11 h-11 md:w-auto md:h-auto md:px-2 md:py-1 rounded-lg text-ink-faint hover:text-ink hover:bg-line/50 transition-colors"
+          aria-label={lang === 'en' ? 'Srpski' : 'English'}
         >
           {lang === 'en' ? 'SR' : 'EN'}
         </button>
@@ -114,7 +116,8 @@ export function TopBar() {
           <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setShowDropdown(v => !v)}
-              className="flex items-center gap-2 rounded-lg p-1 hover:bg-line/50 transition-colors"
+              aria-label={user.name}
+              className="flex items-center gap-2 rounded-lg p-1.5 md:p-1 hover:bg-line/50 transition-colors"
             >
               {user.picture ? (
                 <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />

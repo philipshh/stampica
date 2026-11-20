@@ -130,7 +130,7 @@ export function Landing() {
               className="flex-shrink-0 mx-3 bg-white p-1.5 shadow-card border border-line"
               style={{ width: 150, marginTop: i % 2 === 0 ? 0 : 20, transform: `rotate(${i % 3 === 0 ? -1.5 : i % 3 === 1 ? 1 : 0}deg)` }}
             >
-              <img src={item} alt="" width={150} height={212} loading="lazy"
+              <img src={item} alt="" width={150} height={212} decoding="async"
                 className="w-full h-auto" draggable={false} />
             </div>
           ))}

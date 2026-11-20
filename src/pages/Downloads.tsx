@@ -66,10 +66,22 @@ function PosterDownload({ item, index }: { item: OrderItem; index: number }) {
       const options = withPalette({ ...design, poster: { ...design.poster, aspectRatio: size } });
       const blob = await exportPosterHiResBlob(options, file);
       if (!blob) throw new Error('render failed');
+      const name = `stampica-${slug(design.poster.title || `poster-${index + 1}`)}-${size}.png`;
+      // On phones the share sheet offers "Save Image" straight to Photos
+      const shareFile = new File([blob], name, { type: 'image/png' });
+      if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({ files: [shareFile] })) {
+        try {
+          await navigator.share({ files: [shareFile] });
+          return;
+        } catch (err) {
+          if ((err as Error).name === 'AbortError') return;
+          // Share not allowed (e.g. the tap expired during rendering): fall back to a download
+        }
+      }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `stampica-${slug(design.poster.title || `poster-${index + 1}`)}-${size}.png`;
+      a.download = name;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (err) {
@@ -81,9 +93,9 @@ function PosterDownload({ item, index }: { item: OrderItem; index: number }) {
   }
 
   return (
-    <figure className="flex flex-col">
-      {item.previewUrl && <FramedPoster src={item.previewUrl} eager />}
-      <figcaption className="mt-4 space-y-2">
+    <figure className="flex gap-4 items-start sm:flex-col sm:items-stretch sm:gap-0">
+      {item.previewUrl && <div className="w-28 shrink-0 sm:w-auto"><FramedPoster src={item.previewUrl} eager /></div>}
+      <figcaption className="flex-1 min-w-0 sm:mt-4 space-y-2">
         <label className="block text-xs text-ink-faint" htmlFor={`size-${index}`}>{t('dlSize')}</label>
         <select
           id={`size-${index}`}
@@ -189,7 +201,7 @@ export function Downloads() {
         ) : order && (
           <>
             <p className="text-ink-soft max-w-2xl mb-10 leading-relaxed">{t('dlHint')}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
               {order.items.map((item, i) => item.designData && <PosterDownload key={i} item={item} index={i} />)}
             </div>
           </>

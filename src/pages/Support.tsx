@@ -37,6 +37,12 @@ export function Support() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sign-in can finish after the form mounts: fill in what is still empty
+  useEffect(() => {
+    if (!user) return;
+    setForm(f => ({ ...f, name: f.name || user.name || '', email: f.email || user.email || '' }));
+  }, [user]);
+
   useEffect(() => {
     if (!token) return;
     fetch(`${API_BASE}/api/digital/orders`, { headers: { Authorization: `Bearer ${token}` } })
@@ -90,7 +96,7 @@ export function Support() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-ink-soft mb-1.5">{t('name')}</label>
               <input

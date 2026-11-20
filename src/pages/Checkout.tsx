@@ -16,7 +16,7 @@ export function Checkout() {
   const navigate = useNavigate();
   const { user, token } = useAuth();
   const { t } = useT();
-  const { items } = useCart();
+  const { items, ready } = useCart();
   const [viewIdx, setViewIdx] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<[number, number] | null>(null);
@@ -33,8 +33,8 @@ export function Checkout() {
   }, []);
 
   useEffect(() => {
-    if (items.length === 0) navigate('/cart', { replace: true });
-  }, [items.length]);
+    if (ready && items.length === 0) navigate('/cart', { replace: true });
+  }, [ready, items.length]);
 
   async function pay() {
     if (!token) return;
@@ -53,11 +53,11 @@ export function Checkout() {
   }
 
   return (
-    <div className="md:h-full bg-paper md:overflow-hidden">
-      <div className="flex flex-col md:flex-row md:h-full">
+    <div className="bg-paper">
+      <div className="flex flex-col md:flex-row">
 
         {/* Left — the order as a little gallery wall; tap a poster to see it up close */}
-        <div className="md:w-1/2 bg-surface border-b md:border-b-0 md:border-r border-line flex-shrink-0 md:h-full md:overflow-y-auto custom-scrollbar">
+        <div className="order-2 md:order-1 md:w-1/2 bg-surface border-t md:border-t-0 md:border-r border-line flex-shrink-0">
           <div className="p-6 md:p-10">
             <div className="flex items-baseline justify-between mb-6">
               <h2 className="font-display font-extrabold text-2xl tracking-[-0.02em]">
@@ -82,9 +82,6 @@ export function Checkout() {
                       >
                         <FramedPoster src={item.previewBlobUrl} eager />
                       </button>
-                      <figcaption className="mt-3 text-xs text-ink-soft">
-                        {item.size}{item.quantity > 1 ? ` × ${item.quantity}` : ''}
-                      </figcaption>
                     </figure>
                   ))}
                 </div>
@@ -99,9 +96,6 @@ export function Checkout() {
                       >
                         <FramedPoster src={item.previewBlobUrl} eager className="poster-lift" />
                       </button>
-                      <figcaption className="mt-3 text-xs text-ink-soft">
-                        {item.size}{item.quantity > 1 ? ` × ${item.quantity}` : ''}
-                      </figcaption>
                     </figure>
                   ))}
                 </div>
@@ -111,10 +105,10 @@ export function Checkout() {
         </div>
 
         {/* Right — summary and payment */}
-        <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8 md:h-full">
+        <div className="order-1 md:order-2 md:w-1/2 p-4 pt-6 md:p-8 md:sticky md:top-[72px] md:self-start">
           <div className="max-w-lg mx-auto">
-            <div className="flex items-center gap-3 mb-8">
-              <button onClick={() => navigate('/cart')} aria-label={t('backToCart')} className="text-ink-faint hover:text-ink transition-colors">
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
+              <button onClick={() => navigate('/cart')} aria-label={t('backToCart')} className="-ml-2 w-11 h-11 flex items-center justify-center text-ink-faint hover:text-ink transition-colors">
                 <ArrowLeft size={20} />
               </button>
               <div className="w-10 h-10 rounded-xl bg-surface border border-line flex items-center justify-center">

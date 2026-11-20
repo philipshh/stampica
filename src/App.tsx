@@ -398,10 +398,10 @@ function App() {
             {/* Main content */}
             <main className="flex-1 flex flex-col relative min-w-0 bg-canvas workspace-grid overflow-hidden">
                 {/* Canvas area */}
-                <div ref={canvasWrapperRef} className="flex-1 min-h-0 relative overflow-hidden">
+                <div ref={canvasWrapperRef} className="basis-[40%] flex-none md:flex-1 md:basis-auto min-h-0 relative overflow-hidden">
 
                     {/* Floating zoom controls — top left */}
-                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-surface border border-line rounded-full px-2 py-1.5 shadow-card select-none">
+                    <div className="absolute top-3 left-3 z-20 hidden md:flex items-center gap-1 bg-surface border border-line rounded-full px-2 py-1.5 shadow-card select-none">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom === 'fit' || zoom <= 0.25}
@@ -438,7 +438,8 @@ function App() {
                     {/* Floating refresh — bottom right */}
                     <button
                         onClick={() => setRefreshKey(k => k + 1)}
-                        className="absolute bottom-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-line text-ink hover:bg-line/40 transition-colors shadow-card cursor-pointer text-sm"
+                        aria-label="Refresh preview"
+                        className="absolute bottom-2 right-2 md:bottom-3 md:right-3 z-20 w-10 h-10 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-surface border border-line text-ink hover:bg-line/40 transition-colors shadow-card cursor-pointer text-sm"
                         title="Refresh preview"
                     >
                         ↺
@@ -464,7 +465,7 @@ function App() {
                     </div>
                 </div>
 
-                {/* Mobile controls — flex-1 so it takes equal space as canvas on mobile, hidden on desktop */}
+                {/* Mobile controls take the larger share of the screen; hidden on desktop */}
                 <div className="flex-1 min-h-0 flex md:hidden bg-paper border-t border-line overflow-hidden">
                     <Controls
                         options={options}

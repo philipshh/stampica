@@ -34,7 +34,7 @@ export const DEFAULT_OPTIONS: DitherOptions = {
         enabled: true,
         title: 'Naslov postera',
         subtitle: '',
-        year: '2025',
+        year: String(new Date().getFullYear()),
         description: [
             'Ovo je primer postera sa prilagodljivim rasporedom elemenata. Moguće je menjati layout, boje slike i sadržaj svakog dela.',
         ],

@@ -161,3 +161,12 @@ input[type=range]:focus {
 /* Horizontal carousels: swipeable without a visible scrollbar */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* iOS Safari zooms the page when a focused field's text is under 16px */
+@media (max-width: 767px) {
+  input:not([type='range']):not([type='color']):not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

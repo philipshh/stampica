@@ -4,6 +4,12 @@ import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { SectionCard } from './SectionCard';
 import { useT } from '../../contexts/LanguageContext';
 
+// Tapping a field selects its sample text, so typing replaces it
+const selectAll = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const el = e.currentTarget;
+    requestAnimationFrame(() => el.select());
+};
+
 interface DesignControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
@@ -34,7 +40,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
             <SectionCard title={t('sectionTextContent')}>
                 {/* Director */}
                 <Field label={t('fieldDirector')}>
-                    <input type="text" value={p.director} onChange={e => set({ director: e.target.value })} className={inputClass} />
+                    <input type="text" value={p.director} onFocus={selectAll} onChange={e => set({ director: e.target.value })} className={inputClass} />
                 </Field>
 
                 {/* Title */}
@@ -53,7 +59,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         </div>
                     </span>
                 }>
-                    <input type="text" value={p.title} onChange={e => set({ title: e.target.value })} className={inputClass} />
+                    <input type="text" value={p.title} onFocus={selectAll} onChange={e => set({ title: e.target.value })} className={inputClass} />
                     <div className="flex gap-1 mt-1.5">
                         {[40, 48, 56, 64].map(size => (
                             <button key={size} onClick={() => set({ titleFontSize: size })} className={sizeBtn(p.titleFontSize === size)}>{size}</button>
@@ -65,7 +71,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
 
                 {/* Subtitle */}
                 <Field label={t('fieldSubtitle')}>
-                    <input type="text" value={p.subtitle} onChange={e => set({ subtitle: e.target.value })} className={inputClass} />
+                    <input type="text" value={p.subtitle} onFocus={selectAll} onChange={e => set({ subtitle: e.target.value })} className={inputClass} />
                     <div className="flex gap-1 mt-1.5">
                         {[16, 24, 32, 40].map(size => (
                             <button key={size} onClick={() => set({ subtitleFontSize: size })} className={sizeBtn(p.subtitleFontSize === size)}>{size}</button>
@@ -77,12 +83,13 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
 
                 {/* Year */}
                 <Field label={t('fieldYear')}>
-                    <input type="text" value={p.year} onChange={e => set({ year: e.target.value })} className={inputClass} />
+                    <input type="text" value={p.year} onFocus={selectAll} onChange={e => set({ year: e.target.value })} className={inputClass} />
                 </Field>
 
                 {/* Description */}
                 <Field label={t('fieldDescription')}>
                     <textarea
+                        onFocus={selectAll}
                         value={p.description[0] || ''}
                         onChange={e => set({ description: [e.target.value], descriptionColumns: 1 })}
                         rows={3}
@@ -122,6 +129,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                     </span>
                 }>
                     <textarea
+                        onFocus={selectAll}
                         value={p.listSection.content.join('\n')}
                         onChange={e => set({ listSection: { ...p.listSection, content: e.target.value.split('\n') } })}
                         rows={5}

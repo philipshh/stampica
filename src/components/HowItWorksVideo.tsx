@@ -36,8 +36,11 @@ export function HowItWorksVideo({ playLabel, pauseLabel, muteLabel, unmuteLabel,
     const pill = 'press flex items-center gap-2 rounded-full bg-ink/80 text-paper px-3.5 py-2 text-xs font-medium backdrop-blur-sm hover:bg-ink transition-colors';
 
     return (
-        <div className={`relative mx-auto overflow-hidden rounded-2xl border border-line bg-surface shadow-sheet ${portrait ? 'max-w-[360px]' : 'w-full'}`}
-            style={{ aspectRatio: portrait ? '9 / 16' : '16 / 9' }}>
+        <div className={`relative mx-auto overflow-hidden rounded-2xl border border-line bg-surface shadow-sheet ${portrait ? '' : 'w-full'}`}
+            // Portrait: never taller than the visible screen under the top bar
+            style={portrait
+                ? { aspectRatio: '9 / 16', width: 'min(100%, 360px, calc((100dvh - 120px) * 9 / 16))' }
+                : { aspectRatio: '16 / 9' }}>
             <video
                 ref={ref}
                 src={`/video/how-it-works-${name}.mp4`}

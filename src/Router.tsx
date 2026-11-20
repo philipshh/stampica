@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { CartProvider } from './contexts/CartContext';
 import { TopBar } from './components/TopBar';
@@ -18,29 +19,35 @@ import { PosterStudio } from './pages/PosterStudio';
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-paper">
+    <div className="flex flex-col min-h-dvh bg-paper">
       <TopBar />
-      <div className="flex-1 overflow-auto">
-        {children}
-      </div>
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   );
 }
 
-// Editor needs full layout control — no footer
+// Editor fills exactly the visible screen (dvh excludes mobile browser bars); no footer
 function EditorLayout() {
   return (
-    <div className="flex flex-col" style={{ height: '100vh' }}>
+    <div className="flex flex-col h-dvh overflow-hidden">
       <TopBar />
       <App />
     </div>
   );
 }
 
+// Pages share the window scroll, so start each new page at the top
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 export function Router() {
   return (
     <BrowserRouter>
+    <ScrollToTop />
     <LanguageProvider>
     <CartProvider>
       <Routes>

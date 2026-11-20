@@ -19,6 +19,8 @@ export interface CartItem {
 
 interface CartContextValue {
   items: CartItem[];
+  /** False until the saved cart has been read back from storage. */
+  ready: boolean;
   addItem: (item: Omit<CartItem, 'id'>) => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, patch: Partial<Pick<CartItem, 'size' | 'quantity' | 'frame'>>) => void;
@@ -30,6 +32,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const hydrated = useRef(false);
+  const [ready, setReady] = useState(false);
 
   // Rehydrate the cart from IndexedDB on first mount (object URLs don't
   // survive a reload, so recreate them from the stored preview blobs).
@@ -45,6 +48,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       .catch((err) => console.error('[cart] failed to restore', err))
       .finally(() => {
         hydrated.current = true;
+        setReady(true);
       });
   }, []);
 
@@ -81,7 +85,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateItem, clearCart }}>
+    <CartContext.Provider value={{ items, ready, addItem, removeItem, updateItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );

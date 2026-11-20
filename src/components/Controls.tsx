@@ -56,7 +56,7 @@ export const Controls: React.FC<ControlsProps> = ({
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`py-2 text-center uppercase transition-all rounded-md text-[10px] tracking-wide font-semibold ${activeTab === tab ? 'bg-surface text-ink shadow-sm' : 'text-ink-faint hover:text-ink'}`}
+                            className={`py-2.5 md:py-2 text-center uppercase transition-all rounded-md text-[11px] md:text-[10px] tracking-wide font-semibold ${activeTab === tab ? 'bg-surface text-ink shadow-sm' : 'text-ink-faint hover:text-ink'}`}
                         >
                             {tab === 'design' ? t('tabDesign') : tab === 'layout' ? t('tabLayout') : tab === 'adjust' ? t('tabEffects') : t('tabSaved')}
                         </button>
@@ -149,21 +149,20 @@ export const Controls: React.FC<ControlsProps> = ({
             </div>
 
             {/* Footer Actions — Mobile */}
-            <div className="flex md:hidden border-t border-line flex-shrink-0 bg-paper">
+            <div className="flex md:hidden gap-2 border-t border-line flex-shrink-0 bg-paper px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 <button
                     onClick={onUploadClick}
-                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-ink-soft hover:text-ink hover:bg-line/40 transition-colors"
+                    className="press flex-1 h-12 flex items-center justify-center gap-2 rounded-full border border-line bg-surface text-ink text-sm font-semibold"
                 >
                     <Upload className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest">{t('tabUpload')}</span>
+                    {t('tabUpload')}
                 </button>
-                <div className="w-px bg-line" />
                 <button
                     onClick={onOrder}
-                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-ink text-paper hover:bg-black transition-colors"
+                    className="press flex-[1.4] h-12 flex items-center justify-center gap-2 rounded-full bg-ink text-paper text-sm font-semibold"
                 >
                     <ShoppingCart className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest font-bold">{t('cartShort')}</span>
+                    {t('addToCart')}
                 </button>
                 {isAdmin && (
                     <>

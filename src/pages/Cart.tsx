@@ -11,10 +11,12 @@ import { POSTER_SIZES } from '../lib/posterSizes';
 const MAX_ITEMS = 20;
 
 export function Cart() {
-  const { items, removeItem } = useCart();
+  const { items, ready, removeItem } = useCart();
   const { t } = useT();
   const navigate = useNavigate();
   const total = items.length * DIGITAL_PRICE_CENTS;
+
+  if (!ready) return <div className="min-h-[60vh] bg-paper" />;
 
   if (items.length === 0) {
     return (
