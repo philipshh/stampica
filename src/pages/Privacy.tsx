@@ -1,10 +1,10 @@
 export function Privacy() {
   return (
-    <div className="min-h-full bg-neutral-950 text-white p-6 md:p-10">
+    <div className="min-h-full bg-paper text-ink p-6 md:p-10">
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
-          <p className="text-neutral-500 text-sm">Last updated: March 2025</p>
+          <p className="text-ink-faint text-sm">Last updated: March 2025</p>
         </div>
 
         <Section title="1. What We Collect">
@@ -24,9 +24,9 @@ export function Privacy() {
         <Section title="3. Third-Party Services">
           <p>We use the following services to operate Stampica:</p>
           <ul className="list-disc pl-4 space-y-1">
-            <li><strong className="text-white">Google Sign-In</strong> – for authentication</li>
-            <li><strong className="text-white">Supabase</strong> – for database and file storage</li>
-            <li><strong className="text-white">Brevo</strong> – for transactional email</li>
+            <li><strong className="text-ink">Google Sign-In</strong> – for authentication</li>
+            <li><strong className="text-ink">Supabase</strong> – for database and file storage</li>
+            <li><strong className="text-ink">Brevo</strong> – for transactional email</li>
           </ul>
           <p>Each service has its own privacy policy governing how they handle data.</p>
         </Section>
@@ -40,7 +40,7 @@ export function Privacy() {
         </Section>
 
         <Section title="6. Your Rights">
-          <p>You have the right to access, correct, or delete the personal data we hold about you. Contact us at <a href="mailto:stampicastudio@gmail.com" className="text-white underline hover:text-neutral-300">stampicastudio@gmail.com</a> to make a request.</p>
+          <p>You have the right to access, correct, or delete the personal data we hold about you. Contact us at <a href="mailto:stampicastudio@gmail.com" className="text-ink underline hover:text-ink">stampicastudio@gmail.com</a> to make a request.</p>
         </Section>
       </div>
     </div>
@@ -50,8 +50,8 @@ export function Privacy() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-base font-semibold text-white mb-2">{title}</h2>
-      <div className="text-sm text-neutral-400 leading-relaxed space-y-2">{children}</div>
+      <h2 className="text-base font-semibold text-ink mb-2">{title}</h2>
+      <div className="text-sm text-ink-soft leading-relaxed space-y-2">{children}</div>
     </section>
   );
 }

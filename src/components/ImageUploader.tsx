@@ -37,12 +37,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload }) =
         <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            className="border-2 border-dashed border-neutral-700 rounded-xl p-12 flex flex-col items-center justify-center text-neutral-400 hover:border-neutral-500 hover:text-neutral-200 transition-colors cursor-pointer bg-neutral-900/50"
+            className="border-2 border-dashed border-line rounded-xl p-12 flex flex-col items-center justify-center text-ink-soft hover:border-ink/40 hover:text-ink transition-colors cursor-pointer bg-surface/60"
             onClick={() => document.getElementById('file-input')?.click()}
         >
             <Upload className="w-12 h-12 mb-4" />
             <p className="text-lg font-medium">Drop image here or click to upload</p>
-            <p className="text-sm mt-2 text-neutral-500">Supports PNG, JPG, WebP</p>
+            <p className="text-sm mt-2 text-ink-faint">Supports PNG, JPG, WebP</p>
             <input
                 type="file"
                 id="file-input"

@@ -86,14 +86,14 @@ export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
   }
 
   if (isLoading) {
-    return <div className="text-xs text-neutral-500">Signing in…</div>;
+    return <div className="text-xs text-ink-faint">Signing in…</div>;
   }
 
   return (
     <div className="flex flex-col items-center gap-2">
       <button
         onClick={handleClick}
-        className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-neutral-100 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-ink text-paper text-sm font-medium rounded-lg hover:bg-paper transition-colors"
       >
         <svg width="16" height="16" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

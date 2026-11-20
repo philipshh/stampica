@@ -74,14 +74,14 @@ export function OrderTracking() {
   }, [token]);
 
   return (
-    <div className="min-h-full bg-neutral-950 p-4 md:p-8">
+    <div className="min-h-full bg-paper p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-white">{t('myOrdersTitle')}</h1>
+          <h1 className="text-2xl font-bold text-ink">{t('myOrdersTitle')}</h1>
           {!user && (
             <button
               onClick={() => navigate('/checkout')}
-              className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
+              className="text-sm text-ink-faint hover:text-ink transition-colors"
             >
               {t('signInToOrder')}
             </button>
@@ -96,10 +96,10 @@ export function OrderTracking() {
         {error && <div className="text-red-400 bg-red-900/20 px-4 py-3 rounded-xl text-sm">{error}</div>}
 
         {!isLoading && !error && orders.length === 0 && (
-          <div className="text-center py-16 text-neutral-400">
+          <div className="text-center py-16 text-ink-soft">
             <Package size={40} className="mx-auto mb-3 opacity-40" />
             <p>{t('noOrders')}</p>
-            <Link to="/create" className="mt-4 inline-block text-sm text-neutral-600 hover:text-neutral-900 dark:hover:text-white transition-colors">
+            <Link to="/create" className="mt-4 inline-block text-sm text-ink-faint hover:text-ink transition-colors">
               {t('noOrdersDesc')} →
             </Link>
           </div>
@@ -154,8 +154,8 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
   }
 
   return (
-    <div className={`bg-neutral-900 rounded-2xl border transition-all overflow-hidden ${
-      highlight ? 'border-white ring-2 ring-white/10' : 'border-neutral-800'
+    <div className={`bg-surface rounded-2xl border transition-all overflow-hidden ${
+      highlight ? 'border-ink ring-2 ring-ink/10' : 'border-line'
     }`}>
       {lightboxIdx !== null && previewUrls.length > 0 && (
         <Lightbox
@@ -173,22 +173,22 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
               src={currentPreview}
               alt="Poster"
               onClick={() => setLightboxIdx(previewIdx)}
-              className="w-20 object-contain rounded-lg border border-neutral-700 cursor-zoom-in hover:opacity-80 transition-opacity"
+              className="w-20 object-contain rounded-lg border border-line cursor-zoom-in hover:opacity-80 transition-opacity"
             />
           ) : (
-            <div className="w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg" />
+            <div className="w-20 aspect-[1/1.41] bg-paper rounded-lg" />
           )}
           {hasMultiple && (
             <>
               <button
                 onClick={() => setPreviewIdx(i => (i - 1 + previewUrls.length) % previewUrls.length)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white hover:bg-neutral-700 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full bg-paper border border-line flex items-center justify-center text-ink hover:bg-line transition-colors opacity-0 group-hover:opacity-100 z-10"
               >
                 <ChevronLeft size={12} />
               </button>
               <button
                 onClick={() => setPreviewIdx(i => (i + 1) % previewUrls.length)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white hover:bg-neutral-700 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full bg-paper border border-line flex items-center justify-center text-ink hover:bg-line transition-colors opacity-0 group-hover:opacity-100 z-10"
               >
                 <ChevronRight size={12} />
               </button>
@@ -197,7 +197,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
                   <button
                     key={i}
                     onClick={() => setPreviewIdx(i)}
-                    className={`w-1 h-1 rounded-full transition-all ${i === previewIdx ? 'bg-white' : 'bg-neutral-600 hover:bg-neutral-400'}`}
+                    className={`w-1 h-1 rounded-full transition-all ${i === previewIdx ? 'bg-ink' : 'bg-line hover:bg-ink/40'}`}
                   />
                 ))}
               </div>
@@ -208,21 +208,21 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="font-mono font-bold text-neutral-900 dark:text-white">#{order.order_number}</p>
-              <p className="text-xs text-neutral-400 mt-0.5">
+              <p className="font-mono font-bold text-ink">#{order.order_number}</p>
+              <p className="text-xs text-ink-soft mt-0.5">
                 {new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
             <div className="text-right">
               {order.items ? (
                 <>
-                  <p className="text-sm font-medium text-neutral-300">{order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
-                  <p className="text-xs text-neutral-400">{order.items.map(i => i.size).join(', ')}</p>
+                  <p className="text-sm font-medium text-ink-soft">{order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
+                  <p className="text-xs text-ink-soft">{order.items.map(i => i.size).join(', ')}</p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{order.size}</p>
-                  <p className="text-xs text-neutral-400">qty {order.quantity}</p>
+                  <p className="text-sm font-medium text-ink-faint dark:text-ink-soft">{order.size}</p>
+                  <p className="text-xs text-ink-soft">qty {order.quantity}</p>
                 </>
               )}
             </div>
@@ -235,9 +235,9 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
           ) : (
             <>
               <div className="relative">
-                <div className="absolute top-4 left-4 right-4 h-0.5 bg-neutral-800 -z-0">
+                <div className="absolute top-4 left-4 right-4 h-0.5 bg-paper -z-0">
                   <div
-                    className="h-full bg-white transition-all duration-700"
+                    className="h-full bg-ink transition-all duration-700"
                     style={{ width: currentStep >= 0 ? `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` : '0%' }}
                   />
                 </div>
@@ -248,12 +248,12 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
                     return (
                       <div key={step.status} className="flex flex-col items-center gap-2">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                          done ? 'bg-white text-neutral-900' : 'bg-neutral-800 text-neutral-400'
+                          done ? 'bg-ink text-paper' : 'bg-paper text-ink-soft'
                         }`}>
                           <Icon size={14} />
                         </div>
                         <span className={`hidden sm:block text-xs text-center leading-tight max-w-[56px] ${
-                          done ? 'text-white font-medium' : 'text-neutral-500'
+                          done ? 'text-ink font-medium' : 'text-ink-faint'
                         }`}>{step.label}</span>
                       </div>
                     );
@@ -261,7 +261,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
                 </div>
               </div>
               {currentStep >= 0 && (
-                <p className="sm:hidden mt-3 text-xs text-white font-medium">
+                <p className="sm:hidden mt-3 text-xs text-ink font-medium">
                   {STATUS_STEPS[currentStep].label}
                 </p>
               )}
@@ -269,15 +269,15 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
           )}
 
           {order.tracking_number && (
-            <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center gap-2 text-sm">
-              <Truck size={14} className="text-neutral-400" />
-              <span className="text-neutral-400">{t('trackingNumber')}:</span>
-              <span className="font-mono font-medium text-white">{order.tracking_number}</span>
+            <div className="mt-4 pt-3 border-t border-line flex items-center gap-2 text-sm">
+              <Truck size={14} className="text-ink-soft" />
+              <span className="text-ink-soft">{t('trackingNumber')}:</span>
+              <span className="font-mono font-medium text-ink">{order.tracking_number}</span>
             </div>
           )}
 
           {/* Bottom actions */}
-          <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center justify-between gap-2">
+          <div className="mt-4 pt-3 border-t border-line flex items-center justify-between gap-2">
             {order.status === 'pending' ? (
               <button
                 onClick={handleCancel}
@@ -291,7 +291,7 @@ function OrderCard({ order, highlight, onCancelled }: { order: Order; highlight:
             )}
             <Link
               to={`/support?order=${order.order_number}`}
-              className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+              className="text-xs text-ink-faint hover:text-ink transition-colors"
             >
               {t('contactSupport')}
             </Link>

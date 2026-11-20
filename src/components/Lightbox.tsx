@@ -42,14 +42,14 @@ export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 backdrop-blur-sm p-4"
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-white transition-colors z-10"
+        className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-paper hover:bg-line text-ink transition-colors z-10"
       >
         <X size={18} />
       </button>
@@ -57,7 +57,7 @@ export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose
       {multi && (
         <button
           onClick={e => { e.stopPropagation(); prev(); }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors z-10"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-paper/80 hover:bg-line text-ink transition-colors z-10"
         >
           <ChevronLeft size={20} />
         </button>
@@ -73,7 +73,7 @@ export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose
       {multi && (
         <button
           onClick={e => { e.stopPropagation(); next(); }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-neutral-800/80 hover:bg-neutral-700 text-white transition-colors z-10"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-paper/80 hover:bg-line text-ink transition-colors z-10"
         >
           <ChevronRight size={20} />
         </button>

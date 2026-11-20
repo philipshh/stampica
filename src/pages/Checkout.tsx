@@ -168,31 +168,31 @@ export function Checkout() {
   }
 
   return (
-    <div className="md:h-full bg-neutral-950 md:overflow-hidden">
+    <div className="md:h-full bg-paper md:overflow-hidden">
       <div className="flex flex-col md:flex-row md:h-full">
 
         {/* Left — poster preview */}
-        <div className="md:w-1/2 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex items-center justify-center p-6 md:p-10 flex-shrink-0">
+        <div className="md:w-1/2 bg-surface border-b md:border-b-0 md:border-r border-line flex items-center justify-center p-6 md:p-10 flex-shrink-0">
           {items[previewIdx]?.previewBlobUrl ? (
             <div className="relative w-full flex items-center justify-center h-full">
               <img
                 src={items[previewIdx].previewBlobUrl}
                 alt="Your poster"
-                className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-neutral-800"
+                className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-line"
               />
               {items.length > 1 && (
                 <>
                   <button
                     onClick={() => setPreviewIdx(i => Math.max(0, i - 1))}
                     disabled={previewIdx === 0}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-neutral-700 flex items-center justify-center text-white hover:bg-black disabled:opacity-30 transition-all z-10"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-paper/60 border border-line flex items-center justify-center text-ink hover:bg-paper disabled:opacity-30 transition-all z-10"
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <button
                     onClick={() => setPreviewIdx(i => Math.min(items.length - 1, i + 1))}
                     disabled={previewIdx === items.length - 1}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-neutral-700 flex items-center justify-center text-white hover:bg-black disabled:opacity-30 transition-all z-10"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-paper/60 border border-line flex items-center justify-center text-ink hover:bg-paper disabled:opacity-30 transition-all z-10"
                   >
                     <ChevronRight size={18} />
                   </button>
@@ -201,7 +201,7 @@ export function Checkout() {
                       <button
                         key={i}
                         onClick={() => setPreviewIdx(i)}
-                        className={`w-1.5 h-1.5 rounded-full transition-all ${i === previewIdx ? 'bg-white scale-125' : 'bg-neutral-600 hover:bg-neutral-400'}`}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${i === previewIdx ? 'bg-ink scale-125' : 'bg-line hover:bg-ink/40'}`}
                       />
                     ))}
                   </div>
@@ -209,7 +209,7 @@ export function Checkout() {
               )}
             </div>
           ) : (
-            <div className="w-full aspect-[1/1.41] max-h-full bg-neutral-800 rounded-xl flex items-center justify-center text-neutral-600 text-sm">
+            <div className="w-full aspect-[1/1.41] max-h-full bg-paper rounded-xl flex items-center justify-center text-ink-faint text-sm">
               No preview
             </div>
           )}
@@ -219,18 +219,18 @@ export function Checkout() {
         <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8 md:h-full">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 mb-8">
-              <button onClick={() => navigate('/cart')} className="text-neutral-500 hover:text-white transition-colors">
+              <button onClick={() => navigate('/cart')} className="text-ink-faint hover:text-ink transition-colors">
                 <ArrowLeft size={20} />
               </button>
-              <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center">
-                <ShoppingBag className="text-white" size={20} />
+              <div className="w-10 h-10 rounded-xl bg-paper flex items-center justify-center">
+                <ShoppingBag className="text-ink" size={20} />
               </div>
-              <h1 className="text-2xl font-bold text-white">{t('orderYourPoster')}</h1>
+              <h1 className="text-2xl font-bold text-ink">{t('orderYourPoster')}</h1>
             </div>
 
             {!user ? (
-              <div className="bg-neutral-900 rounded-2xl p-6 text-center border border-neutral-800">
-                <p className="text-neutral-400 mb-4 text-sm">{t('signInToOrder')}</p>
+              <div className="bg-surface rounded-2xl p-6 text-center border border-line">
+                <p className="text-ink-soft mb-4 text-sm">{t('signInToOrder')}</p>
                 <div className="flex justify-center">
                   <GoogleLoginButton />
                 </div>
@@ -238,59 +238,59 @@ export function Checkout() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Order summary */}
-                <section className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-neutral-800">
-                    <h2 className="font-semibold text-white">{t('printDetails')}</h2>
+                <section className="bg-surface rounded-2xl border border-line overflow-hidden">
+                  <div className="px-6 py-4 border-b border-line">
+                    <h2 className="font-semibold text-ink">{t('printDetails')}</h2>
                   </div>
-                  <div className="divide-y divide-neutral-800">
+                  <div className="divide-y divide-line">
                     {items.map((item) => (
                       <div key={item.id} className="flex items-center gap-3 px-4 py-3">
                         {item.previewBlobUrl
-                          ? <img src={item.previewBlobUrl} alt="" className="w-10 object-contain rounded border border-neutral-700 flex-shrink-0" />
-                          : <div className="w-10 aspect-[1/1.41] bg-neutral-800 rounded flex-shrink-0" />
+                          ? <img src={item.previewBlobUrl} alt="" className="w-10 object-contain rounded border border-line flex-shrink-0" />
+                          : <div className="w-10 aspect-[1/1.41] bg-paper rounded flex-shrink-0" />
                         }
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white">{item.size} · {item.frame !== 'none' ? item.frame + ' frame · ' : ''}{item.quantity}×</p>
+                          <p className="text-sm font-medium text-ink">{item.size} · {item.frame !== 'none' ? item.frame + ' frame · ' : ''}{item.quantity}×</p>
                         </div>
-                        <p className="text-sm font-bold text-white flex-shrink-0">{itemPrice(item)} din</p>
+                        <p className="text-sm font-bold text-ink flex-shrink-0">{itemPrice(item)} din</p>
                       </div>
                     ))}
                   </div>
-                  <div className="px-4 py-3 border-t border-neutral-800 space-y-1.5">
+                  <div className="px-4 py-3 border-t border-line space-y-1.5">
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-400">{t('subtotal')}</span>
-                      <span className="text-white">{subtotal} din</span>
+                      <span className="text-ink-soft">{t('subtotal')}</span>
+                      <span className="text-ink">{subtotal} din</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-neutral-400">{t('shipping')}</span>
+                      <span className="text-ink-soft">{t('shipping')}</span>
                       {shipping === 0
                         ? <span className="text-green-400">{t('freeShipping')}</span>
-                        : <span className="text-white">{shipping} din</span>
+                        : <span className="text-ink">{shipping} din</span>
                       }
                     </div>
                     {shipping > 0 && (
-                      <p className="text-[11px] text-neutral-600">{t('freeShippingNote', { amount: FREE_SHIPPING_THRESHOLD })}</p>
+                      <p className="text-[11px] text-ink-faint">{t('freeShippingNote', { amount: FREE_SHIPPING_THRESHOLD })}</p>
                     )}
-                    <div className="flex justify-between pt-2 border-t border-neutral-800">
-                      <span className="text-sm text-neutral-400">{t('total')}</span>
-                      <span className="text-2xl font-bold text-white">{total} din</span>
+                    <div className="flex justify-between pt-2 border-t border-line">
+                      <span className="text-sm text-ink-soft">{t('total')}</span>
+                      <span className="text-2xl font-bold text-ink">{total} din</span>
                     </div>
                   </div>
                 </section>
 
                 {/* Payment notice */}
-                <div className="flex items-start gap-3 bg-neutral-800/60 border border-neutral-700 rounded-xl px-4 py-3">
+                <div className="flex items-start gap-3 bg-line/40 border border-line rounded-xl px-4 py-3">
                   <span className="text-lg leading-none mt-0.5">💳</span>
                   <div>
-                    <p className="text-sm font-medium text-white">{t('paymentOnDelivery')}</p>
-                    <p className="text-xs text-neutral-400 mt-0.5">{t('paymentOnDeliveryDesc')}</p>
+                    <p className="text-sm font-medium text-ink">{t('paymentOnDelivery')}</p>
+                    <p className="text-xs text-ink-soft mt-0.5">{t('paymentOnDeliveryDesc')}</p>
                   </div>
                 </div>
 
                 {/* Shipping details */}
-                <section className="bg-neutral-900 rounded-2xl border border-neutral-800 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-neutral-800">
-                    <h2 className="font-semibold text-white">{t('shippingDetails')}</h2>
+                <section className="bg-surface rounded-2xl border border-line overflow-hidden">
+                  <div className="px-6 py-4 border-b border-line">
+                    <h2 className="font-semibold text-ink">{t('shippingDetails')}</h2>
                   </div>
                   <div className="p-6 space-y-3">
                     <Field label={t('fullName')} value={form.name}
@@ -318,9 +318,9 @@ export function Checkout() {
                         type="checkbox"
                         checked={saveShipping}
                         onChange={e => setSaveShipping(e.target.checked)}
-                        className="w-4 h-4 rounded accent-white cursor-pointer"
+                        className="w-4 h-4 rounded accent-[#161513] cursor-pointer"
                       />
-                      <span className="text-sm text-neutral-400">{t('saveShipping')}</span>
+                      <span className="text-sm text-ink-soft">{t('saveShipping')}</span>
                     </label>
                   </div>
                 </section>
@@ -330,17 +330,17 @@ export function Checkout() {
                 )}
 
                 <button type="submit" disabled={isSubmitting}
-                  className="w-full bg-white text-black font-semibold py-4 rounded-xl hover:bg-neutral-100 disabled:opacity-50 transition-all text-base">
+                  className="w-full bg-ink text-paper font-semibold py-4 rounded-xl hover:bg-paper disabled:opacity-50 transition-all text-base">
                   {isSubmitting ? t('uploading') : `${t('placeOrder')} · ${total} din`}
                 </button>
                 <button
                   type="button"
                   disabled
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-neutral-800 text-neutral-600 text-sm cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-line text-ink-faint text-sm cursor-not-allowed"
                 >
                   <Download size={15} />
                   {t('downloadHires')}
-                  <span className="text-[10px] bg-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded">Coming soon</span>
+                  <span className="text-[10px] bg-paper text-ink-faint px-1.5 py-0.5 rounded">Coming soon</span>
                 </button>
                 <div className="h-8" />
               </form>
@@ -363,13 +363,13 @@ function Field({ label, value, onChange, onBlur, type = 'text', autoComplete, er
 }) {
   return (
     <div>
-      <label className="block text-sm text-neutral-400 mb-1.5">{label}</label>
+      <label className="block text-sm text-ink-soft mb-1.5">{label}</label>
       <input
         type={type} value={value} autoComplete={autoComplete}
         onChange={e => onChange(e.target.value)}
         onBlur={onBlur}
-        className={`w-full px-3 py-2.5 rounded-lg border bg-neutral-800 text-white text-sm focus:outline-none transition-colors ${
-          error ? 'border-red-500/60 focus:border-red-400' : 'border-neutral-700 focus:border-neutral-500'
+        className={`w-full px-3 py-2.5 rounded-lg border bg-paper text-ink text-sm focus:outline-none transition-colors ${
+          error ? 'border-red-500/60 focus:border-red-400' : 'border-line focus:border-ink/40'
         }`}
       />
       {error && <p className="mt-1 text-xs text-red-400">{error}</p>}

@@ -102,12 +102,12 @@ export function AdminDashboard() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white p-4 md:p-8">
+    <div className="min-h-screen bg-paper text-ink p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <span className="text-sm text-neutral-500">{total} orders</span>
+          <span className="text-sm text-ink-faint">{total} orders</span>
         </div>
 
         {/* Search */}
@@ -116,7 +116,7 @@ export function AdminDashboard() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by order number, name or email…"
-          className="w-full mb-4 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+          className="w-full mb-4 bg-surface border border-line rounded-xl px-4 py-2.5 text-sm text-ink placeholder-ink-faint/60 focus:outline-none focus:border-ink/25 transition-colors"
         />
 
         {/* Status filter */}
@@ -127,8 +127,8 @@ export function AdminDashboard() {
               onClick={() => setFilterStatus(s)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all capitalize ${
                 filterStatus === s
-                  ? 'bg-white text-black border-transparent'
-                  : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-600'
+                  ? 'bg-ink text-paper border-transparent'
+                  : 'bg-surface text-ink-soft border-line hover:border-ink/25'
               }`}
             >
               {s}
@@ -149,7 +149,7 @@ export function AdminDashboard() {
             <OrderRow key={order.id} order={order} onUpdate={updateOrder} onDelete={deleteOrder} />
           ))}
           {!isLoading && orders.length === 0 && (
-            <p className="text-neutral-500 text-sm py-8 text-center">No orders found</p>
+            <p className="text-ink-faint text-sm py-8 text-center">No orders found</p>
           )}
         </div>
 
@@ -159,17 +159,17 @@ export function AdminDashboard() {
             <button
               onClick={() => setPage(p => p - 1)}
               disabled={page === 0}
-              className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-surface border border-line rounded-lg text-ink-soft hover:text-ink hover:border-ink/25 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               ← Prev
             </button>
-            <span className="text-neutral-500">
+            <span className="text-ink-faint">
               Page {page + 1} of {totalPages}
             </span>
             <button
               onClick={() => setPage(p => p + 1)}
               disabled={page >= totalPages - 1}
-              className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-400 hover:text-white hover:border-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-surface border border-line rounded-lg text-ink-soft hover:text-ink hover:border-ink/25 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               Next →
             </button>
@@ -206,7 +206,7 @@ function OrderRow({
   }
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+    <div className="bg-surface border border-line rounded-2xl overflow-hidden">
       {lightbox && order.preview_url && (
         <Lightbox src={order.preview_url} alt={`Poster #${order.order_number}`} onClose={() => setLightbox(false)} />
       )}
@@ -218,43 +218,43 @@ function OrderRow({
             src={order.preview_url}
             alt="Poster preview"
             onClick={() => setLightbox(true)}
-            className="w-14 md:w-20 object-contain rounded-lg flex-shrink-0 border border-neutral-700 self-start cursor-zoom-in hover:opacity-80 transition-opacity"
+            className="w-14 md:w-20 object-contain rounded-lg flex-shrink-0 border border-line self-start cursor-zoom-in hover:opacity-80 transition-opacity"
           />
         ) : (
-          <div className="w-14 md:w-20 aspect-[1/1.41] bg-neutral-800 rounded-lg flex-shrink-0 flex items-center justify-center text-neutral-600 text-xs">–</div>
+          <div className="w-14 md:w-20 aspect-[1/1.41] bg-paper rounded-lg flex-shrink-0 flex items-center justify-center text-ink-faint text-xs">–</div>
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-mono font-bold text-sm">#{order.order_number}</span>
             {order.items && order.items.length > 1 && (
-              <span className="text-[10px] bg-neutral-700 text-neutral-300 px-1.5 py-0.5 rounded-full font-medium">{order.items.length} items</span>
+              <span className="text-[10px] bg-line text-ink-soft px-1.5 py-0.5 rounded-full font-medium">{order.items.length} items</span>
             )}
           </div>
-          <p className="text-sm text-neutral-400 mt-0.5 truncate">
+          <p className="text-sm text-ink-soft mt-0.5 truncate">
             {order.users?.name ?? 'Unknown'} · {order.items
               ? order.items.map(i => `${i.size}×${i.quantity}`).join(', ')
               : `${order.size} × ${order.quantity}`
             }
           </p>
-          <p className="text-xs text-neutral-600 mt-0.5">
+          <p className="text-xs text-ink-faint mt-0.5">
             {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </p>
           {order.users?.email && (
-            <p className="text-xs text-neutral-600 mt-0.5 truncate">{order.users.email}</p>
+            <p className="text-xs text-ink-faint mt-0.5 truncate">{order.users.email}</p>
           )}
         </div>
       </div>
 
       {/* Bottom action bar */}
-      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-neutral-800 bg-neutral-950/40">
+      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-line bg-paper/40">
         {/* Status select — left */}
         <select
           value={order.status}
           onChange={(e) => onUpdate(order.id, { status: e.target.value as OrderStatus })}
-          className={`text-xs px-3 py-1.5 rounded-lg border capitalize appearance-none cursor-pointer bg-neutral-900 font-medium ${STATUS_COLORS[order.status]}`}
+          className={`text-xs px-3 py-1.5 rounded-lg border capitalize appearance-none cursor-pointer bg-surface font-medium ${STATUS_COLORS[order.status]}`}
         >
           {ALL_STATUSES.map((s) => (
-            <option key={s} value={s} className="capitalize bg-neutral-900 text-white">{s}</option>
+            <option key={s} value={s} className="capitalize bg-surface text-ink">{s}</option>
           ))}
         </select>
 
@@ -270,7 +270,7 @@ function OrderRow({
                   handleDownload(order.poster_url, `poster-${order.order_number}.png`);
                 }
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-ink-soft hover:text-ink bg-paper hover:bg-line rounded-lg transition-colors"
               title="Download hi-res"
             >
               <Download size={13} /> Hi-res
@@ -278,7 +278,7 @@ function OrderRow({
           )}
           <button
             onClick={() => setExpanded((v) => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors ${expanded ? 'bg-neutral-700 text-white' : 'text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors ${expanded ? 'bg-line text-ink' : 'text-ink-soft hover:text-ink bg-paper hover:bg-line'}`}
           >
             Details
             <ChevronDown size={13} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
@@ -290,7 +290,7 @@ function OrderRow({
                 onDelete(order.id);
               }
             }}
-            className="p-1.5 text-neutral-600 hover:text-red-400 transition-colors rounded-lg hover:bg-neutral-800"
+            className="p-1.5 text-ink-faint hover:text-red-400 transition-colors rounded-lg hover:bg-line/40"
             title="Delete order"
           >
             <Trash2 size={14} />
@@ -300,14 +300,14 @@ function OrderRow({
 
       {/* Expanded details */}
       {expanded && (
-        <div className="px-4 pb-4 border-t border-neutral-800 pt-4 space-y-3">
+        <div className="px-4 pb-4 border-t border-line pt-4 space-y-3">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-neutral-500 text-xs mb-1">Phone</p>
+              <p className="text-ink-faint text-xs mb-1">Phone</p>
               <p>{order.phone}</p>
             </div>
             <div className="col-span-2">
-              <p className="text-neutral-500 text-xs mb-1">Ship to</p>
+              <p className="text-ink-faint text-xs mb-1">Ship to</p>
               <p>{order.shipping_address}</p>
             </div>
           </div>
@@ -315,21 +315,21 @@ function OrderRow({
           {/* Multi-item breakdown */}
           {order.items && order.items.length > 0 && (
             <div>
-              <p className="text-neutral-500 text-xs mb-2">Items</p>
+              <p className="text-ink-faint text-xs mb-2">Items</p>
               <div className="space-y-2">
                 {order.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 bg-neutral-800/60 rounded-lg px-3 py-2">
+                  <div key={idx} className="flex items-center gap-3 bg-line/40 rounded-lg px-3 py-2">
                     {item.previewUrl
-                      ? <img src={item.previewUrl} alt="" className="w-8 object-contain rounded border border-neutral-700 flex-shrink-0" />
-                      : <div className="w-8 aspect-[1/1.41] bg-neutral-700 rounded flex-shrink-0" />
+                      ? <img src={item.previewUrl} alt="" className="w-8 object-contain rounded border border-line flex-shrink-0" />
+                      : <div className="w-8 aspect-[1/1.41] bg-line rounded flex-shrink-0" />
                     }
-                    <span className="text-xs text-neutral-300 flex-1">
+                    <span className="text-xs text-ink-soft flex-1">
                       {item.size}{item.frame !== 'none' ? ` · ${item.frame} frame` : ''} × {item.quantity}
                     </span>
                     {item.posterUrl && (
                       <button
                         onClick={() => handleDownload(item.posterUrl!, `poster-${order.order_number}-${idx + 1}.png`)}
-                        className="flex items-center gap-1 px-2 py-1 text-[11px] text-neutral-400 hover:text-white bg-neutral-700 hover:bg-neutral-600 rounded transition-colors"
+                        className="flex items-center gap-1 px-2 py-1 text-[11px] text-ink-soft hover:text-ink bg-line hover:bg-ink/20 rounded transition-colors"
                       >
                         <Download size={11} /> Hi-res
                       </button>
@@ -345,18 +345,18 @@ function OrderRow({
               value={tracking}
               onChange={(e) => setTracking(e.target.value)}
               placeholder="Add tracking number…"
-              className="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-500"
+              className="flex-1 bg-paper border border-line rounded-lg px-3 py-2 text-sm text-ink placeholder-ink-faint/60 focus:outline-none focus:border-ink/40"
             />
             <button
               onClick={() => onUpdate(order.id, { trackingNumber: tracking })}
               disabled={!tracking || tracking === order.tracking_number}
-              className="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-neutral-100 disabled:opacity-40 transition-all"
+              className="px-4 py-2 bg-ink text-paper text-sm font-medium rounded-lg hover:bg-paper disabled:opacity-40 transition-all"
             >
               Save
             </button>
           </div>
           {!order.poster_url && !order.items?.some(i => i.posterUrl) && (
-            <p className="text-xs text-neutral-600">No hi-res file attached</p>
+            <p className="text-xs text-ink-faint">No hi-res file attached</p>
           )}
         </div>
       )}

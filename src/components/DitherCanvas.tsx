@@ -23,7 +23,7 @@ export const DitherCanvas: React.FC<DitherCanvasProps> = ({ processedImage }) =>
     }, [processedImage]);
 
     return (
-        <div className="relative shadow-2xl border border-neutral-800 bg-black max-w-full max-h-full flex flex-col">
+        <div className="relative shadow-2xl border border-line bg-paper max-w-full max-h-full flex flex-col">
             <canvas
                 ref={canvasRef}
                 className="block max-w-full max-h-[calc(100vh-4rem)] w-auto h-auto object-contain image-pixelated"

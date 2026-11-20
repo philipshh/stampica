@@ -1,10 +1,10 @@
 export function Terms() {
   return (
-    <div className="min-h-full bg-neutral-950 text-white p-6 md:p-10">
+    <div className="min-h-full bg-paper text-ink p-6 md:p-10">
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Terms & Conditions</h1>
-          <p className="text-neutral-500 text-sm">Last updated: March 2025</p>
+          <p className="text-ink-faint text-sm">Last updated: March 2025</p>
         </div>
 
         <Section title="1. About Stampica">
@@ -36,7 +36,7 @@ export function Terms() {
         </Section>
 
         <Section title="8. Contact">
-          <p>Questions? Reach us at <a href="mailto:stampicastudio@gmail.com" className="text-white underline hover:text-neutral-300">stampicastudio@gmail.com</a>.</p>
+          <p>Questions? Reach us at <a href="mailto:stampicastudio@gmail.com" className="text-ink underline hover:text-ink">stampicastudio@gmail.com</a>.</p>
         </Section>
       </div>
     </div>
@@ -46,8 +46,8 @@ export function Terms() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-base font-semibold text-white mb-2">{title}</h2>
-      <div className="text-sm text-neutral-400 leading-relaxed space-y-2">{children}</div>
+      <h2 className="text-base font-semibold text-ink mb-2">{title}</h2>
+      <div className="text-sm text-ink-soft leading-relaxed space-y-2">{children}</div>
     </section>
   );
 }
