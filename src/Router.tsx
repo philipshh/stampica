@@ -25,7 +25,7 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-neutral-950">
+    <div className="flex flex-col h-screen overflow-hidden bg-paper">
       <TopBar />
       <div className="flex-1 overflow-auto">
         {children}

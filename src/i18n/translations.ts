@@ -8,6 +8,9 @@ const translations = {
     myOrders: 'My orders',
 
     // Landing
+    heroPre: 'Your photo, as a ',
+    heroEm: 'printed',
+    heroPost: ' poster.',
     landingSubtitle: 'Design dithered posters. Printed and delivered to your door.',
     create: 'Create',
     orders: 'Orders',
@@ -176,6 +179,9 @@ const translations = {
     myOrders: 'Moje porudžbine',
 
     // Landing
+    heroPre: 'Tvoja fotografija, kao ',
+    heroEm: 'štampani',
+    heroPost: ' poster.',
     landingSubtitle: 'Dizajniraj diterovane postere. Štampamo i dostavljamo na tvoju adresu.',
     create: 'Kreiraj',
     orders: 'Porudžbine',
