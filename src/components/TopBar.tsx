@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Pencil, Package, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, Pencil, Package } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -78,12 +78,10 @@ export function TopBar() {
         {/* Desktop text nav */}
         {navLink('/create', t('create'))}
         {user && navLink('/orders', t('orders'))}
-        {user?.role === 'admin' && navLink('/admin', 'Admin')}
 
         {/* Mobile icon nav */}
         {iconLink('/create', <Pencil size={17} />, t('create'))}
         {user && iconLink('/orders', <Package size={17} />, t('orders'))}
-        {user?.role === 'admin' && iconLink('/admin', <ShieldCheck size={17} />, 'Admin')}
 
         <div className="w-px h-4 bg-line mx-1 md:mx-2" />
 

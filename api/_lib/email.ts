@@ -1,5 +1,4 @@
 import { BrevoClient } from '@getbrevo/brevo';
-import { itemPrice, orderTotals } from '../../shared/pricing.js';
 
 function getClient() {
   const apiKey = process.env.BREVO_API_KEY;
@@ -9,35 +8,11 @@ function getClient() {
 
 const FROM_EMAIL = process.env.EMAIL_FROM ?? 'stampicastudio@gmail.com';
 const FROM_NAME = 'Stampica';
-const APP_URL = process.env.APP_URL ?? 'https://stampica.studio';
+const APP_URL = process.env.APP_URL ?? 'https://stampica.vercel.app';
 
-export interface OrderEmailItem {
-  size: string;
-  quantity: number;
-  frame: string;
-  previewUrl?: string | null;
-  posterUrl?: string | null;
-}
-
-export interface OrderEmailData {
-  orderNumber: string;
-  customerEmail: string;
-  customerName: string;
-  items: OrderEmailItem[];
-  shippingAddress: string; // "Name, Street, City PostalCode, Country"
-  phone: string;
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Splits "Name, Street, City PostalCode, Country" into parts */
-function parseAddress(addr: string) {
-  const parts = addr.split(', ');
-  if (parts.length < 4) return { street: addr, cityPostal: '', country: '' };
-  const street = parts[1];
-  const cityPostal = parts[2];
-  const country = parts.slice(3).join(', ');
-  return { street, cityPostal, country };
+/** User-entered text goes into HTML emails escaped. */
+function esc(s: string): string {
+  return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 }
 
 const row = (label: string, value: string) => `
@@ -50,32 +25,21 @@ function emailShell(body: string) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+<body style="margin:0;padding:0;background:#f3f3f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f3f0;padding:32px 0;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-
-        <!-- Header / Logo -->
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #ddddd8;">
         <tr>
-          <td style="background:#0a0a0a;padding:28px 40px;text-align:center;">
-            <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.06em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">STAMPICA</span>
+          <td style="padding:28px 40px 0;">
+            <span style="color:#141414;font-size:20px;font-weight:800;letter-spacing:0.04em;">STAMPICA</span>
           </td>
         </tr>
-
-        <!-- Body -->
+        <tr><td style="padding:24px 40px 40px;">${body}</td></tr>
         <tr>
-          <td style="padding:36px 40px 40px;">
-            ${body}
+          <td style="background:#f9f9f7;padding:20px 40px;border-top:1px solid #eee;text-align:center;">
+            <p style="margin:0;color:#999;font-size:12px;">© Stampica · Made with love in Serbia · <a href="${APP_URL}" style="color:#999;text-decoration:none;">${APP_URL.replace('https://', '')}</a></p>
           </td>
         </tr>
-
-        <!-- Footer -->
-        <tr>
-          <td style="background:#f9f9f9;padding:20px 40px;border-top:1px solid #eee;text-align:center;">
-            <p style="margin:0;color:#aaa;font-size:12px;">© Stampica · <a href="${APP_URL}" style="color:#aaa;text-decoration:none;">${APP_URL.replace('https://', '')}</a></p>
-          </td>
-        </tr>
-
       </table>
     </td></tr>
   </table>
@@ -83,128 +47,38 @@ function emailShell(body: string) {
 </html>`;
 }
 
-// ── Emails ────────────────────────────────────────────────────────────────────
-
-function itemsHtml(items: OrderEmailItem[]): string {
-  return items.map((item, i) => {
-    const frameLabel = item.frame && item.frame !== 'none'
-      ? ` · ${item.frame.charAt(0).toUpperCase() + item.frame.slice(1)} frame`
-      : '';
-    const previewCell = item.previewUrl
-      ? `<img src="${item.previewUrl}" alt="Poster ${i + 1}" style="width:56px;border:3px solid #0a0a0a;display:block;">`
-      : `<div style="width:56px;height:79px;background:#eee;border-radius:4px;"></div>`;
-    return `
-    <tr style="border-bottom:1px solid #eee;">
-      <td style="padding:12px 0;width:70px;vertical-align:top;">${previewCell}</td>
-      <td style="padding:12px 12px;font-size:13px;color:#333;vertical-align:top;">
-        ${item.size}${frameLabel}<br>
-        <span style="color:#888;">×${item.quantity}</span>
-      </td>
-      <td style="padding:12px 0;font-size:13px;font-weight:600;color:#111;vertical-align:top;text-align:right;white-space:nowrap;">${itemPrice(item)} din</td>
-    </tr>`;
-  }).join('');
-}
-
-export async function sendOrderConfirmationToCustomer(order: OrderEmailData): Promise<void> {
-  const { street, cityPostal, country } = parseAddress(order.shippingAddress);
-  const firstName = order.customerName.split(' ')[0];
-  const { shipping, total } = orderTotals(order.items);
-
+// Sent when a digital order is paid: one link back to the download page.
+export async function sendDownloadEmail(order: {
+  customerEmail: string;
+  customerName: string;
+  orderNumber: string;
+  orderId: string;
+  itemCount: number;
+  appUrl?: string;
+}): Promise<void> {
+  const base = order.appUrl ?? APP_URL;
+  const link = `${base}/downloads/${order.orderId}`;
+  const designs = order.itemCount === 1 ? '1 poster' : `${order.itemCount} posters`;
   const body = `
-    <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Your order is confirmed!</h2>
-    <p style="margin:0 0 28px;color:#666;font-size:15px;">Hi ${firstName}, thanks for your order. We'll get it printed and on its way.</p>
-
-    <!-- Items -->
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
-      ${itemsHtml(order.items)}
-    </table>
-
-    <!-- Totals -->
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
-      ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
-      ${row('Shipping', shipping === 0 ? 'Free' : `${shipping} din`)}
-      ${row('Total', `<strong>${total} din</strong>`)}
-      ${row('Payment', 'Cash on delivery / Plaćanje pouzećem')}
-    </table>
-
-    <!-- Ship to -->
-    <p style="margin:24px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;">Ship to</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border-radius:8px;padding:16px;" bgcolor="#f9f9f9">
-      <tr><td style="padding:4px 16px;font-size:14px;color:#111;">${order.customerName}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${street}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${cityPostal}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${country}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${order.phone}</td></tr>
-    </table>
-
-    <p style="margin:28px 0 0;color:#999;font-size:13px;line-height:1.6;">
-      You'll receive another email with tracking info once your order ships.
+    <h2 style="margin:0 0 8px;font-size:24px;color:#141414;">Your posters are ready</h2>
+    <p style="margin:0 0 24px;color:#55554f;font-size:15px;line-height:1.6;">
+      Thanks, ${esc(order.customerName.split(' ')[0] || order.customerName)}! You can download ${designs} in any of the 23 sizes, as many times as you like.
     </p>
-
-    <div style="margin-top:20px;">
-      <a href="${APP_URL}/orders" style="display:inline-block;background:#0a0a0a;color:#fff;padding:11px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Track your order →</a>
-    </div>`;
+    <p style="margin:0 0 28px;">
+      <a href="${link}" style="display:inline-block;background:#141414;color:#fff;padding:13px 28px;border-radius:999px;text-decoration:none;font-size:15px;font-weight:600;">Download your posters</a>
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
+      ${row('Order', `<strong>#${esc(order.orderNumber)}</strong>`)}
+      ${row('Posters', String(order.itemCount))}
+    </table>
+    <p style="margin:24px 0 0;color:#999;font-size:12px;line-height:1.6;">
+      Sign in with the same Google account to open the link. Questions? Just reply to this email.
+    </p>`;
 
   await getClient().transactionalEmails.sendTransacEmail({
     sender: { email: FROM_EMAIL, name: FROM_NAME },
     to: [{ email: order.customerEmail, name: order.customerName }],
-    subject: `Order confirmed – #${order.orderNumber}`,
-    htmlContent: emailShell(body),
-  });
-}
-
-export async function sendNewOrderNotificationToPrintShop(order: OrderEmailData): Promise<void> {
-  const shopEmail = process.env.PRINT_SHOP_EMAIL;
-  if (!shopEmail) throw new Error('PRINT_SHOP_EMAIL not configured');
-
-  const { street, cityPostal, country } = parseAddress(order.shippingAddress);
-  const { shipping, total } = orderTotals(order.items);
-
-  const downloadLinks = order.items
-    .filter(i => i.posterUrl)
-    .map((i, idx) => `<a href="${i.posterUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin:4px 4px 0 0;">↓ Item ${idx + 1} – ${i.size}</a>`)
-    .join('');
-
-  const body = `
-    <h2 style="margin:0 0 4px;font-size:22px;color:#0a0a0a;">New order</h2>
-    <p style="margin:0 0 28px;color:#666;font-size:15px;">Order <strong>#${order.orderNumber}</strong> just came in.</p>
-
-    <!-- Customer -->
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
-      ${row('Order #', `<strong>#${order.orderNumber}</strong>`)}
-      ${row('Customer', order.customerName)}
-      ${row('Email', `<a href="mailto:${order.customerEmail}" style="color:#111;">${order.customerEmail}</a>`)}
-    </table>
-
-    <!-- Items -->
-    <p style="margin:24px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;">Items (${order.items.length})</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
-      ${itemsHtml(order.items)}
-    </table>
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
-      ${row('Shipping', shipping === 0 ? 'Free' : `${shipping} din`)}
-      ${row('Total', `<strong>${total} din</strong>`)}
-    </table>
-
-    <!-- Ship to -->
-    <p style="margin:24px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;">Ship to</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border-radius:8px;" bgcolor="#f9f9f9">
-      <tr><td style="padding:4px 16px;font-size:14px;color:#111;">${order.customerName}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${street}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${cityPostal}</td></tr>
-      <tr><td style="padding:4px 16px;font-size:14px;color:#555;">${country}</td></tr>
-      <tr><td style="padding:4px 16px 12px;font-size:14px;color:#555;">${order.phone}</td></tr>
-    </table>
-
-    <!-- Download buttons -->
-    <div style="margin-top:28px;">
-      ${downloadLinks || `<p style="color:#aaa;font-size:13px;margin:0;">No hi-res files attached to this order.</p>`}
-    </div>`;
-
-  await getClient().transactionalEmails.sendTransacEmail({
-    sender: { email: FROM_EMAIL, name: FROM_NAME },
-    to: [{ email: shopEmail }],
-    subject: `New order – #${order.orderNumber}`,
+    subject: `Your Stampica posters (#${order.orderNumber})`,
     htmlContent: emailShell(body),
   });
 }
@@ -226,19 +100,19 @@ export async function sendSupportEmail({
   if (!shopEmail) throw new Error('PRINT_SHOP_EMAIL not configured');
 
   const body = `
-    <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Support request</h2>
-    <p style="margin:0 0 28px;color:#666;font-size:15px;">${subject}</p>
+    <h2 style="margin:0 0 8px;font-size:22px;color:#141414;">Support request</h2>
+    <p style="margin:0 0 28px;color:#666;font-size:15px;">${esc(subject)}</p>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
-      ${row('From', `${name} &lt;${email}&gt;`)}
-      ${orderNumber ? row('Order #', `<strong>#${orderNumber}</strong>`) : ''}
+      ${row('From', `${esc(name)} &lt;${esc(email)}&gt;`)}
+      ${orderNumber ? row('Order #', `<strong>#${esc(orderNumber)}</strong>`) : ''}
     </table>
 
     <p style="margin:24px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#aaa;">Message</p>
-    <div style="background:#f9f9f9;border-radius:8px;padding:16px 20px;font-size:14px;color:#333;line-height:1.7;white-space:pre-wrap;">${message}</div>
+    <div style="background:#f9f9f9;border-radius:8px;padding:16px 20px;font-size:14px;color:#333;line-height:1.7;white-space:pre-wrap;">${esc(message)}</div>
 
     <p style="margin:24px 0 0;">
-      <a href="mailto:${email}" style="display:inline-block;background:#0a0a0a;color:#fff;padding:11px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Reply to ${name}</a>
+      <a href="mailto:${encodeURIComponent(email)}" style="display:inline-block;background:#141414;color:#fff;padding:11px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Reply to ${esc(name)}</a>
     </p>`;
 
   await getClient().transactionalEmails.sendTransacEmail({
@@ -246,36 +120,6 @@ export async function sendSupportEmail({
     to: [{ email: shopEmail }],
     replyTo: { email, name },
     subject: `Support: ${subject}${orderNumber ? ` (#${orderNumber})` : ''}`,
-    htmlContent: emailShell(body),
-  });
-}
-
-export async function sendShippingNotification(
-  customerEmail: string,
-  customerName: string,
-  orderNumber: string,
-  trackingNumber: string,
-): Promise<void> {
-  const firstName = customerName.split(' ')[0];
-
-  const body = `
-    <h2 style="margin:0 0 8px;font-size:22px;color:#0a0a0a;">Your order is on its way!</h2>
-    <p style="margin:0 0 28px;color:#666;font-size:15px;">Hi ${firstName}, your poster has been shipped.</p>
-
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
-      ${row('Order #', `<strong>#${orderNumber}</strong>`)}
-
-      ${row('Tracking', `<strong style="font-family:monospace;">${trackingNumber}</strong>`)}
-    </table>
-
-    <p style="margin:24px 0 0;color:#999;font-size:13px;line-height:1.6;">
-      Use your tracking number on the carrier's website to follow your package.
-    </p>`;
-
-  await getClient().transactionalEmails.sendTransacEmail({
-    sender: { email: FROM_EMAIL, name: FROM_NAME },
-    to: [{ email: customerEmail, name: customerName }],
-    subject: `Your order #${orderNumber} has shipped!`,
     htmlContent: emailShell(body),
   });
 }

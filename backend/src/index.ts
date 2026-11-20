@@ -4,8 +4,9 @@ import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { authGoogle, support, health } from '../../api/_lib/handlers.js';
-import { createOrder, listOrders, cancelOrder, getOrderByNumber } from '../../api/_lib/orders.js';
-import { adminListOrders, adminUpdateOrder, adminDeleteOrder } from '../../api/_lib/admin.js';
+import {
+  createUploadSlots, createDigitalCheckout, getDigitalOrder, listDigitalOrders, dodoWebhook, cleanupAbandoned,
+} from '../../api/_lib/digital.js';
 import type { ApiRequest, ApiResponse } from '../../api/_lib/types.js';
 
 const app = express();
@@ -24,7 +25,11 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json({ limit: '10mb' }));
+// Webhook needs the raw body for signature checks, so it is mounted before express.json().
+app.post('/api/webhooks/dodo', express.raw({ type: '*/*' }), (req, res) =>
+  dodoWebhook(req.body.toString('utf8'), req.headers as Record<string, string>, res as unknown as ApiResponse),
+);
+app.use(express.json({ limit: '1mb' }));
 
 const adapt = (req: Request, res: Response): [ApiRequest, ApiResponse] => [
   req as unknown as ApiRequest,
@@ -33,20 +38,11 @@ const adapt = (req: Request, res: Response): [ApiRequest, ApiResponse] => [
 
 app.post('/api/auth/google', (req, res) => authGoogle(...adapt(req, res)));
 
-app.post('/api/orders', (req, res) => createOrder(...adapt(req, res)));
-app.get('/api/orders', (req, res) => listOrders(...adapt(req, res)));
-app.patch('/api/orders/:id/cancel', (req, res) => cancelOrder(...adapt(req, res), req.params.id));
-app.get('/api/orders/:orderNumber', (req, res) =>
-  getOrderByNumber(...adapt(req, res), req.params.orderNumber),
-);
-
-app.get('/api/admin/orders', (req, res) => adminListOrders(...adapt(req, res)));
-app.patch('/api/admin/orders/:id', (req, res) =>
-  adminUpdateOrder(...adapt(req, res), req.params.id),
-);
-app.delete('/api/admin/orders/:id', (req, res) =>
-  adminDeleteOrder(...adapt(req, res), req.params.id),
-);
+app.post('/api/digital/uploads', (req, res) => createUploadSlots(...adapt(req, res)));
+app.post('/api/digital/checkout', (req, res) => createDigitalCheckout(...adapt(req, res)));
+app.get('/api/digital/orders', (req, res) => listDigitalOrders(...adapt(req, res)));
+app.get('/api/digital/orders/:id', (req, res) => getDigitalOrder(...adapt(req, res), req.params.id));
+app.get('/api/cron/cleanup', (req, res) => cleanupAbandoned(...adapt(req, res)));
 
 app.post('/api/support', (req, res) => support(...adapt(req, res)));
 

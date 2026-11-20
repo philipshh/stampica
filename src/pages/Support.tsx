@@ -17,9 +17,8 @@ const SUBJECTS = [
 
 interface Order {
   id: string;
-  order_number: string;
-  size: string;
-  status: string;
+  orderNumber: string;
+  itemCount: number;
 }
 
 export function Support() {
@@ -40,7 +39,7 @@ export function Support() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_BASE}/api/digital/orders`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then((data: { orders?: Order[] }) => setOrders(data.orders ?? []))
       .catch(() => {});
@@ -125,8 +124,8 @@ export function Support() {
               >
                 <option value="">{t('noSpecificOrder')}</option>
                 {orders.map(o => (
-                  <option key={o.id} value={o.order_number}>
-                    #{o.order_number} — {o.size} · {o.status}
+                  <option key={o.id} value={o.orderNumber}>
+                    #{o.orderNumber} · {t('checkoutDesigns', { count: o.itemCount })}
                   </option>
                 ))}
               </select>

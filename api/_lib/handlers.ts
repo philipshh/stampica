@@ -1,10 +1,10 @@
-import { getSupabase } from './supabase.js';
+import { sql } from './db.js';
 import { verifyGoogleToken, signJWT } from './auth.js';
 import { sendSupportEmail } from './email.js';
 import type { ApiRequest, ApiResponse } from './types.js';
 
 // POST /api/auth/google
-// Accepts a Google ID token, upserts the user in Supabase, returns a JWT
+// Accepts a Google ID token, upserts the user in Neon, returns a JWT
 export async function authGoogle(req: ApiRequest, res: ApiResponse) {
   try {
     const { idToken } = req.body as { idToken?: string };
@@ -15,21 +15,12 @@ export async function authGoogle(req: ApiRequest, res: ApiResponse) {
 
     const googleUser = await verifyGoogleToken(idToken);
 
-    const { data: user, error } = await getSupabase()
-      .from('users')
-      .upsert(
-        {
-          google_id: googleUser.sub,
-          email: googleUser.email,
-          name: googleUser.name,
-          avatar_url: googleUser.picture,
-        },
-        { onConflict: 'google_id' },
-      )
-      .select()
-      .single();
-
-    if (error) throw error;
+    const [user] = await sql()`
+      INSERT INTO users (google_id, email, name, avatar_url)
+      VALUES (${googleUser.sub}, ${googleUser.email}, ${googleUser.name}, ${googleUser.picture})
+      ON CONFLICT (google_id) DO UPDATE
+        SET email = EXCLUDED.email, name = EXCLUDED.name, avatar_url = EXCLUDED.avatar_url
+      RETURNING id, email, name, role` as { id: string; email: string; name: string; role: 'customer' | 'admin' }[];
 
     const token = signJWT({
       userId: user.id,

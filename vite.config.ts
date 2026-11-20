@@ -34,7 +34,7 @@ export default defineConfig({
     server: {
         // Same-origin /api in dev, proxied to the local API server (backend/)
         proxy: {
-            '/api': 'http://localhost:3000',
+            '/api': process.env.API_PROXY ?? 'http://localhost:3001',
         },
     },
 })

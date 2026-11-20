@@ -9,7 +9,7 @@ export function Footer() {
       <nav className="flex items-center gap-4">
         <Link to="/terms" className="text-xs text-ink-soft hover:text-ink transition-colors">{t('terms')}</Link>
         <Link to="/privacy" className="text-xs text-ink-soft hover:text-ink transition-colors">{t('privacy')}</Link>
-        <Link to="/shipping" className="text-xs text-ink-soft hover:text-ink transition-colors">{t('shippingReturns')}</Link>
+        <Link to="/refunds" className="text-xs text-ink-soft hover:text-ink transition-colors">{t('refundsDelivery')}</Link>
         <Link to="/support" className="text-xs text-ink-soft hover:text-ink transition-colors">{t('support')}</Link>
         <a href="https://instagram.com/stampica_studio" target="_blank" rel="noopener noreferrer"
           className="text-xs text-ink-soft hover:text-ink transition-colors">{t('instagram')}</a>
