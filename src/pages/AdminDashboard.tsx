@@ -350,7 +350,7 @@ function OrderRow({
             <button
               onClick={() => onUpdate(order.id, { trackingNumber: tracking })}
               disabled={!tracking || tracking === order.tracking_number}
-              className="px-4 py-2 bg-ink text-paper text-sm font-medium rounded-lg hover:bg-paper disabled:opacity-40 transition-all"
+              className="px-4 py-2 bg-ink text-paper text-sm font-medium rounded-lg hover:bg-black disabled:opacity-40 transition-all"
             >
               Save
             </button>

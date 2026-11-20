@@ -23,7 +23,7 @@ export function Cart() {
         <ShoppingBag size={48} className="text-ink-faint mb-4" />
         <h1 className="text-xl font-bold text-ink mb-2">{t('cartEmpty')}</h1>
         <p className="text-ink-faint text-sm mb-6">{t('cartEmptyDesc')}</p>
-        <Link to="/create" className="bg-ink text-paper font-semibold px-6 py-3 rounded-xl hover:bg-paper transition-colors text-sm">
+        <Link to="/create" className="bg-ink text-paper font-semibold px-6 py-3 rounded-xl hover:bg-black transition-colors text-sm">
           {t('backToEditor')}
         </Link>
       </div>
@@ -73,7 +73,7 @@ export function Cart() {
 
         <button
           onClick={() => navigate('/checkout')}
-          className="w-full mt-4 bg-ink text-paper font-bold py-4 rounded-xl hover:bg-paper transition-colors text-base"
+          className="w-full mt-4 bg-ink text-paper font-bold py-4 rounded-xl hover:bg-black transition-colors text-base"
         >
           {t('proceedToCheckout')}
         </button>

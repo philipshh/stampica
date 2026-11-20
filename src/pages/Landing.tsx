@@ -198,7 +198,7 @@ export function Landing() {
           {t('howItWorksTitle')}
         </h2>
         <div className="mb-16 md:mb-20">
-          <HowItWorksVideo title={t('howItWorksTitle')} playLabel={t('videoPlay')} pauseLabel={t('videoPause')} />
+          <HowItWorksVideo title={t('howItWorksTitle')} playLabel={t('videoPlay')} pauseLabel={t('videoPause')} muteLabel={t('videoMute')} unmuteLabel={t('videoUnmute')} />
         </div>
         <div className="grid md:grid-cols-3 gap-12 md:gap-10">
           {steps.map((step, i) => (

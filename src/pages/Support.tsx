@@ -168,7 +168,7 @@ export function Support() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-ink text-paper font-bold py-3 rounded-xl hover:bg-paper transition-colors disabled:opacity-50 text-sm"
+            className="w-full bg-ink text-paper font-bold py-3 rounded-xl hover:bg-black transition-colors disabled:opacity-50 text-sm"
           >
             {isSubmitting ? t('sending') : t('sendMessage')}
           </button>

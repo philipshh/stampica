@@ -330,7 +330,7 @@ export function Checkout() {
                 )}
 
                 <button type="submit" disabled={isSubmitting}
-                  className="w-full bg-ink text-paper font-semibold py-4 rounded-xl hover:bg-paper disabled:opacity-50 transition-all text-base">
+                  className="w-full bg-ink text-paper font-semibold py-4 rounded-xl hover:bg-black disabled:opacity-50 transition-all text-base">
                   {isSubmitting ? t('uploading') : `${t('placeOrder')} · ${total} din`}
                 </button>
                 <button
