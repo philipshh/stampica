@@ -44,6 +44,8 @@ const translations = {
 
     // Controls / Editor sidebar
     advancedControls: 'Advanced controls',
+    defaultPosterTitle: 'Your poster title',
+    defaultPosterDesc: 'Add a few words about the moment: a place, a date, a name.',
     order: 'Order',
     addToCart: 'Add to cart',
     viewCart: 'View cart',
@@ -227,6 +229,8 @@ const translations = {
 
     // Controls / Editor sidebar
     advancedControls: 'Napredne opcije',
+    defaultPosterTitle: 'Naslov postera',
+    defaultPosterDesc: 'Dodaj par reči o trenutku: mesto, datum, ime.',
     order: 'Naruči',
     addToCart: 'Dodaj u korpu',
     viewCart: 'Pogledaj korpu',

@@ -30,7 +30,11 @@ function App() {
     const [showCartModal, setShowCartModal] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
-    const [options, setOptions] = useState<DitherOptions>(DEFAULT_OPTIONS);
+    // Placeholder poster text follows the UI language
+    const [options, setOptions] = useState<DitherOptions>(() => ({
+        ...DEFAULT_OPTIONS,
+        poster: { ...DEFAULT_OPTIONS.poster, title: t('defaultPosterTitle'), description: [t('defaultPosterDesc')] },
+    }));
 
     const posterRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout>>();
