@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BeforeAfter } from '../components/BeforeAfter';
 import { HowItWorksVideo } from '../components/HowItWorksVideo';
+import { FramedPoster } from '../components/FramedPoster';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
@@ -23,27 +24,6 @@ const LOOKS: { id: string; label?: string; big?: boolean }[] = [
   { id: 'kiki-film', label: 'Atkinson' },
 ];
 const CAROUSEL_IMAGES: string[] = SHOWCASE.flatMap((src, i) => (MOVIE_POSTERS[i] ? [src, MOVIE_POSTERS[i]] : [src]));
-
-/** A poster pinned to the wall with a piece of translucent tape. */
-function TapedPoster({ src, rotate, className = '', width = 200, delay = 0 }: {
-  src: string; rotate: number; className?: string; width?: number; delay?: number;
-}) {
-  return (
-    <div
-      className={`absolute animate-fade-up ${className}`}
-      style={{ width, transform: `rotate(${rotate}deg)`, animationDelay: `${delay}s` }}
-    >
-      <div className="relative bg-white p-2 pb-3 shadow-sheet border border-line">
-        <div
-          className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-14 h-5 bg-vermilion/20 backdrop-blur-[1px]"
-          style={{ transform: `translateX(-50%) rotate(${-rotate * 0.6}deg)` }}
-        />
-        <img src={src} alt="" width={width} height={Math.round(width * 1.414)} loading="eager"
-          className="w-full h-auto" draggable={false} />
-      </div>
-    </div>
-  );
-}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function Landing() {
@@ -112,17 +92,29 @@ export function Landing() {
             </div>
           </div>
 
-          {/* Taped poster collage — desktop */}
-          <div className="relative hidden md:block h-[480px]">
-            <TapedPoster src={featured[0]} rotate={-4} className="left-0 top-6" width={210} delay={0.3} />
-            <TapedPoster src={featured[1]} rotate={3} className="left-[46%] top-24" width={200} delay={0.45} />
-            <TapedPoster src={featured[2]} rotate={-2} className="left-[22%] top-56" width={185} delay={0.6} />
+          {/* Gallery wall: one larger frame beside a column of two, hung straight */}
+          <div className="hidden md:flex items-center justify-center gap-7 h-[520px]">
+            <div className="w-[230px] animate-fade-up" style={{ animationDelay: '0.3s' }}>
+              <FramedPoster src={featured[0]} eager className="poster-lift" />
+            </div>
+            <div className="w-[170px] flex flex-col gap-7">
+              <div className="animate-fade-up" style={{ animationDelay: '0.45s' }}>
+                <FramedPoster src={featured[1]} eager className="poster-lift" />
+              </div>
+              <div className="animate-fade-up" style={{ animationDelay: '0.6s' }}>
+                <FramedPoster src={featured[2]} eager className="poster-lift" />
+              </div>
+            </div>
           </div>
 
-          {/* Single taped poster — mobile */}
-          <div className="relative md:hidden h-[320px] -mx-2">
-            <TapedPoster src={featured[0]} rotate={-3} className="left-[6%] top-4" width={170} delay={0.3} />
-            <TapedPoster src={featured[1]} rotate={4} className="right-[6%] top-16" width={160} delay={0.45} />
+          {/* Phones: two frames side by side */}
+          <div className="md:hidden flex items-center justify-center gap-4">
+            <div className="w-[46%] animate-fade-up" style={{ animationDelay: '0.3s' }}>
+              <FramedPoster src={featured[0]} eager />
+            </div>
+            <div className="w-[38%] animate-fade-up" style={{ animationDelay: '0.45s' }}>
+              <FramedPoster src={featured[1]} eager />
+            </div>
           </div>
         </div>
       </section>

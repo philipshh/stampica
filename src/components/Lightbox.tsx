@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 interface LightboxProps {
   src?: string;
@@ -10,6 +11,7 @@ interface LightboxProps {
 }
 
 export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose }: LightboxProps) {
+  const { t } = useT();
   const images = srcs ?? (src ? [src] : []);
   const [idx, setIdx] = useState(Math.min(initialIndex, Math.max(0, images.length - 1)));
   const touchStartX = useRef<number | null>(null);
@@ -49,6 +51,7 @@ export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose
     >
       <button
         onClick={onClose}
+        aria-label={t('close')}
         className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-paper hover:bg-line text-ink transition-colors z-10"
       >
         <X size={18} />
@@ -57,22 +60,23 @@ export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose
       {multi && (
         <button
           onClick={e => { e.stopPropagation(); prev(); }}
+          aria-label={t('previous')}
           className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-paper/80 hover:bg-line text-ink transition-colors z-10"
         >
           <ChevronLeft size={20} />
         </button>
       )}
 
-      <img
-        src={images[idx]}
-        alt={alt}
-        className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl"
-        onClick={e => e.stopPropagation()}
-      />
+      <div className="bg-ink p-2 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="bg-white p-3 md:p-4">
+          <img src={images[idx]} alt={alt} className="block max-h-[80vh] max-w-[80vw] object-contain" />
+        </div>
+      </div>
 
       {multi && (
         <button
           onClick={e => { e.stopPropagation(); next(); }}
+          aria-label={t('next')}
           className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-paper/80 hover:bg-line text-ink transition-colors z-10"
         >
           <ChevronRight size={20} />

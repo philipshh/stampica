@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { API_BASE } from '../lib/api';
 import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD, itemPrice } from '../../shared/pricing';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, ArrowLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { OrderConfirmation } from '../components/OrderConfirmation';
+import { FramedPoster } from '../components/FramedPoster';
+import { Lightbox } from '../components/Lightbox';
 import { exportPosterHiResBlob } from '../lib/posterExport';
 import { uploadPosterFile } from '../lib/supabase';
 
@@ -61,7 +63,8 @@ export function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
-  const [previewIdx, setPreviewIdx] = useState(0);
+  const [viewIdx, setViewIdx] = useState<number | null>(null);
+  const wallImages = items.map(i => i.previewBlobUrl).filter(Boolean);
 
   // Redirect to cart if empty
   useEffect(() => {
@@ -171,49 +174,62 @@ export function Checkout() {
     <div className="md:h-full bg-paper md:overflow-hidden">
       <div className="flex flex-col md:flex-row md:h-full">
 
-        {/* Left — poster preview */}
-        <div className="md:w-1/2 bg-surface border-b md:border-b-0 md:border-r border-line flex items-center justify-center p-6 md:p-10 flex-shrink-0">
-          {items[previewIdx]?.previewBlobUrl ? (
-            <div className="relative w-full flex items-center justify-center h-full">
-              <img
-                src={items[previewIdx].previewBlobUrl}
-                alt="Your poster"
-                className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-line"
-              />
-              {items.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setPreviewIdx(i => Math.max(0, i - 1))}
-                    disabled={previewIdx === 0}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-paper/60 border border-line flex items-center justify-center text-ink hover:bg-paper disabled:opacity-30 transition-all z-10"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    onClick={() => setPreviewIdx(i => Math.min(items.length - 1, i + 1))}
-                    disabled={previewIdx === items.length - 1}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-paper/60 border border-line flex items-center justify-center text-ink hover:bg-paper disabled:opacity-30 transition-all z-10"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                    {items.map((_, i) => (
+        {/* Left — the order as a little gallery wall; tap a poster to see it up close */}
+        <div className="md:w-1/2 bg-surface border-b md:border-b-0 md:border-r border-line flex-shrink-0 md:h-full md:overflow-y-auto custom-scrollbar">
+          <div className="p-6 md:p-10">
+            <div className="flex items-baseline justify-between mb-6">
+              <h2 className="font-display font-extrabold text-2xl tracking-[-0.02em]">
+                {t('yourPosters', { count: items.length })}
+              </h2>
+              {wallImages.length > 0 && <span className="text-xs text-ink-faint">{t('tapToView')}</span>}
+            </div>
+            {wallImages.length === 0 ? (
+              <div className="w-full aspect-[1/1.41] max-w-xs mx-auto bg-paper rounded-xl flex items-center justify-center text-ink-faint text-sm">
+                {t('noPreview')}
+              </div>
+            ) : (
+              <>
+                {/* Phones: swipe through the wall */}
+                <div className="md:hidden no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-px-6 -mx-6 px-6 pb-2">
+                  {items.map((item, i) => item.previewBlobUrl && (
+                    <figure key={item.id} className={`snap-start shrink-0 ${items.length === 1 ? 'w-full max-w-[280px] mx-auto' : 'w-[68%]'}`}>
                       <button
-                        key={i}
-                        onClick={() => setPreviewIdx(i)}
-                        className={`w-1.5 h-1.5 rounded-full transition-all ${i === previewIdx ? 'bg-ink scale-125' : 'bg-line hover:bg-ink/40'}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="w-full aspect-[1/1.41] max-h-full bg-paper rounded-xl flex items-center justify-center text-ink-faint text-sm">
-              No preview
-            </div>
-          )}
+                        onClick={() => setViewIdx(wallImages.indexOf(item.previewBlobUrl))}
+                        aria-label={t('viewPoster', { n: i + 1 })}
+                        className="block w-full text-left"
+                      >
+                        <FramedPoster src={item.previewBlobUrl} eager />
+                      </button>
+                      <figcaption className="mt-3 text-xs text-ink-soft">
+                        {item.size}{item.quantity > 1 ? ` × ${item.quantity}` : ''}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+                {/* Desktop: masonry wall */}
+                <div className={`hidden md:block ${items.length === 1 ? 'max-w-sm mx-auto' : `gap-6 ${items.length <= 4 ? 'columns-2' : 'columns-2 lg:columns-3'}`}`}>
+                  {items.map((item, i) => item.previewBlobUrl && (
+                    <figure key={item.id} className="break-inside-avoid mb-6">
+                      <button
+                        onClick={() => setViewIdx(wallImages.indexOf(item.previewBlobUrl))}
+                        aria-label={t('viewPoster', { n: i + 1 })}
+                        className="block w-full text-left focus-visible:outline-offset-4"
+                      >
+                        <FramedPoster src={item.previewBlobUrl} eager className="poster-lift" />
+                      </button>
+                      <figcaption className="mt-3 text-xs text-ink-soft">
+                        {item.size}{item.quantity > 1 ? ` × ${item.quantity}` : ''}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
+        {viewIdx !== null && (
+          <Lightbox srcs={wallImages} initialIndex={viewIdx} alt={t('yourPosters', { count: items.length })} onClose={() => setViewIdx(null)} />
+        )}
 
         {/* Right — form */}
         <div className="md:w-1/2 md:overflow-y-auto p-4 md:p-8 md:h-full">
