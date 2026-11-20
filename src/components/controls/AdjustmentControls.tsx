@@ -4,6 +4,7 @@ import { QUADTONE_THEMES, DUOTONE_THEMES, TRITONE_THEMES } from '../../lib/color
 import { Save, Minus, Plus, Dices } from 'lucide-react';
 import { SectionCard } from './SectionCard';
 import { EffectsGallery } from './EffectsGallery';
+import { useT } from '../../contexts/LanguageContext';
 
 interface AdjustmentControlsProps {
     options: DitherOptions;
@@ -67,6 +68,7 @@ const ThemeSelect: React.FC<{
     themes: { name: string; colors: string[]; group?: string }[];
     onSelect: (name: string) => void;
 }> = ({ currentValue, themes, onSelect }) => {
+    const { t } = useT();
     const [isOpen, setIsOpen] = useState(false);
     const [dropStyle, setDropStyle] = useState<React.CSSProperties>({});
     const triggerRef = useRef<HTMLButtonElement>(null);
@@ -113,7 +115,7 @@ const ThemeSelect: React.FC<{
                             ))}
                         </div>
                     )}
-                    <span className="truncate">{currentValue || 'Select theme'}</span>
+                    <span className="truncate">{currentValue || t('selectTheme')}</span>
                 </div>
                 <span className="text-ink-faint text-[8px] ml-1">{isOpen ? '▲' : '▼'}</span>
             </button>
@@ -146,6 +148,7 @@ const ThemeSelect: React.FC<{
 };
 
 export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options, onOptionsChange, imageFile = null, advanced = false }) => {
+    const { t } = useT();
     const [presets, setPresets] = useState<ColorPreset[]>([]);
 
     useEffect(() => {
@@ -196,27 +199,27 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            <SectionCard title="Effects">
+            <SectionCard title={t('sectEffects')}>
                 <EffectsGallery options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
                 {options.algorithm !== 'none' && (
-                    <SliderField label="Threshold" value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
+                    <SliderField label={t('labelThreshold')} value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
                 )}
                 {options.algorithm === 'ascii' && (
-                    <Field label="Characters">
+                    <Field label={t('fieldCharacters')}>
                         <input
                             type="text"
                             value={options.asciiText ?? ''}
                             maxLength={40}
                             onChange={e => update('asciiText', e.target.value)}
-                            placeholder="Your names, a word, or leave empty"
+                            placeholder={t('charsPlaceholder')}
                             className="w-full bg-surface border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 placeholder:text-ink-faint"
                         />
                     </Field>
                 )}
             </SectionCard>
 
-            <SectionCard title="Colors">
-                <Field label="Color mode">
+            <SectionCard title={t('sectColors')}>
+                <Field label={t('fieldColorMode')}>
                     <div className="grid grid-cols-5 gap-1">
                         {colorModes.map(mode => (
                             <button key={mode.id} onClick={() => update('colorMode', mode.id as any)} className={segBtn(options.colorMode === mode.id)}>
@@ -229,8 +232,8 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                 {hasPalette && (
                     <>
                         <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-ink-faint">Theme preset</span>
-                            <button onClick={savePreset} className="text-ink-faint hover:text-ink transition-colors" title="Save preset">
+                            <span className="text-xs text-ink-faint">{t('fieldThemePreset')}</span>
+                            <button onClick={savePreset} className="text-ink-faint hover:text-ink transition-colors" title={t('savePreset')}>
                                 <Save className="w-3.5 h-3.5" />
                             </button>
                         </div>
@@ -271,11 +274,11 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                         <div className="grid grid-cols-2 gap-2">
                             <button onClick={() => handleThemeSelect(QUADTONE_THEMES[Math.floor(Math.random() * QUADTONE_THEMES.length)].name)}
                                 className="py-2 bg-ink/5 text-ink text-xs rounded-lg hover:bg-ink/10 transition-colors flex items-center justify-center gap-1.5">
-                                <Dices className="w-3.5 h-3.5" /> Shuffle
+                                <Dices className="w-3.5 h-3.5" /> {t('btnShuffle')}
                             </button>
                             <button onClick={() => handleThemeSelect('Base Reference')}
                                 className="py-2 rounded-lg border border-line text-ink-faint hover:border-ink/40 hover:text-ink transition-colors text-xs">
-                                Reset
+                                {t('btnReset')}
                             </button>
                         </div>
 
@@ -291,7 +294,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                                     }}
                                     className="w-full bg-surface border border-line text-ink py-2 px-3 text-xs rounded-lg appearance-none focus:outline-none focus:border-ink/40"
                                     value="">
-                                    <option value="" disabled>Saved presets</option>
+                                    <option value="" disabled>{t('savedPresets')}</option>
                                     {presets.filter(p => p.mode === options.colorMode).map(preset => (
                                         <option key={preset.id} value={preset.id}>{preset.name}</option>
                                     ))}
@@ -304,45 +307,45 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
             </SectionCard>
 
             {advanced && (
-                <SectionCard title="Effect tuning">
-                    <SliderField label="Point size" value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
+                <SectionCard title={t('sectEffectTuning')}>
+                    <SliderField label={t('labelPointSize')} value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
                 </SectionCard>
             )}
 
             {advanced && (
-                <SectionCard title="Image adjustments">
-                    <SliderField label="Brightness" value={options.brightness} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('brightness', v)} />
-                    <SliderField label="Contrast" value={options.contrast} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('contrast', v)} />
-                    <SliderField label="Gamma" value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={v => update('gamma', v)} />
+                <SectionCard title={t('sectImageAdjust')}>
+                    <SliderField label={t('labelBrightness')} value={options.brightness} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('brightness', v)} />
+                    <SliderField label={t('labelContrast')} value={options.contrast} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('contrast', v)} />
+                    <SliderField label={t('labelGamma')} value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={v => update('gamma', v)} />
                     <div className="grid grid-cols-2 gap-2">
                         <button onClick={() => update('invert', !options.invert)}
                             className={`py-2 rounded-lg border transition-colors text-xs uppercase ${options.invert ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
-                            Invert
+                            {t('btnInvert')}
                         </button>
                         <button onClick={() => onOptionsChange({ ...options, brightness: 0, contrast: 0, gamma: 1, invert: false })}
                             className="py-2 rounded-lg border border-line text-ink-faint hover:border-ink/40 hover:text-ink transition-colors text-xs">
-                            Reset
+                            {t('btnReset')}
                         </button>
                     </div>
                 </SectionCard>
             )}
 
             {advanced && (
-                <SectionCard title="Paper texture">
+                <SectionCard title={t('sectPaperTexture')}>
                     <div className="relative">
                         <select value={options.paperTexture} onChange={e => update('paperTexture', e.target.value as any)}
                             className="w-full bg-surface border border-line text-ink py-2 px-3 text-xs rounded-lg appearance-none focus:outline-none focus:border-ink/40">
-                            <option value="none">None</option>
-                            <option value="texture-1">Crumpled Paper</option>
-                            <option value="texture-2">Speckled Paper</option>
-                            <option value="texture-3">Smooth Paper</option>
-                            <option value="folded">Folded Paper</option>
-                            <option value="glue">Glued Paper</option>
+                            <option value="none">{t('texNone')}</option>
+                            <option value="texture-1">{t('texCrumpled')}</option>
+                            <option value="texture-2">{t('texSpeckled')}</option>
+                            <option value="texture-3">{t('texSmooth')}</option>
+                            <option value="folded">{t('texFolded')}</option>
+                            <option value="glue">{t('texGlued')}</option>
                         </select>
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-faint text-[8px]">▼</div>
                     </div>
                     {options.paperTexture !== 'none' && (
-                        <SliderField label="Opacity" value={options.paperTextureOpacity} min={0} max={100} step={1} onChange={v => update('paperTextureOpacity', v)} suffix="%" />
+                        <SliderField label={t('labelOpacity')} value={options.paperTextureOpacity} min={0} max={100} step={1} onChange={v => update('paperTextureOpacity', v)} suffix="%" />
                     )}
                 </SectionCard>
             )}

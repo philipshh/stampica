@@ -163,7 +163,7 @@ export const Controls: React.FC<ControlsProps> = ({
                     className="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-ink text-paper hover:bg-black transition-colors"
                 >
                     <ShoppingCart className="w-4 h-4" />
-                    <span className="text-[8px] uppercase tracking-widest font-bold">Cart</span>
+                    <span className="text-[8px] uppercase tracking-widest font-bold">{t('cartShort')}</span>
                 </button>
                 {isAdmin && (
                     <>
@@ -173,7 +173,7 @@ export const Controls: React.FC<ControlsProps> = ({
                             className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-ink-soft hover:text-ink hover:bg-line/40 transition-colors"
                         >
                             <Copy className="w-4 h-4" />
-                            <span className="text-[8px] uppercase tracking-widest">Copy</span>
+                            <span className="text-[8px] uppercase tracking-widest">{t('copy')}</span>
                         </button>
                         <div className="w-px bg-line" />
                         <button
@@ -181,7 +181,7 @@ export const Controls: React.FC<ControlsProps> = ({
                             className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-ink-soft hover:text-ink hover:bg-line/40 transition-colors"
                         >
                             <Download className="w-4 h-4" />
-                            <span className="text-[8px] uppercase tracking-widest">Save</span>
+                            <span className="text-[8px] uppercase tracking-widest">{t('export')}</span>
                         </button>
                     </>
                 )}

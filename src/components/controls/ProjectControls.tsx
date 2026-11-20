@@ -22,6 +22,7 @@ interface ProjectControlsProps {
 }
 
 import { SectionCard } from './SectionCard';
+import { useT } from '../../contexts/LanguageContext';
 
 const ProjectCard: React.FC<{
     project: PosterProject;
@@ -66,6 +67,7 @@ const ProjectCard: React.FC<{
 };
 
 export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, imageFile, onProjectLoad, isAdmin = false }) => {
+    const { t } = useT();
     const [projects, setProjects] = useState<PosterProject[]>([]);
     const [projectName, setProjectName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -158,15 +160,15 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            <SectionCard title="Save design" spacing="sm">
+            <SectionCard title={t('saveDesign')} spacing="sm">
                 <div className="flex gap-2">
                     <input type="text" value={projectName} onChange={e => setProjectName(e.target.value)}
-                        placeholder="Project name..."
+                        placeholder={t('projectNamePh')}
                         className="flex-1 bg-paper border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 transition-colors" />
                     <button onClick={handleSaveProject} disabled={isLoading}
                         className="px-4 py-2 bg-ink text-paper text-xs font-bold rounded-lg hover:bg-black disabled:opacity-50 transition-colors flex items-center gap-1.5">
                         <Save className="w-3 h-3" />
-                        {isLoading ? '…' : 'Save'}
+                        {isLoading ? '…' : t('btnSave')}
                     </button>
                 </div>
             </SectionCard>
@@ -184,11 +186,11 @@ export const ProjectControls: React.FC<ProjectControlsProps> = ({ options, image
                 </div>
             </SectionCard>}
 
-            <SectionCard title={`Saved projects${projects.length > 0 ? ` (${projects.length})` : ''}`} spacing="sm">
+            <SectionCard title={`${t('savedProjects')}${projects.length > 0 ? ` (${projects.length})` : ''}`} spacing="sm">
                 {projects.length === 0 ? (
                     <div className="text-center py-6 text-ink-faint space-y-2">
                         <FolderOpen className="w-7 h-7 mx-auto opacity-30" />
-                        <p className="text-xs text-ink-faint">No saved projects yet</p>
+                        <p className="text-xs text-ink-faint">{t('noSavedProjects')}</p>
                     </div>
                 ) : (
                     <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar -mx-1 px-1">

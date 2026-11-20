@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { DitherOptions } from '../lib/dither';
 
 import { Icon } from '@iconify/react';
+import { useT } from '../contexts/LanguageContext';
 
 
 interface PosterCanvasProps {
@@ -48,6 +49,7 @@ const GridSlotImage: React.FC<{
 };
 
 export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ processedImage, options, onUploadTrigger }, ref) => {
+    const { t } = useT();
     const { title, year, description, paperColor, textColor, directorTextColor, titleFontSize, director, titleAlignment, footerLayout, imageScale, imageAlignX, imageAlignY, descriptionColumns, imageBackgroundColor } = options.poster;
     const [scale, setScale] = React.useState(1);
 
@@ -237,7 +239,7 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                             className="relative z-10 flex flex-col items-center justify-center gap-4 text-current opacity-30 hover:opacity-100 transition-opacity w-full h-full border-2 border-dashed border-current rounded-lg min-h-[200px]"
                         >
                             <span className="text-4xl">+</span>
-                            <span className="uppercase tracking-widest text-xs font-bold">Upload Image</span>
+                            <span className="uppercase tracking-widest text-xs font-bold">{t('uploadImage')}</span>
                         </button>
                     )
                 ) : (

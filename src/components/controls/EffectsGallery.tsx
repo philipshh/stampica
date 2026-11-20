@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DitherOptions, DitherAlgorithm, EFFECTS, EffectCategory } from '../../lib/dither';
 import DitherWorker from '../../lib/worker?worker';
+import { useT } from '../../contexts/LanguageContext';
+import type { TranslationKey } from '../../i18n/translations';
 
 const THUMB = 108;
 
-const CATEGORY_LABELS: Record<EffectCategory, string> = {
-    classic: 'Classic',
-    diffusion: 'Diffusion',
-    pattern: 'Pattern',
+const CATEGORY_LABELS: Record<EffectCategory, TranslationKey> = {
+    classic: 'catClassic',
+    diffusion: 'catDiffusion',
+    pattern: 'catPattern',
 };
 
 /** Load the source image (or a procedural sample) as a square, center-cropped thumbnail */
@@ -100,6 +102,7 @@ interface EffectsGalleryProps {
 }
 
 export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptionsChange, imageFile }) => {
+    const { t } = useT();
     const [previews, setPreviews] = useState<Record<string, ImageData>>({});
 
     // In grid mode fall back to the first filled slot's image
@@ -162,7 +165,7 @@ export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptio
             {categories.map((cat) => (
                 <div key={cat}>
                     <div className="text-[9px] uppercase tracking-widest text-ink-faint mb-1.5 select-none">
-                        {CATEGORY_LABELS[cat]}
+                        {t(CATEGORY_LABELS[cat])}
                     </div>
                     <div className="grid grid-cols-3 gap-1.5">
                         {EFFECTS.filter((e) => e.category === cat).map((effect) => (

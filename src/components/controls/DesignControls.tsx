@@ -86,7 +86,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         value={p.description[0] || ''}
                         onChange={e => set({ description: [e.target.value], descriptionColumns: 1 })}
                         rows={3}
-                        placeholder="Description..."
+                        placeholder={t('descPlaceholder')}
                         className={`${inputClass} resize-none`}
                     />
                 </Field>
@@ -98,7 +98,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         <span>{t('fieldListItems')}</span>
                         <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1 bg-surface rounded-lg border border-line px-1.5 h-6">
-                                <span className="text-[9px] text-ink-faint uppercase">Cols</span>
+                                <span className="text-[9px] text-ink-faint uppercase">{t('colsShort')}</span>
                                 <select value={p.listSection.columns || 1}
                                     onChange={e => set({ listSection: { ...p.listSection, columns: Number(e.target.value) as 1 | 2 | 3 | 4 } })}
                                     className="bg-transparent text-ink text-[10px] focus:outline-none appearance-none cursor-pointer w-4 text-center">
@@ -125,7 +125,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         value={p.listSection.content.join('\n')}
                         onChange={e => set({ listSection: { ...p.listSection, content: e.target.value.split('\n') } })}
                         rows={5}
-                        placeholder="Enter items (one per line)..."
+                        placeholder={t('listPlaceholder')}
                         className={`${inputClass} resize-none font-mono`}
                     />
                 </Field>
