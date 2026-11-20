@@ -15,6 +15,7 @@ import { Privacy } from './pages/Privacy';
 import { Shipping } from './pages/Shipping';
 import { Support } from './pages/Support';
 import { DevNav } from './pages/DevNav';
+import { PosterStudio } from './pages/PosterStudio';
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -62,6 +63,7 @@ export function Router() {
         <Route path="/shipping" element={<Layout><Shipping /></Layout>} />
         <Route path="/support" element={<Layout><Support /></Layout>} />
         {import.meta.env.DEV && <Route path="/dev" element={<Layout><DevNav /></Layout>} />}
+        {import.meta.env.DEV && <Route path="/dev/posters" element={<Layout><PosterStudio /></Layout>} />}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </CartProvider>

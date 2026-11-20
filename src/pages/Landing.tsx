@@ -6,19 +6,12 @@ import { POSTER_SIZES, SIZE_FAMILIES, sizesInFamily } from '../lib/posterSizes';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
-const CAROUSEL_IMAGES: string[] = [
-  '/carousel/poster-1.png',
-  '/carousel/poster-2.png',
-  '/carousel/poster-3.png',
-  '/carousel/poster-4.png',
-  '/carousel/poster-5.png',
-  '/carousel/poster-6.png',
-  '/carousel/poster-7.png',
-  '/carousel/poster-8.png',
-  '/carousel/poster-9.png',
-  '/carousel/poster-10.png',
-  '/carousel/poster-11.png',
-];
+// Real-photo showcase posters (rendered by /dev/posters) and the original
+// movie posters, interleaved so the marquee shows both directions.
+const SHOWCASE = ['ana-marko', 'luna', 'hram', 'mila-luka', 'kiki', 'durmitor', 'max', 'sava', 'petrovic', 'miso', 'alps', 'knez']
+  .map(id => `/showcase/${id}.jpg`);
+const MOVIE_POSTERS = Array.from({ length: 11 }, (_, i) => `/carousel/poster-${i + 1}.png`);
+const CAROUSEL_IMAGES: string[] = SHOWCASE.flatMap((src, i) => (MOVIE_POSTERS[i] ? [src, MOVIE_POSTERS[i]] : [src]));
 
 /** A poster pinned to the wall with a piece of translucent tape. */
 function TapedPoster({ src, rotate, className = '', width = 200, delay = 0 }: {
@@ -35,7 +28,7 @@ function TapedPoster({ src, rotate, className = '', width = 200, delay = 0 }: {
           style={{ transform: `translateX(-50%) rotate(${-rotate * 0.6}deg)` }}
         />
         <img src={src} alt="" width={width} height={Math.round(width * 1.414)} loading="eager"
-          className="w-full aspect-[1/1.414] object-cover" draggable={false} />
+          className="w-full h-auto" draggable={false} />
       </div>
     </div>
   );
@@ -49,9 +42,9 @@ export function Landing() {
   const source = CAROUSEL_IMAGES;
 
   const steps = [
-    { img: '/carousel/poster-2.png', title: t('howStep1Title'), text: t('howStep1Text') },
-    { img: '/carousel/poster-7.png', title: t('howStep2Title'), text: t('howStep2Text') },
-    { img: '/carousel/poster-4.png', title: t('howStep3Title'), text: t('howStep3Text') },
+    { img: '/showcase/max.jpg', title: t('howStep1Title'), text: t('howStep1Text') },
+    { img: '/showcase/durmitor.jpg', title: t('howStep2Title'), text: t('howStep2Text') },
+    { img: '/showcase/sava.jpg', title: t('howStep3Title'), text: t('howStep3Text') },
   ];
 
   return (
@@ -108,15 +101,15 @@ export function Landing() {
 
           {/* Taped poster collage — desktop */}
           <div className="relative hidden md:block h-[480px]">
-            <TapedPoster src="/carousel/poster-3.png" rotate={-4} className="left-0 top-6" width={210} delay={0.3} />
-            <TapedPoster src="/carousel/poster-6.png" rotate={3} className="left-[46%] top-24" width={200} delay={0.45} />
-            <TapedPoster src="/carousel/poster-9.png" rotate={-2} className="left-[22%] top-56" width={185} delay={0.6} />
+            <TapedPoster src="/showcase/ana-marko.jpg" rotate={-4} className="left-0 top-6" width={210} delay={0.3} />
+            <TapedPoster src="/showcase/luna.jpg" rotate={3} className="left-[46%] top-24" width={200} delay={0.45} />
+            <TapedPoster src="/showcase/mila-luka.jpg" rotate={-2} className="left-[22%] top-56" width={185} delay={0.6} />
           </div>
 
           {/* Single taped poster — mobile */}
           <div className="relative md:hidden h-[320px] -mx-2">
-            <TapedPoster src="/carousel/poster-3.png" rotate={-3} className="left-[6%] top-4" width={170} delay={0.3} />
-            <TapedPoster src="/carousel/poster-6.png" rotate={4} className="right-[6%] top-16" width={160} delay={0.45} />
+            <TapedPoster src="/showcase/ana-marko.jpg" rotate={-3} className="left-[6%] top-4" width={170} delay={0.3} />
+            <TapedPoster src="/showcase/luna.jpg" rotate={4} className="right-[6%] top-16" width={160} delay={0.45} />
           </div>
         </div>
       </section>
@@ -133,7 +126,7 @@ export function Landing() {
               style={{ width: 150, marginTop: i % 2 === 0 ? 0 : 20, transform: `rotate(${i % 3 === 0 ? -1.5 : i % 3 === 1 ? 1 : 0}deg)` }}
             >
               <img src={item} alt="" width={150} height={212} loading="lazy"
-                className="w-full aspect-[1/1.414] object-cover" draggable={false} />
+                className="w-full h-auto" draggable={false} />
             </div>
           ))}
         </div>
@@ -155,7 +148,7 @@ export function Landing() {
                     width={160}
                     height={226}
                     loading="lazy"
-                    className="w-full aspect-[1/1.414] object-cover"
+                    className="w-full h-auto"
                   />
                 </div>
                 <span className="absolute -top-3 -left-3 w-9 h-9 rounded-full bg-vermilion text-paper font-display font-bold text-sm flex items-center justify-center shadow-card">
