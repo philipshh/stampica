@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DitherAlgorithm, DitherOptions, TitleFont } from '../lib/dither';
 import { DEFAULT_OPTIONS } from '../lib/defaultOptions';
-import { computePaletteFromColorMode, QUADTONE_THEMES, TRITONE_THEMES, DUOTONE_THEMES } from '../lib/colorUtils';
+import { computePaletteFromColorMode, interpolateColors, rgbToHex, hexToRgb, QUADTONE_THEMES, TRITONE_THEMES, DUOTONE_THEMES } from '../lib/colorUtils';
 import { getDitheredImageData } from '../lib/posterExport';
 import { drawPosterToCanvas, getPosterDimensions } from '../lib/posterRenderer';
 
@@ -34,6 +34,8 @@ interface ShowcaseSpec {
     invert?: boolean;
     // Effect only, no poster layout (for the landing before/after slider)
     raw?: boolean;
+    // Interpolate the theme into this many colors (posterized look)
+    steps?: number;
     contrast?: number;
     paper?: string;
     ink?: string;
@@ -94,7 +96,7 @@ export const SHOWCASE: ShowcaseSpec[] = [
       title: 'KIKI', subtitle: 'Two colors, no fuss', year: '2018', director: 'Calico', font: 'Unbounded', titleSize: 120, align: 'center' },
     { id: 'kiki-film', photo: 'cat-white', size: '20x30cm', algorithm: 'atkinson', mode: 'quadtone', theme: 'Warm Analog Film',
       title: 'Kiki', subtitle: 'Queen of the windowsill', year: '2018', director: 'Calico', font: 'Playfair Display', titleSize: 110 },
-    { id: 'kiki-dither', photo: 'cat-white', size: '20x30cm', algorithm: 'bayer-2', mode: 'quadtone', theme: 'Midnight Coral',
+    { id: 'kiki-poster-look', photo: 'cat-white', size: '20x30cm', algorithm: 'threshold', mode: 'quadtone', theme: 'Electric Sunset', steps: 7,
       title: '', year: '', director: '', raw: true },
 ];
 
@@ -118,6 +120,11 @@ function buildOptions(spec: ShowcaseSpec): DitherOptions {
         o.selectedThemeName = spec.theme;
     }
     o.palette = computePaletteFromColorMode(o);
+    if (spec.steps) {
+        o.strictSwatches = false;
+        o.paletteSteps = spec.steps;
+        o.palette = interpolateColors(o.palette.map(c => rgbToHex(c[0], c[1], c[2])), spec.steps).map(hex => hexToRgb(hex));
+    }
     const ink = spec.ink ?? '#141414';
     o.poster = {
         ...o.poster,

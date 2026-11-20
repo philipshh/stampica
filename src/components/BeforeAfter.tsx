@@ -94,7 +94,7 @@ export function BeforeAfter({ before, after, beforeLabel, afterLabel, ariaLabel,
                 className="absolute inset-0 w-full h-full object-cover" />
             <img src={after} alt="" width={width} height={height} loading="lazy" draggable={false}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ clipPath: 'inset(0 0 0 var(--pos))', imageRendering: 'pixelated' }} />
+                style={{ clipPath: 'inset(0 0 0 var(--pos))' }} />
 
             <span className="absolute left-3 bottom-3 px-2.5 py-1 rounded-full bg-white/90 text-ink text-xs font-medium">{beforeLabel}</span>
             <span className="absolute right-3 bottom-3 px-2.5 py-1 rounded-full bg-ink/85 text-paper text-xs font-medium">{afterLabel}</span>

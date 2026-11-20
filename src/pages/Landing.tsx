@@ -54,9 +54,9 @@ export function Landing() {
   const source = CAROUSEL_IMAGES;
 
   const steps = [
-    { img: '/showcase/max.jpg', title: t('howStep1Title'), text: t('howStep1Text') },
-    { img: '/showcase/durmitor.jpg', title: t('howStep2Title'), text: t('howStep2Text') },
-    { img: '/showcase/sava.jpg', title: t('howStep3Title'), text: t('howStep3Text') },
+    { img: '/how/step-upload.jpg', title: t('howStep1Title'), text: t('howStep1Text') },
+    { img: '/how/step-effect.jpg', title: t('howStep2Title'), text: t('howStep2Text') },
+    { img: '/showcase/ana-marko.jpg', framed: true, title: t('howStep3Title'), text: t('howStep3Text') },
   ];
 
   return (
@@ -158,7 +158,7 @@ export function Landing() {
         <div className="md:order-1 w-full max-w-[420px] mx-auto md:mx-0">
           <BeforeAfter
             before="/showcase/kiki-photo.jpg"
-            after="/showcase/kiki-dither.jpg"
+            after="/showcase/kiki-poster-look.jpg"
             beforeLabel={t('photoLabel')}
             afterLabel={t('posterLabel')}
             ariaLabel={t('beforeAfterAria')}
@@ -200,15 +200,21 @@ export function Landing() {
           {steps.map((step, i) => (
             <div key={i} className="flex md:flex-col gap-5 md:gap-0 items-start">
               <div className="relative flex-shrink-0 w-24 md:w-40 md:mb-6">
-                <div className="bg-white p-1.5 shadow-card border border-line" style={{ transform: `rotate(${i === 1 ? 1.5 : -1.5}deg)` }}>
-                  <img
-                    src={step.img}
-                    alt=""
-                    width={160}
-                    height={226}
-                    loading="lazy"
-                    className="w-full h-auto"
-                  />
+                {/* Steps 1-2 are real editor screens; step 3 is the print, framed */}
+                <div
+                  className={step.framed ? 'bg-ink p-1.5 md:p-2 shadow-sheet' : 'bg-white p-1.5 shadow-card border border-line rounded-sm'}
+                  style={{ transform: `rotate(${i === 1 ? 1.5 : -1.5}deg)` }}
+                >
+                  <div className={step.framed ? 'bg-white p-2 md:p-3' : ''}>
+                    <img
+                      src={step.img}
+                      alt=""
+                      width={160}
+                      height={213}
+                      loading="lazy"
+                      className="w-full h-auto"
+                    />
+                  </div>
                 </div>
                 <span className="absolute -top-3 -left-3 w-9 h-9 rounded-full bg-vermilion text-paper font-display font-bold text-sm flex items-center justify-center shadow-card">
                   {i + 1}
@@ -239,17 +245,25 @@ export function Landing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-5 gap-y-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-12">
             {SIZE_FAMILIES.map(family => {
               const sizes = sizesInFamily(family.id);
               const ratio = sizes[0].widthMm / sizes[0].heightMm;
               return (
                 <div key={family.id} className="flex flex-col">
-                  <div className="h-24 flex items-end mb-4">
-                    <div
-                      className="bg-white border border-ink/20 shadow-card"
-                      style={{ height: '100%', aspectRatio: `${ratio}` }}
-                    />
+                  <div className="h-28 flex items-end mb-7">
+                    <div className="relative h-full" style={{ aspectRatio: `${ratio}` }}>
+                      <div className="absolute inset-0 bg-white border border-ink/20 shadow-card flex items-center justify-center">
+                        <span className="font-display font-bold text-sm text-ink-soft tracking-tight whitespace-nowrap">{family.ratio}</span>
+                      </div>
+                      {/* Dimension lines, like a technical drawing */}
+                      <div className="absolute inset-x-0 -bottom-4 h-2 border-x border-ink/40" aria-hidden="true">
+                        <div className="absolute inset-x-0 top-1/2 border-t border-ink/40" />
+                      </div>
+                      <div className="absolute inset-y-0 -right-4 w-2 border-y border-ink/40" aria-hidden="true">
+                        <div className="absolute inset-y-0 left-1/2 border-l border-ink/40" />
+                      </div>
+                    </div>
                   </div>
                   <p className="font-display font-bold text-lg tracking-[-0.01em]">{family.label}</p>
                   <ul className="mt-1 text-sm text-ink-soft leading-relaxed">

@@ -2,7 +2,7 @@
 // A design is laid out for one ratio; every size in that family is the same
 // composition at a different resolution.
 
-export type SizeFamilyId = 'iso' | '5:7' | '3:4' | '4:5' | '2:3';
+export type SizeFamilyId = 'iso' | 'b' | '5:7' | '3:4' | '4:5' | '2:3';
 
 export interface PosterSizeSpec {
     id: string;
@@ -15,14 +15,16 @@ export interface PosterSizeSpec {
 export interface SizeFamily {
     id: SizeFamilyId;
     label: string;
+    ratio: string;
 }
 
 export const SIZE_FAMILIES: SizeFamily[] = [
-    { id: 'iso', label: 'A series' },
-    { id: '5:7', label: '5:7' },
-    { id: '3:4', label: '3:4' },
-    { id: '4:5', label: '4:5' },
-    { id: '2:3', label: '2:3' },
+    { id: 'iso', label: 'A series', ratio: '1 : √2' },
+    { id: 'b', label: 'B series', ratio: '1 : √2' },
+    { id: '5:7', label: '5:7', ratio: '5 : 7' },
+    { id: '3:4', label: '3:4', ratio: '3 : 4' },
+    { id: '4:5', label: '4:5', ratio: '4 : 5' },
+    { id: '2:3', label: '2:3', ratio: '2 : 3' },
 ];
 
 const IN = 25.4;
@@ -33,6 +35,12 @@ export const POSTER_SIZES: PosterSizeSpec[] = [
     { id: 'A3', label: 'A3', family: 'iso', widthMm: 297, heightMm: 420 },
     { id: 'A2', label: 'A2', family: 'iso', widthMm: 420, heightMm: 594 },
     { id: 'A1', label: 'A1', family: 'iso', widthMm: 594, heightMm: 841 },
+
+    { id: 'B5', label: 'B5', family: 'b', widthMm: 176, heightMm: 250 },
+    { id: 'B4', label: 'B4', family: 'b', widthMm: 250, heightMm: 353 },
+    { id: 'B3', label: 'B3', family: 'b', widthMm: 353, heightMm: 500 },
+    { id: 'B2', label: 'B2', family: 'b', widthMm: 500, heightMm: 707 },
+    { id: 'B1', label: 'B1', family: 'b', widthMm: 707, heightMm: 1000 },
 
     { id: '13x18cm', label: '13×18 cm', family: '5:7', widthMm: 130, heightMm: 180 },
     { id: '50x70cm', label: '50×70 cm', family: '5:7', widthMm: 500, heightMm: 700 },
