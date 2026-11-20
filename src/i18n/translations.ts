@@ -9,9 +9,9 @@ const translations = {
 
     // Landing
     heroPre: 'Your photo, as a ',
-    heroEm: 'printed',
+    heroEm: 'movie',
     heroPost: ' poster.',
-    landingSubtitle: 'Turn your photos into dithered posters. Download print-ready files in any size.',
+    landingSubtitle: 'Your people, places and dates, styled like a classic film poster. Download it in any size.',
     create: 'Create',
     orders: 'Orders',
     seeExamples: 'See examples',
@@ -29,7 +29,7 @@ const translations = {
     pricingShipping: 'Shipping',
     pricingFreeShipping: 'Free over {amount} din',
     pricingDin: 'din',
-    finalCtaTitle: 'Your photo wants to be a poster.',
+    finalCtaTitle: 'Your story. Now showing.',
     pricingDigitalTitle: 'One price. Every size.',
     pricingDigitalText: 'Pay once per design and download it in all {count} sizes, from 13×18 cm up to 70×100 cm. Print it anywhere.',
     pricingPerDesign: 'din per design',
@@ -194,9 +194,9 @@ const translations = {
 
     // Landing
     heroPre: 'Tvoja fotografija, kao ',
-    heroEm: 'štampani',
+    heroEm: 'filmski',
     heroPost: ' poster.',
-    landingSubtitle: 'Pretvori svoje fotografije u diterovane postere. Preuzmi fajlove spremne za štampu u bilo kojoj veličini.',
+    landingSubtitle: 'Tvoji ljudi, mesta i datumi, u stilu klasičnog filmskog postera. Preuzmi u bilo kojoj veličini.',
     create: 'Kreiraj',
     orders: 'Porudžbine',
     seeExamples: 'Pogledaj primere',
@@ -214,7 +214,7 @@ const translations = {
     pricingShipping: 'Dostava',
     pricingFreeShipping: 'Besplatna preko {amount} din',
     pricingDin: 'din',
-    finalCtaTitle: 'Tvoja fotografija želi da bude poster.',
+    finalCtaTitle: 'Tvoja priča. Sada na repertoaru.',
     pricingDigitalTitle: 'Jedna cena. Sve veličine.',
     pricingDigitalText: 'Platiš dizajn jednom i preuzmeš ga u svih {count} veličina, od 13×18 cm do 70×100 cm. Odštampaj gde god želiš.',
     pricingPerDesign: 'din po dizajnu',
