@@ -9,21 +9,22 @@ interface LayoutControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
     imageDimensions: { width: number; height: number } | null;
+    advanced?: boolean;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
-            <label className="text-xs text-neutral-500 block">{label}</label>
+            <label className="text-xs text-ink-faint block">{label}</label>
             {children}
         </div>
     );
 }
 
 const segBtn = (active: boolean) =>
-    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`;
+    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
-export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange }) => {
+export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange, advanced = false }) => {
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
     const { t } = useT();
 
@@ -80,7 +81,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            <SectionCard title={t('sectionLayoutOrder')}>
+            {advanced && <SectionCard title={t('sectionLayoutOrder')}>
                 <div className="space-y-1.5">
                     {p.layoutOrder.filter(s => s !== 'icons').map((section, index) => (
                         <div
@@ -89,11 +90,11 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                             onDragStart={e => handleDragStart(e, index)}
                             onDragOver={e => handleDragOver(e, index)}
                             onDragEnd={handleDragEnd}
-                            className={`flex items-center gap-2 px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg group cursor-move transition-opacity ${draggedItem === index ? 'opacity-40' : ''}`}
+                            className={`flex items-center gap-2 px-3 py-2 bg-surface border border-line rounded-lg group cursor-move transition-opacity ${draggedItem === index ? 'opacity-40' : ''}`}
                         >
-                            <GripVertical className="w-3.5 h-3.5 text-neutral-600 group-hover:text-neutral-400 flex-shrink-0" />
-                            <span className="flex-1 text-xs text-neutral-300">{getSectionLabel(section)}</span>
-                            <button onClick={() => toggleSection(section)} className="text-neutral-500 hover:text-white transition-colors">
+                            <GripVertical className="w-3.5 h-3.5 text-ink-faint/70 group-hover:text-ink-soft flex-shrink-0" />
+                            <span className="flex-1 text-xs text-ink">{getSectionLabel(section)}</span>
+                            <button onClick={() => toggleSection(section)} className="text-ink-faint hover:text-ink transition-colors">
                                 {isSectionEnabled(section) ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                             </button>
                         </div>
@@ -102,18 +103,18 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 <div className="grid grid-cols-2 gap-2">
                     <button
                         onClick={() => set({ layoutOrder: [...p.layoutOrder].sort(() => Math.random() - 0.5) })}
-                        className="py-2 bg-neutral-800 text-neutral-300 text-xs rounded-lg hover:bg-neutral-700 hover:text-white transition-colors flex items-center justify-center gap-1.5"
+                        className="py-2 bg-ink/5 text-ink text-xs rounded-lg hover:bg-ink/10 transition-colors flex items-center justify-center gap-1.5"
                     >
                         🎲 {t('btnShuffle')}
                     </button>
                     <button
                         onClick={() => set({ layoutOrder: ['header', 'image', 'title', 'list', 'footer'] })}
-                        className="py-2 rounded-lg border border-neutral-700 text-neutral-500 hover:border-neutral-500 hover:text-white transition-colors text-xs"
+                        className="py-2 rounded-lg border border-line text-ink-faint hover:border-ink/40 hover:text-ink transition-colors text-xs"
                     >
                         {t('btnReset')}
                     </button>
                 </div>
-            </SectionCard>
+            </SectionCard>}
 
             <SectionCard title={t('sectionPosterSize')}>
                 <Field label={t('fieldFormat')}>
@@ -126,7 +127,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                                         const baseDims = getPosterDimensions(options, options.poster.aspectRatio || 'A4', options.poster.resolution || 'high');
                                         set({ aspectRatio: size, customDimensions: { width: baseDims.width, height: baseDims.height, keepRatio: true } });
                                     }}
-                                    className={`py-2 rounded-lg border transition-colors flex flex-col items-center text-[9px] uppercase ${p.aspectRatio === size ? 'bg-white text-black border-transparent font-bold' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}
+                                    className={`py-2 rounded-lg border transition-colors flex flex-col items-center text-[9px] uppercase ${p.aspectRatio === size ? 'bg-ink text-paper border-transparent font-bold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}
                                 >
                                     <span>{size}</span>
                                     <span className="opacity-60 mt-0.5">{cmLabels[size]}</span>
@@ -142,7 +143,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['S', 'M', 'L'] as const).map(size => (
                             <button key={size} onClick={() => set({ paddingSize: size })}
-                                className={`py-1.5 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                className={`py-1.5 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {size}
                             </button>
                         ))}
@@ -156,17 +157,17 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         ))}
                         <input type="number" value={p.gap}
                             onChange={e => set({ gap: parseInt(e.target.value) || 0 })}
-                            className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
+                            className="w-12 py-1.5 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
                     </div>
                 </Field>
             </SectionCard>
 
-            <SectionCard title={t('sectionImage')}>
+            {advanced && <SectionCard title={t('sectionImage')}>
                 <Field label={t('fieldImagePadding')}>
                     <div className="grid grid-cols-2 gap-1.5">
                         {(['none', 'same-as-poster'] as const).map(v => (
                             <button key={v} onClick={() => set({ imagePadding: v })}
-                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {v === 'none' ? 'None' : 'Same'}
                             </button>
                         ))}
@@ -177,7 +178,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['fit', 'fill', 'original'] as const).map(v => (
                             <button key={v} onClick={() => set({ imageScale: v })}
-                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {v}
                             </button>
                         ))}
@@ -189,7 +190,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="grid grid-cols-3 gap-1">
                             {(['left', 'center', 'right'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignX: v })}
-                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignX === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignX === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                     {v.charAt(0)}
                                 </button>
                             ))}
@@ -199,14 +200,14 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="grid grid-cols-3 gap-1">
                             {(['top', 'center', 'bottom'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignY: v })}
-                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignY === v ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`}>
+                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignY === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                     {v.charAt(0)}
                                 </button>
                             ))}
                         </div>
                     </Field>
                 </div>
-            </SectionCard>
+            </SectionCard>}
         </div>
     );
 };

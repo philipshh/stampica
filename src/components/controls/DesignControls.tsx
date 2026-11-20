@@ -7,23 +7,24 @@ import { useT } from '../../contexts/LanguageContext';
 interface DesignControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
+    advanced?: boolean;
 }
 
 function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
-            <label className="text-xs text-neutral-500 block">{label}</label>
+            <label className="text-xs text-ink-faint block">{label}</label>
             {children}
         </div>
     );
 }
 
-const inputClass = "w-full bg-neutral-800 border border-neutral-700 text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-neutral-500 transition-colors";
+const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 transition-colors";
 
 const sizeBtn = (active: boolean) =>
-    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-white text-black border-transparent' : 'border-neutral-700 text-neutral-500 hover:border-neutral-500'}`;
+    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
-export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
+export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange, advanced = false }) => {
     const { t } = useT();
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
@@ -43,7 +44,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         <div className="flex gap-1">
                             {(['left', 'center', 'right'] as const).map(align => (
                                 <button key={align} onClick={() => set({ titleAlignment: align })}
-                                    className={`p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-white bg-neutral-700' : 'text-neutral-600 hover:text-neutral-300'}`}>
+                                    className={`p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
                                     {align === 'left' && <AlignLeft className="w-3 h-3" />}
                                     {align === 'center' && <AlignCenter className="w-3 h-3" />}
                                     {align === 'right' && <AlignRight className="w-3 h-3" />}
@@ -58,7 +59,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <button key={size} onClick={() => set({ titleFontSize: size })} className={sizeBtn(p.titleFontSize === size)}>{size}</button>
                         ))}
                         <input type="number" value={p.titleFontSize} onChange={e => set({ titleFontSize: parseInt(e.target.value) || 48 })}
-                            className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
+                            className="w-12 py-1.5 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
                     </div>
                 </Field>
 
@@ -70,7 +71,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <button key={size} onClick={() => set({ subtitleFontSize: size })} className={sizeBtn(p.subtitleFontSize === size)}>{size}</button>
                         ))}
                         <input type="number" value={p.subtitleFontSize} onChange={e => set({ subtitleFontSize: parseInt(e.target.value) || 16 })}
-                            className="w-12 py-1.5 bg-neutral-800 border border-neutral-700 text-white text-[10px] text-center focus:outline-none focus:border-neutral-500 rounded-lg" />
+                            className="w-12 py-1.5 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
                     </div>
                 </Field>
 
@@ -91,16 +92,16 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                 </Field>
             </SectionCard>
 
-            <SectionCard title={t('sectionCastCredits')}>
+            {advanced && <SectionCard title={t('sectionCastCredits')}>
                 <Field label={
                     <span className="flex items-center justify-between">
                         <span>{t('fieldListItems')}</span>
                         <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 bg-neutral-800 rounded-lg border border-neutral-700 px-1.5 h-6">
-                                <span className="text-[9px] text-neutral-500 uppercase">Cols</span>
+                            <div className="flex items-center gap-1 bg-surface rounded-lg border border-line px-1.5 h-6">
+                                <span className="text-[9px] text-ink-faint uppercase">Cols</span>
                                 <select value={p.listSection.columns || 1}
                                     onChange={e => set({ listSection: { ...p.listSection, columns: Number(e.target.value) as 1 | 2 | 3 | 4 } })}
-                                    className="bg-transparent text-white text-[10px] focus:outline-none appearance-none cursor-pointer w-4 text-center">
+                                    className="bg-transparent text-ink text-[10px] focus:outline-none appearance-none cursor-pointer w-4 text-center">
                                     <option value={1}>1</option>
                                     <option value={2}>2</option>
                                     <option value={3}>3</option>
@@ -110,7 +111,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <div className="flex gap-1">
                                 {(['left', 'center', 'right'] as const).map(align => (
                                     <button key={align} onClick={() => set({ listSection: { ...p.listSection, alignment: align } })}
-                                        className={`p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-white bg-neutral-700' : 'text-neutral-600 hover:text-neutral-300'}`}>
+                                        className={`p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
                                         {align === 'left' && <AlignLeft className="w-3 h-3" />}
                                         {align === 'center' && <AlignCenter className="w-3 h-3" />}
                                         {align === 'right' && <AlignRight className="w-3 h-3" />}
@@ -128,7 +129,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         className={`${inputClass} resize-none font-mono`}
                     />
                 </Field>
-            </SectionCard>
+            </SectionCard>}
         </div>
     );
 };

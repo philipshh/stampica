@@ -74,18 +74,18 @@ const Thumb: React.FC<{
     return (
         <button
             onClick={onClick}
-            className={`relative rounded-lg overflow-hidden border transition-all aspect-square bg-neutral-900 group ${
-                active ? 'border-white ring-1 ring-white' : 'border-neutral-800 hover:border-neutral-500'
+            className={`relative rounded-lg overflow-hidden border transition-all aspect-square bg-white group ${
+                active ? 'border-vermilion ring-1 ring-vermilion' : 'border-line hover:border-ink/40'
             }`}
             title={label}
         >
             {imageData ? (
                 <canvas ref={canvasRef} className="w-full h-full block" style={{ imageRendering: 'pixelated' }} />
             ) : (
-                <div className="w-full h-full animate-pulse bg-neutral-800" />
+                <div className="w-full h-full animate-pulse bg-line/60" />
             )}
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent pt-3 pb-0.5 px-1 pointer-events-none">
-                <span className={`block text-center text-[8px] uppercase tracking-wider truncate ${active ? 'text-white font-bold' : 'text-neutral-300'}`}>
+                <span className={`block text-center text-[8px] uppercase tracking-wider truncate ${active ? 'text-white font-bold' : 'text-white/90'}`}>
                     {label}
                 </span>
             </div>
@@ -160,7 +160,7 @@ export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptio
         <div className="space-y-2">
             {categories.map((cat) => (
                 <div key={cat}>
-                    <div className="text-[9px] uppercase tracking-widest text-neutral-600 mb-1.5 select-none">
+                    <div className="text-[9px] uppercase tracking-widest text-ink-faint mb-1.5 select-none">
                         {CATEGORY_LABELS[cat]}
                     </div>
                     <div className="grid grid-cols-3 gap-1.5">

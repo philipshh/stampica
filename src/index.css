@@ -133,3 +133,10 @@ input[type=range]::-webkit-slider-runnable-track {
 input[type=range]:focus {
   outline: none;
 }
+/* Editor workspace grid paper */
+.workspace-grid {
+  background-image:
+    linear-gradient(#E5DFD0 1px, transparent 1px),
+    linear-gradient(90deg, #E5DFD0 1px, transparent 1px);
+  background-size: 28px 28px;
+}

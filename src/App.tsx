@@ -403,10 +403,6 @@ function App() {
     }
     fitWidth = Math.max(50, Math.round(fitWidth));
 
-    const BASE_BORDER = 16;
-    const fitBorder = Math.max(2, Math.round(BASE_BORDER * fitWidth / 700));
-    const zoomBorder = typeof zoom === 'number' ? Math.max(2, Math.round(BASE_BORDER * zoom)) : fitBorder;
-
     const posterFrameBase: React.CSSProperties = {
         aspectRatio: aspectRatioValue,
         boxSizing: 'border-box',
@@ -414,6 +410,9 @@ function App() {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
+        boxShadow: '0 24px 60px rgba(40, 30, 10, 0.28), 0 2px 8px rgba(40, 30, 10, 0.12)',
+        border: '1px solid #E0DACC',
+        background: '#fff',
     };
 
     async function handleOrderPoster() {
@@ -436,37 +435,37 @@ function App() {
     }
 
     return (
-        <div className="flex w-full flex-1 bg-black text-white overflow-hidden font-sans md:flex-row flex-col">
+        <div className="flex w-full flex-1 bg-paper text-ink overflow-hidden font-sans md:flex-row flex-col">
 
         {/* Add-to-cart modal */}
         {showCartModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
+                <div className="bg-surface border border-line rounded-2xl p-6 max-w-sm w-full shadow-2xl">
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                                <ShoppingCart size={18} className="text-white" />
+                            <div className="w-10 h-10 rounded-xl bg-ink/5 flex items-center justify-center flex-shrink-0">
+                                <ShoppingCart size={18} className="text-ink" />
                             </div>
                             <div>
-                                <p className="font-semibold text-white text-sm">{t('addedToCart')}</p>
-                                <p className="text-xs text-neutral-400 mt-0.5">{t('addedToCartDesc')}</p>
+                                <p className="font-semibold text-ink text-sm">{t('addedToCart')}</p>
+                                <p className="text-xs text-ink-soft mt-0.5">{t('addedToCartDesc')}</p>
                             </div>
                         </div>
-                        <button onClick={() => setShowCartModal(false)} className="text-neutral-600 hover:text-white transition-colors ml-2 flex-shrink-0">
+                        <button onClick={() => setShowCartModal(false)} className="text-ink-faint hover:text-ink transition-colors ml-2 flex-shrink-0">
                             <X size={16} />
                         </button>
                     </div>
                     <div className="flex gap-2">
                         <button
                             onClick={() => setShowCartModal(false)}
-                            className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-sm text-neutral-300 hover:text-white hover:border-neutral-500 transition-colors"
+                            className="flex-1 py-2.5 rounded-full border border-line text-sm text-ink-soft hover:text-ink hover:border-ink/40 transition-colors"
                         >
                             {t('continuecreating')}
                         </button>
                         <Link
                             to="/cart"
                             onClick={() => setShowCartModal(false)}
-                            className="flex-1 py-2.5 rounded-xl bg-white text-black text-sm font-semibold text-center hover:bg-neutral-100 transition-colors"
+                            className="flex-1 py-2.5 rounded-full bg-ink text-paper text-sm font-semibold text-center hover:bg-black transition-colors"
                         >
                             {t('goToCart')}
                         </Link>
@@ -475,7 +474,7 @@ function App() {
             </div>
         )}
             {/* Sidebar — hidden on mobile, fixed width on desktop */}
-            <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 border-r border-neutral-800 bg-black md:flex-col">
+            <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 bg-paper md:flex-col">
                 <Controls
                     options={options}
                     onOptionsChange={setOptions}
@@ -492,37 +491,37 @@ function App() {
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 flex flex-col relative min-w-0 bg-[#D0D0D0] overflow-hidden">
+            <main className="flex-1 flex flex-col relative min-w-0 bg-canvas workspace-grid overflow-hidden">
                 {/* Canvas area */}
                 <div ref={canvasWrapperRef} className="flex-1 min-h-0 relative overflow-hidden">
 
                     {/* Floating zoom controls — top left */}
-                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-black/75 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg select-none">
+                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1 bg-surface border border-line rounded-full px-2 py-1.5 shadow-card select-none">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom === 'fit' || zoom <= 0.25}
-                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 disabled:opacity-30 text-sm font-bold text-white transition-colors cursor-pointer disabled:cursor-default"
+                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-line/50 disabled:opacity-30 text-sm font-bold text-ink transition-colors cursor-pointer disabled:cursor-default"
                             title="Zoom out"
                         >
                             −
                         </button>
-                        <span className="text-xs font-medium min-w-[36px] text-center tabular-nums text-white">
+                        <span className="text-xs font-medium min-w-[36px] text-center tabular-nums text-ink">
                             {zoom === 'fit' ? 'Fit' : `${Math.round((zoom as number) * 100)}%`}
                         </span>
                         <button
                             onClick={handleZoomIn}
                             disabled={typeof zoom === 'number' && zoom >= 3}
-                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10 disabled:opacity-30 text-sm font-bold text-white transition-colors cursor-pointer disabled:cursor-default"
+                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-line/50 disabled:opacity-30 text-sm font-bold text-ink transition-colors cursor-pointer disabled:cursor-default"
                             title="Zoom in"
                         >
                             +
                         </button>
                         {zoom !== 'fit' && (
                             <>
-                                <div className="w-px h-3 bg-white/20 mx-0.5" />
+                                <div className="w-px h-3 bg-line mx-0.5" />
                                 <button
                                     onClick={() => setZoom('fit')}
-                                    className="text-xs font-medium px-2 py-0.5 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                                    className="text-xs font-medium px-2 py-0.5 rounded-full text-ink-soft hover:text-ink hover:bg-line/50 transition-colors cursor-pointer"
                                     title="Fit to screen"
                                 >
                                     Fit
@@ -534,7 +533,7 @@ function App() {
                     {/* Floating refresh — bottom right */}
                     <button
                         onClick={() => setRefreshKey(k => k + 1)}
-                        className="absolute bottom-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/75 backdrop-blur-sm text-white hover:bg-black/90 transition-colors shadow-lg cursor-pointer text-sm"
+                        className="absolute bottom-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-line text-ink hover:bg-line/40 transition-colors shadow-card cursor-pointer text-sm"
                         title="Refresh preview"
                     >
                         ↺
@@ -543,15 +542,15 @@ function App() {
                     {/* Stable wrapper — measured for accurate fit calculation */}
                     <div ref={innerCanvasRef} className="w-full h-full">
                         {zoom === 'fit' ? (
-                            <div className="w-full h-full bg-[#D0D0D0] p-4 md:p-8 flex items-center justify-center overflow-hidden">
-                                <div style={{ ...posterFrameBase, width: `${fitWidth}px`, border: `${fitBorder}px solid black` }}>
+                            <div className="w-full h-full p-4 md:p-8 flex items-center justify-center overflow-hidden">
+                                <div style={{ ...posterFrameBase, width: `${fitWidth}px` }}>
                                     {posterContent}
                                 </div>
                             </div>
                         ) : (
-                            <div className="w-full h-full bg-[#D0D0D0] overflow-auto p-4 md:p-8">
+                            <div className="w-full h-full overflow-auto p-4 md:p-8">
                                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100%', minWidth: 'max-content' }}>
-                                    <div style={{ ...posterFrameBase, width: `${700 * (zoom as number)}px`, border: `${zoomBorder}px solid black`, flexShrink: 0 }}>
+                                    <div style={{ ...posterFrameBase, width: `${700 * (zoom as number)}px`, flexShrink: 0 }}>
                                         {posterContent}
                                     </div>
                                 </div>
@@ -561,7 +560,7 @@ function App() {
                 </div>
 
                 {/* Mobile controls — flex-1 so it takes equal space as canvas on mobile, hidden on desktop */}
-                <div className="flex-1 min-h-0 flex md:hidden bg-black border-t border-neutral-800 overflow-hidden">
+                <div className="flex-1 min-h-0 flex md:hidden bg-paper border-t border-line overflow-hidden">
                     <Controls
                         options={options}
                         onOptionsChange={setOptions}

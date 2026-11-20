@@ -20,19 +20,19 @@ export function SectionCard({ title, children, defaultOpen = true, spacing = 'md
     localStorage.setItem(storageKey, String(next));
   }
   return (
-    <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
+    <div className="bg-surface rounded-xl border border-line overflow-hidden">
       <button
         onClick={toggle}
-        className="w-full flex items-center justify-between px-4 py-3 border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-line/30 transition-colors"
       >
-        <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">{title}</h3>
+        <h3 className="text-[10px] font-semibold text-ink-faint uppercase tracking-[0.14em]">{title}</h3>
         <ChevronDown
           size={13}
-          className={`text-neutral-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`text-ink-faint transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
       {open && (
-        <div className={`p-4 ${spacing === 'sm' ? 'space-y-3' : 'space-y-4'}`}>
+        <div className={`px-4 pb-4 ${spacing === 'sm' ? 'space-y-3' : 'space-y-4'}`}>
           {children}
         </div>
       )}

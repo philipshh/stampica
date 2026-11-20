@@ -32,6 +32,7 @@ const translations = {
     finalCtaTitle: 'Your photo wants to be a poster.',
 
     // Controls / Editor sidebar
+    advancedControls: 'Advanced controls',
     order: 'Order',
     addToCart: 'Add to cart',
     viewCart: 'View cart',
@@ -203,6 +204,7 @@ const translations = {
     finalCtaTitle: 'Tvoja fotografija želi da bude poster.',
 
     // Controls / Editor sidebar
+    advancedControls: 'Napredne opcije',
     order: 'Naruči',
     addToCart: 'Dodaj u korpu',
     viewCart: 'Pogledaj korpu',
