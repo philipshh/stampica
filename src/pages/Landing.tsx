@@ -198,7 +198,7 @@ export function Landing() {
           {t('howItWorksTitle')}
         </h2>
         <div className="mb-16 md:mb-20">
-          <HowItWorksVideo title={t('howItWorksTitle')} soundOnLabel={t('videoSoundOn')} soundOffLabel={t('videoSoundOff')} />
+          <HowItWorksVideo title={t('howItWorksTitle')} playLabel={t('videoPlay')} pauseLabel={t('videoPause')} />
         </div>
         <div className="grid md:grid-cols-3 gap-12 md:gap-10">
           {steps.map((step, i) => (
@@ -249,16 +249,19 @@ export function Landing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-12">
+          <div className="no-scrollbar flex sm:grid sm:grid-cols-3 gap-x-8 sm:gap-y-12 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 -mx-6 px-6 sm:mx-0 sm:px-0 pb-2">
             {SIZE_FAMILIES.map(family => {
               const sizes = sizesInFamily(family.id);
               const ratio = sizes[0].widthMm / sizes[0].heightMm;
               return (
-                <div key={family.id} className="flex flex-col">
-                  <div className="h-28 flex items-end mb-7">
+                <div key={family.id} className="flex flex-col shrink-0 w-[46%] sm:w-auto snap-start">
+                  <div className="h-36 flex items-end mb-7">
                     <div className="relative h-full" style={{ aspectRatio: `${ratio}` }}>
-                      <div className="absolute inset-0 bg-white border border-ink/20 shadow-card flex items-center justify-center">
-                        <span className="font-display font-bold text-sm text-ink-soft tracking-tight whitespace-nowrap">{family.ratio}</span>
+                      <div className="absolute inset-0 bg-white border border-ink/20 shadow-card flex flex-col items-center justify-center text-center px-1">
+                        <span className="font-display font-extrabold text-base leading-tight tracking-[-0.01em]">{family.label}</span>
+                        {family.label !== family.ratio.replace(/ /g, '') && (
+                          <span className="mt-0.5 text-[11px] text-ink-faint whitespace-nowrap">{family.ratio}</span>
+                        )}
                       </div>
                       {/* Dimension lines, like a technical drawing */}
                       <div className="absolute inset-x-0 -bottom-4 h-2 border-x border-ink/40" aria-hidden="true">
@@ -269,8 +272,7 @@ export function Landing() {
                       </div>
                     </div>
                   </div>
-                  <p className="font-display font-bold text-lg tracking-[-0.01em]">{family.label}</p>
-                  <ul className="mt-1 text-sm text-ink-soft leading-relaxed">
+                  <ul className="text-sm text-ink-soft leading-relaxed">
                     {sizes.map(sz => <li key={sz.id} className="whitespace-nowrap">{sz.label}</li>)}
                   </ul>
                 </div>

@@ -157,3 +157,7 @@ input[type=range]:focus {
   .poster-lift, .press { transition: none; }
   .poster-lift:hover { transform: none; }
 }
+
+/* Horizontal carousels: swipeable without a visible scrollbar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
