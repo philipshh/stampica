@@ -45,22 +45,6 @@ export const EFFECTS: EffectInfo[] = [
 ];
 export type AspectRatio = 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | '18x24' | '24x36' | '27x40' | 'custom';
 
-export type ProductType = 'poster' | 'tshirt' | 'tote' | 'cap';
-
-export interface ProductConfig {
-    id: ProductType;
-    name: string;
-    printAreaAspect: number;
-    mockupImagePath?: string;
-    availableSizes: string[];
-}
-
-export const PRODUCT_CONFIGS: Record<ProductType, ProductConfig> = {
-    poster: { id: 'poster', name: 'Poster', printAreaAspect: 1 / Math.SQRT2, availableSizes: ['A5', 'A4', 'A3'] },
-    tshirt: { id: 'tshirt', name: 'T-Shirt', printAreaAspect: 1, availableSizes: ['S', 'M', 'L', 'XL'] },
-    tote:   { id: 'tote', name: 'Tote Bag', printAreaAspect: 1, availableSizes: ['One Size'] },
-    cap:    { id: 'cap', name: 'Cap', printAreaAspect: 2, availableSizes: ['One Size'] },
-};
 export type PaddingSize = 'S' | 'M' | 'L';
 export type ImagePadding = 'none' | 'same-as-poster';
 export type LayoutOrder = string[]; // e.g. ['header', 'title', 'image', 'list', 'footer']
@@ -131,7 +115,6 @@ export interface GridSettings {
 export interface DitherOptions {
     algorithm: DitherAlgorithm;
     threshold: number;
-    omdbApiKey?: string;
     palette: [number, number, number][];
     brightness: number; // -100 to 100
     contrast: number;   // -100 to 100
@@ -143,21 +126,7 @@ export interface DitherOptions {
     colorPipeline: 'default' | 'smooth' | 'linear';
     invert: boolean;
     colorMode: 'monochrome' | 'duotone' | 'tritone' | 'quadtone' | 'rgb';
-    // Engine selection: 'classic' uses the classic pipeline, 'dg' uses the built-in dither engine
-    engine?: 'classic' | 'dg';
     selectedThemeName?: string;
-    // Accent color for DG engine (mask-based from original image)
-    accent?: {
-        enabled: boolean;
-        color: { r: number; g: number; b: number };
-        detectHex: string;  // target color for detection, default '#ff0000'
-        hueTolerance: number; // 0..180, default 18
-        minSaturation: number; // 0..1, default 0.35
-        minValue: number; // 0..1, default 0.20
-        edgeBoost: boolean; // default true
-        edgeThreshold: number; // default 22
-        strength: number; // 0..1, default 1
-    };
     // Custom colors for each mode
     monochromeColors: { dark: string; light: string };
     duotoneColors: { color1: string; color2: string };
@@ -166,7 +135,6 @@ export interface DitherOptions {
     paperTexture: PaperTexture;
     paperTextureOpacity: number; // 0 to 100
     theme: Theme;
-    designMode: 'poster' | 'tshirt';
     imageMode: ImageMode;
     grid: GridSettings;
     poster: {

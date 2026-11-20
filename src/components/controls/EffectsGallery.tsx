@@ -115,7 +115,6 @@ export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptio
         options.invert,
         options.threshold,
         options.colorPipeline,
-        options.engine,
     ]);
 
     useEffect(() => {
@@ -140,7 +139,6 @@ export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptio
                     ...options,
                     algorithm: effect.id,
                     pointSize: 1,
-                    accent: options.accent ? { ...options.accent, enabled: false } : undefined,
                 };
                 worker.postMessage({ imageData: source, options: thumbOptions, jobId: effect.id });
             }

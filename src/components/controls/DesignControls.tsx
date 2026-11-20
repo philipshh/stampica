@@ -25,8 +25,6 @@ const sizeBtn = (active: boolean) =>
 
 export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
     const { t } = useT();
-    if (options.designMode !== 'poster') return null;
-
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
 

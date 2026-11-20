@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stampica Redesign Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Archivo:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page-bg:#101012; --page-fg:#e8e6e1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--page-bg);color:var(--page-fg);font-family:Inter,system-ui,sans-serif;padding:48px 24px 120px;}
+  .wrap{max-width:1040px;margin:0 auto}
+  h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+  .sub{color:#9a978f;font-size:14px;margin-bottom:56px;max-width:640px;line-height:1.6}
+  .option{margin-bottom:88px}
+  .opt-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .opt-head .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:#8a877f;text-transform:uppercase}
+  .opt-head h2{font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .opt-desc{color:#9a978f;font-size:13.5px;line-height:1.65;max-width:720px;margin-bottom:22px}
+  .frames{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:860px){.frames{grid-template-columns:1fr}}
+  .frame{border-radius:14px;overflow:hidden;border:1px solid #26262a;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .frame .bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:#1b1b1f;border-bottom:1px solid #26262a}
+  .frame .bar i{width:9px;height:9px;border-radius:50%;background:#3a3a40;display:block}
+  .frame .bar span{margin-left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#77747c}
+  .mock{height:390px;position:relative;overflow:hidden}
+
+  /* ───────────── OPTION A: PAPER STUDIO ───────────── */
+  .a-home{background:#f5f1e8;color:#161513;display:flex;flex-direction:column}
+  .a-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 26px;border-bottom:1px solid #e0dacc}
+  .a-logo{font-family:Fraunces,serif;font-weight:900;font-size:17px;letter-spacing:-.02em}
+  .a-nav .links{display:flex;gap:18px;font-size:10.5px;color:#6d675a;text-transform:uppercase;letter-spacing:.1em}
+  .a-hero{flex:1;display:grid;grid-template-columns:1.15fr 1fr;align-items:center;padding:10px 26px 0}
+  .a-hero h3{font-family:Fraunces,serif;font-weight:600;font-size:34px;line-height:1.05;letter-spacing:-.02em}
+  .a-hero h3 em{font-style:italic;color:#e8491d}
+  .a-hero p{margin-top:12px;font-size:11.5px;color:#6d675a;line-height:1.6;max-width:240px}
+  .a-cta{display:inline-block;margin-top:18px;background:#161513;color:#f5f1e8;font-size:11px;font-weight:600;padding:10px 20px;border-radius:999px;letter-spacing:.04em}
+  .a-cta2{display:inline-block;margin-top:18px;margin-left:10px;font-size:11px;color:#161513;border-bottom:1px solid #161513;padding:10px 2px}
+  .a-posters{position:relative;height:100%;min-height:270px}
+  .a-poster{position:absolute;width:118px;aspect-ratio:1/1.414;background:#fff;box-shadow:0 14px 30px rgba(40,30,10,.22);border:1px solid #e6e0d2}
+  .a-poster .img{position:absolute;inset:9px 9px 34px;background-image:radial-gradient(circle at 30% 25%,#e8491d 0 1.3px,transparent 1.4px),radial-gradient(circle at 70% 75%,#161513 0 1.1px,transparent 1.2px);background-size:7px 7px,5px 5px;background-color:#f1e9d8}
+  .a-poster .cap{position:absolute;bottom:9px;left:9px;right:9px;font-family:Fraunces,serif;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#161513}
+  .a-tape{position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(-2deg);width:44px;height:14px;background:rgba(232,73,29,.25)}
+  .a-editor{background:#efeadf;color:#161513;display:flex}
+  .a-canvas{flex:1;display:flex;align-items:center;justify-content:center;background:
+    linear-gradient(#e5dfd0 1px,transparent 1px),linear-gradient(90deg,#e5dfd0 1px,transparent 1px);background-size:26px 26px;background-color:#efeadf}
+  .a-canvas .sheet{width:150px;aspect-ratio:1/1.414;background:#fff;box-shadow:0 18px 40px rgba(40,30,10,.25)}
+  .a-canvas .sheet .img{margin:10px 10px 0;height:64%;background-image:radial-gradient(circle,#161513 0 1.2px,transparent 1.3px);background-size:5px 5px;background-color:#e8491d}
+  .a-canvas .sheet .t{margin:8px 10px 0;font-family:Fraunces,serif;font-weight:900;font-size:13px}
+  .a-panel{width:208px;background:#faf7f0;border-left:1px solid #e0dacc;padding:14px;display:flex;flex-direction:column;gap:12px}
+  .a-panel .lbl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#8d8574}
+  .a-swatches{display:flex;gap:6px}
+  .a-swatches i{width:22px;height:22px;border-radius:50%;display:block;border:1.5px solid #fff;box-shadow:0 0 0 1px #d8d2c2}
+  .a-effects{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .a-effects i{aspect-ratio:1;border-radius:6px;display:block;background-image:radial-gradient(circle,#161513 0 1px,transparent 1.1px);background-size:4px 4px;background-color:#efe7d4;border:1px solid #ddd6c5}
+  .a-effects i.on{outline:2px solid #e8491d;outline-offset:1px}
+  .a-adv{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#8d8574;border-top:1px solid #e4ddcc;padding-top:10px}
+  .a-adv .sw{width:26px;height:15px;border-radius:999px;background:#ddd6c5;position:relative}
+  .a-adv .sw::after{content:'';position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#faf7f0}
+  .a-buy{background:#161513;color:#f5f1e8;text-align:center;font-size:10.5px;font-weight:600;border-radius:999px;padding:9px}
+
+  /* ───────────── OPTION B: DARKROOM ───────────── */
+  .b-home{background:#0c0c0e;color:#f0efec;display:flex;flex-direction:column;align-items:center;position:relative}
+  .b-glow{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:420px;height:300px;background:radial-gradient(ellipse,rgba(200,245,90,.14),transparent 65%)}
+  .b-nav{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;font-size:10.5px;color:#8c8c92}
+  .b-logo{font-weight:700;font-size:14px;color:#f0efec;letter-spacing:.02em}
+  .b-pill{border:1px solid #2c2c32;border-radius:999px;padding:6px 14px}
+  .b-home h3{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;letter-spacing:-.03em;text-align:center;margin-top:26px;position:relative;line-height:1.1}
+  .b-home h3 span{color:#c8f55a}
+  .b-home p{position:relative;margin-top:10px;font-size:11.5px;color:#8c8c92;text-align:center;max-width:300px;line-height:1.6}
+  .b-cta{position:relative;margin-top:18px;background:#c8f55a;color:#0c0c0e;font-size:11px;font-weight:700;padding:10px 22px;border-radius:10px}
+  .b-strip{position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);display:flex;gap:12px}
+  .b-strip .card{width:96px;aspect-ratio:1/1.414;border-radius:8px;overflow:hidden;border:1px solid #2c2c32;background-image:radial-gradient(circle,#c8f55a 0 1px,transparent 1.1px);background-size:5px 5px;background-color:#141417;box-shadow:0 16px 40px rgba(0,0,0,.6)}
+  .b-strip .card:nth-child(2){background-image:radial-gradient(circle,#f0efec 0 1.1px,transparent 1.2px);background-size:4px 4px;transform:translateY(-14px)}
+  .b-strip .card:nth-child(3){background-image:linear-gradient(45deg,#7c5cff 25%,transparent 25%,transparent 50%,#7c5cff 50%,#7c5cff 75%,transparent 75%);background-size:6px 6px}
+  .b-editor{background:#0c0c0e;display:flex;flex-direction:column}
+  .b-top{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #1d1d22;font-size:10px;color:#8c8c92}
+  .b-top .dl{background:#c8f55a;color:#0c0c0e;font-weight:700;border-radius:8px;padding:6px 14px}
+  .b-main{flex:1;display:flex;min-height:0}
+  .b-rail{width:46px;border-right:1px solid #1d1d22;display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:16px}
+  .b-rail i{width:20px;height:20px;border-radius:6px;background:#1d1d22;display:block}
+  .b-rail i.on{background:#c8f55a}
+  .b-stage{flex:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%,#151518,#0c0c0e 70%)}
+  .b-stage .sheet{width:132px;aspect-ratio:1/1.414;background:#17171a;border:1px solid #2c2c32;border-radius:3px;box-shadow:0 0 60px rgba(200,245,90,.1),0 24px 60px rgba(0,0,0,.7);background-image:radial-gradient(circle,#c8f55a 0 1.2px,transparent 1.3px);background-size:6px 6px}
+  .b-props{width:190px;border-left:1px solid #1d1d22;padding:14px;display:flex;flex-direction:column;gap:11px}
+  .b-props .lbl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#6e6e76}
+  .b-chip-row{display:flex;gap:5px}
+  .b-chip-row i{flex:1;height:20px;border-radius:6px;background:#1d1d22;display:block}
+  .b-chip-row i.on{background:#2e2e36;outline:1px solid #c8f55a}
+  .b-slider{height:3px;border-radius:99px;background:#1d1d22;position:relative}
+  .b-slider::after{content:'';position:absolute;left:60%;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#c8f55a}
+  .b-bottom{border-top:1px solid #1d1d22;display:flex;gap:8px;padding:10px 14px;overflow:hidden}
+  .b-bottom .fx{width:52px;flex-shrink:0;aspect-ratio:1;border-radius:8px;background-color:#141417;border:1px solid #26262c;background-image:radial-gradient(circle,#8c8c92 0 1px,transparent 1.1px);background-size:4px 4px;position:relative}
+  .b-bottom .fx.on{border-color:#c8f55a}
+  .b-bottom .fx span{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:6.5px;color:#b9b9bf;font-family:'JetBrains Mono',monospace;text-transform:uppercase}
+
+  /* ───────────── OPTION C: RISO POP ───────────── */
+  .c-home{background:#f3ecdf;color:#13120f;display:flex;flex-direction:column;overflow:hidden}
+  .c-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;border-bottom:2px solid #13120f;background:#f3ecdf;position:relative;z-index:2}
+  .c-logo{font-family:Archivo,sans-serif;font-weight:900;font-size:16px;letter-spacing:-.01em}
+  .c-nav .cta{background:#ff48b0;border:2px solid #13120f;border-radius:999px;font-size:10.5px;font-weight:900;padding:7px 14px;box-shadow:3px 3px 0 #13120f}
+  .c-hero{flex:1;position:relative;padding:24px 22px}
+  .c-hero h3{font-family:Archivo,sans-serif;font-weight:900;font-size:40px;line-height:.95;letter-spacing:-.03em;text-transform:uppercase;max-width:340px;position:relative;z-index:2}
+  .c-hero h3 .o1{color:#0078bf}
+  .c-hero h3 .o2{-webkit-text-stroke:1.6px #13120f;color:#f3ecdf}
+  .c-hero p{margin-top:12px;font-size:11px;max-width:230px;line-height:1.55;position:relative;z-index:2}
+  .c-card{position:absolute;width:112px;aspect-ratio:1/1.414;border:2px solid #13120f;box-shadow:5px 5px 0 #13120f;z-index:1}
+  .c-card.c1{right:140px;top:36px;transform:rotate(6deg);background-image:radial-gradient(circle,#0078bf 0 1.4px,transparent 1.5px);background-size:6px 6px;background-color:#f3ecdf}
+  .c-card.c2{right:36px;top:88px;transform:rotate(-5deg);background-image:radial-gradient(circle,#13120f 0 1.2px,transparent 1.3px);background-size:5px 5px;background-color:#ff48b0}
+  .c-badge{position:absolute;right:120px;top:12px;z-index:3;background:#ffd900;border:2px solid #13120f;border-radius:999px;font-family:Archivo;font-weight:900;font-size:9px;padding:6px 10px;transform:rotate(-8deg);box-shadow:3px 3px 0 #13120f}
+  .c-marquee{border-top:2px solid #13120f;background:#0078bf;color:#f3ecdf;font-family:Archivo;font-weight:900;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 0;white-space:nowrap;overflow:hidden}
+  .c-editor{background:#f3ecdf;display:flex}
+  .c-stage{flex:1;display:flex;align-items:center;justify-content:center;background-image:radial-gradient(circle,#d9d0ba 0 1px,transparent 1.1px);background-size:14px 14px}
+  .c-stage .sheet{width:144px;aspect-ratio:1/1.414;background:#fff;border:2px solid #13120f;box-shadow:6px 6px 0 #13120f}
+  .c-stage .sheet .img{margin:9px;height:66%;background-image:radial-gradient(circle,#ff48b0 0 1.4px,transparent 1.5px);background-size:6px 6px;background-color:#0078bf}
+  .c-stage .sheet .t{margin:4px 9px 0;font-family:Archivo;font-weight:900;font-size:12px;text-transform:uppercase}
+  .c-panel{width:200px;border-left:2px solid #13120f;background:#fff;padding:13px;display:flex;flex-direction:column;gap:11px}
+  .c-panel .lbl{font-family:Archivo;font-weight:900;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+  .c-fx{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .c-fx i{aspect-ratio:1;display:block;border:1.5px solid #13120f;background-image:radial-gradient(circle,#13120f 0 1px,transparent 1.1px);background-size:4px 4px;background-color:#f3ecdf}
+  .c-fx i.on{background-color:#ffd900;box-shadow:2.5px 2.5px 0 #13120f}
+  .c-pal{display:flex;gap:6px}
+  .c-pal i{width:21px;height:21px;border-radius:50%;border:1.5px solid #13120f;display:block}
+  .c-buy{margin-top:auto;background:#ff48b0;border:2px solid #13120f;border-radius:10px;text-align:center;font-family:Archivo;font-weight:900;font-size:10.5px;padding:9px;box-shadow:3px 3px 0 #13120f}
+
+  .pros{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin-top:20px;font-size:12.5px;color:#aaa79e;line-height:1.55;max-width:760px}
+  .pros b{color:#e8e6e1;font-weight:600}
+  .divider{height:1px;background:#222226;margin:0 0 88px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Stampica — redesign directions</h1>
+  <p class="sub">Three directions for the homepage and the creation page. The logo stays in all of them. Each mock shows the home hero (left) and the editor (right) with the simplified control model: Effects → Palette → Size, with an Advanced toggle.</p>
+
+  <!-- OPTION A -->
+  <div class="option">
+    <div class="opt-head"><span class="tag">Option A</span><h2>Paper Studio</h2></div>
+    <p class="opt-desc">Warm paper-white, ink black, one vermillion accent, serif display (Fraunces). Feels like a real print shop: posters as physical objects with tape and shadows, grid-paper editor canvas. Light UI stands out among dither tools (they are all dark) and photographs beautifully for Instagram. Best fit for selling physical + digital prints as a boutique product.</p>
+    <div class="frames">
+      <div class="frame"><div class="bar"><i></i><i></i><i></i><span>stampica.app — home</span></div>
+        <div class="mock a-home">
+          <div class="a-nav"><span class="a-logo">Stampica</span><span class="links"><span>Create</span><span>Prices</span><span>Orders</span></span></div>
+          <div class="a-hero">
+            <div>
+              <h3>Your photo,<br>as a <em>printed</em><br>poster.</h3>
+              <p>Dither, halftone & riso effects. Download the file or get it printed and shipped.</p>
+              <span class="a-cta">Start creating</span><span class="a-cta2">See examples</span>
+            </div>
+            <div class="a-posters">
+              <div class="a-poster" style="left:8px;top:18px;transform:rotate(-4deg)"><div class="a-tape"></div><div class="img"></div><div class="cap">Halftone · A3</div></div>
+              <div class="a-poster" style="left:112px;top:64px;transform:rotate(3deg)"><div class="a-tape"></div><div class="img" style="background-image:radial-gradient(circle,#161513 0 1.4px,transparent 1.5px);background-size:6px 6px;background-color:#dcd2ba"></div><div class="cap">ASCII · A4</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame"><div class="bar"><i></i><i></i><i></i><span>stampica.app — create</span></div>
+        <div class="mock a-editor">
+          <div class="a-canvas"><div class="sheet"><div class="img"></div><div class="t">MONTENEGRO</div></div></div>
+          <div class="a-panel">
+            <div><div class="lbl" style="margin-bottom:7px">Effect</div>
+              <div class="a-effects"><i class="on"></i><i style="background-size:6px 6px"></i><i style="background-image:linear-gradient(0deg,#161513 1px,transparent 1px);background-size:100% 4px"></i><i style="background-size:3px 3px"></i><i style="background-image:linear-gradient(45deg,#161513 25%,transparent 25%);background-size:5px 5px"></i><i></i></div></div>
+            <div><div class="lbl" style="margin-bottom:7px">Palette</div>
+              <div class="a-swatches"><i style="background:#161513"></i><i style="background:#e8491d"></i><i style="background:#1d4ed8"></i><i style="background:#0f766e"></i><i style="background:#eab308"></i></div></div>
+            <div><div class="lbl" style="margin-bottom:7px">Size</div>
+              <div style="display:flex;gap:6px;font-size:10px"><span style="border:1px solid #161513;border-radius:8px;padding:5px 10px;background:#161513;color:#f5f1e8">A4</span><span style="border:1px solid #d8d2c2;border-radius:8px;padding:5px 10px">A3</span><span style="border:1px solid #d8d2c2;border-radius:8px;padding:5px 10px">A5</span></div></div>
+            <div class="a-adv"><span>Advanced controls</span><span class="sw"></span></div>
+            <div class="a-buy">Download · $3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros">
+      <div><b>Why it works:</b> distinct from every dark dither tool; print-shop credibility; cream/ink pairs with any poster colors without clashing.</div>
+      <div><b>Watch out:</b> biggest departure from the current dark UI; the editor canvas needs careful contrast so dark posters still pop.</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <!-- OPTION B -->
+  <div class="option">
+    <div class="opt-head"><span class="tag">Option B</span><h2>Darkroom</h2></div>
+    <p class="opt-desc">Keeps the dark identity but modernizes it: near-black with soft elevated surfaces, a single electric accent (lime shown; could be any), Space Grotesk headings, mono microcopy. The editor becomes a focused tool: thin icon rail, poster glowing center-stage, a Ladybug-style effect filmstrip along the bottom, and one compact properties panel. Lowest-risk evolution of what exists.</p>
+    <div class="frames">
+      <div class="frame"><div class="bar"><i></i><i></i><i></i><span>stampica.app — home</span></div>
+        <div class="mock b-home">
+          <div class="b-glow"></div>
+          <div class="b-nav"><span class="b-logo">Stampica</span><span class="b-pill">Sign in</span></div>
+          <h3>Turn photos into<br><span>printable art.</span></h3>
+          <p>16 dither & halftone effects. Export print-ready files or order a framed poster.</p>
+          <span class="b-cta">Open the studio</span>
+          <div class="b-strip"><div class="card"></div><div class="card"></div><div class="card"></div></div>
+        </div>
+      </div>
+      <div class="frame"><div class="bar"><i></i><i></i><i></i><span>stampica.app — create</span></div>
+        <div class="mock b-editor">
+          <div class="b-top"><span>untitled-poster.png</span><span class="dl">Download · $3</span></div>
+          <div class="b-main">
+            <div class="b-rail"><i class="on"></i><i></i><i></i><i></i></div>
+            <div class="b-stage"><div class="sheet"></div></div>
+            <div class="b-props">
+              <div class="lbl">Palette</div>
+              <div class="b-chip-row"><i class="on"></i><i></i><i></i><i></i></div>
+              <div class="lbl">Intensity</div>
+              <div class="b-slider"></div>
+              <div class="lbl">Size</div>
+              <div class="b-chip-row"><i></i><i class="on"></i><i></i></div>
+              <div class="lbl" style="margin-top:6px">Advanced ▸</div>
+            </div>
+          </div>
+          <div class="b-bottom">
+            <div class="fx on"><span>Halftone</span></div>
+            <div class="fx" style="background-size:3px 3px"><span>Atkinson</span></div>
+            <div class="fx" style="background-image:linear-gradient(0deg,#8c8c92 1px,transparent 1px);background-size:100% 4px"><span>Lines</span></div>
+            <div class="fx" style="background-size:5px 5px"><span>Bayer</span></div>
+            <div class="fx" style="background-image:linear-gradient(45deg,#8c8c92 25%,transparent 25%);background-size:5px 5px"><span>Diagonal</span></div>
+            <div class="fx"><span>ASCII</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros">
+      <div><b>Why it works:</b> evolution, not revolution — reuses the existing dark base; the filmstrip puts effects (your differentiator) in front; feels like a pro creative tool, which justifies paying for exports.</div>
+      <div><b>Watch out:</b> stays in the same visual family as Ladybug/dither tools; the accent color choice carries the whole identity.</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+
+  <!-- OPTION C -->
+  <div class="option">
+    <div class="opt-head"><span class="tag">Option C</span><h2>Riso Pop</h2></div>
+    <p class="opt-desc">Leans into the riso-print heritage of dithering: flat riso-ink colors (blue, fluorescent pink, yellow), chunky Archivo type, hard 2px borders and offset shadows, sticker badges, rotated cards. Loud, young, extremely shareable — the brand itself looks like the posters it makes. Editor keeps the same simple three-step panel but in the pop style.</p>
+    <div class="frames">
+      <div class="frame"><div class="bar"><i></i><i></i><i></i><span>stampica.app — home</span></div>
+        <div class="mock c-home">
+          <div class="c-nav"><span class="c-logo">STAMPICA</span><span class="cta">Make a poster</span></div>
+          <div class="c-hero">
+            <span class="c-badge">From $2</span>
+            <h3><span class="o1">Print</span> your<br>pixels <span class="o2">big.</span></h3>
+            <p>Upload a photo, pick an effect, download the file or get it on your wall.</p>
+            <div class="c-card c1"></div>
+            <div class="c-card c2"></div>
+          </div>
+          <div class="c-marquee">DITHER ★ HALFTONE ★ ASCII ★ RISO ★ DITHER ★ HALFTONE ★ ASCII ★ RISO ★</div>
+        </div>
+      </div>
+      <div class="frame"><div class="bar"><i></i><i></i><i></i><span>stampica.app — create</span></div>
+        <div class="mock c-editor">
+          <div class="c-stage"><div class="sheet"><div class="img"></div><div class="t">Summer 24</div></div></div>
+          <div class="c-panel">
+            <div><div class="lbl" style="margin-bottom:7px">1 · Effect</div>
+              <div class="c-fx"><i class="on"></i><i style="background-size:6px 6px"></i><i style="background-image:linear-gradient(0deg,#13120f 1px,transparent 1px);background-size:100% 4px"></i><i style="background-size:3px 3px"></i><i style="background-image:linear-gradient(45deg,#13120f 25%,transparent 25%);background-size:5px 5px"></i><i></i></div></div>
+            <div><div class="lbl" style="margin-bottom:7px">2 · Colors</div>
+              <div class="c-pal"><i style="background:#13120f"></i><i style="background:#0078bf"></i><i style="background:#ff48b0"></i><i style="background:#ffd900"></i><i style="background:#00a95c"></i></div></div>
+            <div><div class="lbl" style="margin-bottom:7px">3 · Size</div>
+              <div style="display:flex;gap:6px;font-size:10px;font-weight:700"><span style="border:1.5px solid #13120f;padding:5px 10px;background:#ffd900;box-shadow:2px 2px 0 #13120f">A4</span><span style="border:1.5px solid #13120f;padding:5px 10px">A3</span><span style="border:1.5px solid #13120f;padding:5px 10px">A5</span></div></div>
+            <div class="c-buy">GET THE FILE · $3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pros">
+      <div><b>Why it works:</b> instantly memorable brand; matches the product's aesthetic DNA (riso/zine culture); impulse-buy energy fits a $2–5 price point.</div>
+      <div><b>Watch out:</b> loudest to maintain consistently; neutral posters can get upstaged by the UI; hardest to keep tasteful across checkout/profile pages.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

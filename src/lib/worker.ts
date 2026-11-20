@@ -1,6 +1,4 @@
-import { WorkerMessage, WorkerErrorResponse } from './dither';
-import { runDitherEngine } from '../dither_engine/runDitherEngine';
-import { buildAccentMask, applyAccentWithMask, rgbToHex } from './colorUtils';
+import { WorkerMessage } from './dither';
 
 // Helper to get luminance
 const getLuminance = (r: number, g: number, b: number) => {
@@ -248,55 +246,6 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
     const width = workingImage.width;
     const height = workingImage.height;
     const data = workingImage.data;
-
-    // 2. If DG engine requested, route to the built-in dither engine
-    // (the DG engine only implements the original four algorithms — newer
-    //  gallery effects always run through the classic pipeline below)
-    const DG_SUPPORTED = ['none', 'atkinson', 'stucki', 'threshold'];
-    if (options.engine === 'dg' && DG_SUPPORTED.includes(algorithm)) {
-        try {
-            // Build hex palette array from numeric palette
-            const hexPalette = palette.map(c => rgbToHex(c[0], c[1], c[2]));
-
-            // Build accent mask from the adjusted & pixelated image (same resolution as dither input)
-            let accentMask: Uint8Array | null = null;
-            if (options.accent?.enabled) {
-                accentMask = buildAccentMask(workingImage, {
-                    enabled: true,
-                    targetHex: options.accent.detectHex,
-                    hueTolerance: options.accent.hueTolerance,
-                    minSaturation: options.accent.minSaturation,
-                    minValue: options.accent.minValue,
-                    edgeBoost: options.accent.edgeBoost,
-                    edgeThreshold: options.accent.edgeThreshold
-                });
-            }
-
-            // Pass the already-adjusted & downscaled/pixelated image to DG runner directly (no post-dither effects)
-            const dgResult: ImageData = await runDitherEngine(workingImage, algorithm, options.colorMode === 'rgb' ? 'color' : options.colorMode, hexPalette, options.threshold);
-
-            // Apply accent with mask if enabled (after DG dithering)
-            let finalResult = dgResult;
-            if (accentMask && options.accent?.enabled) {
-                finalResult = applyAccentWithMask(
-                    dgResult,
-                    accentMask,
-                    [options.accent.color.r, options.accent.color.g, options.accent.color.b],
-                    options.accent.strength
-                );
-            }
-
-            const outData = new Uint8ClampedArray(finalResult.data);
-            // Safety check for empty jobs
-            finish(outData, finalResult.width, finalResult.height, imageData.width, imageData.height, pointSize, e.data.jobId);
-            return;
-        } catch (err: unknown) {
-            // Report error back to main thread for UI handling
-            const errMsg = err instanceof Error ? err.message : String(err);
-            self.postMessage({ error: `DG engine failed: ${errMsg}`, fallback: 'classic', jobId: e.data.jobId } satisfies WorkerErrorResponse);
-            return;
-        }
-    }
 
     // Prepare processing buffer (Linear if requested)
     const buffer = new Float32Array(data.length);

@@ -42,18 +42,6 @@ const DEFAULT_OPTIONS: DitherOptions = {
     colorPipeline: 'default',
     invert: false,
     colorMode: 'quadtone',
-    engine: 'dg',
-    accent: {
-        enabled: false,
-        color: { r: 255, g: 42, b: 42 },
-        detectHex: '#ff0000',
-        hueTolerance: 45,
-        minSaturation: 0.0,
-        minValue: 0.0,
-        edgeBoost: true,
-        edgeThreshold: 22,
-        strength: 1,
-    },
     monochromeColors: { dark: '#000', light: '#ffffff' },
     duotoneColors: { color1: '#000', color2: '#FFFFFF' },
     tritoneColors: { color1: '#000', color2: '#4B3FA6', color3: '#FFFFFF' },
@@ -61,7 +49,6 @@ const DEFAULT_OPTIONS: DitherOptions = {
     paperTexture: 'none',
     paperTextureOpacity: 50,
     theme: 'light',
-    designMode: 'poster',
     imageMode: 'single',
     grid: {
         enabled: false,
@@ -134,7 +121,6 @@ const DEFAULT_OPTIONS: DitherOptions = {
         subtitleFontSize: 16,
         gap: 32,
     },
-    omdbApiKey: import.meta.env.VITE_OMDB_API_KEY ?? '',
 };
 
 function App() {
@@ -282,9 +268,9 @@ function App() {
                 setProcessedImage(result);
             } else {
                 const settingsHash = JSON.stringify([
-                    options.engine, options.algorithm, options.threshold, options.palette,
+                    options.algorithm, options.threshold, options.palette,
                     options.brightness, options.contrast, options.gamma, options.pointSize,
-                    options.previewResolution, options.colorPipeline, options.invert, options.accent,
+                    options.previewResolution, options.colorPipeline, options.invert,
                 ]);
 
                 const needsProcessing = options.grid.images.some(
@@ -331,8 +317,6 @@ function App() {
         options.previewResolution,
         options.colorPipeline,
         options.invert,
-        options.engine,
-        JSON.stringify(options.accent),
     ]);
 
     const handleExport = () => exportPoster(options, imageFile);
