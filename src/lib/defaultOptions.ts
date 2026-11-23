@@ -71,7 +71,7 @@ export const DEFAULT_OPTIONS: DitherOptions = {
         showFooter: true,
         listSection: {
             enabled: false,
-            content: ['Tim Robbins', 'Morgan Freeman', 'Bob Gunton', 'William Sadler', 'Clancy Brown', 'Gil Bellows'],
+            content: ['Ana', 'Marko', 'Mila', 'Luka', 'Jelena', 'Nikola'],
             alignment: 'left',
             columns: 4,
         },

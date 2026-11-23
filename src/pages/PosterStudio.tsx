@@ -40,7 +40,12 @@ interface ShowcaseSpec {
     paper?: string;
     ink?: string;
     imagePadding?: 'none' | 'same-as-poster';
+    // Sections to leave off the poster (e.g. ['footer'], or all three for image only)
+    hide?: ('header' | 'title' | 'footer')[];
+    padding?: 'S' | 'M' | 'L';
 }
+
+const IMAGE_ONLY: ShowcaseSpec['hide'] = ['header', 'title', 'footer'];
 
 export const SHOWCASE: ShowcaseSpec[] = [
     { id: 'ana-marko', photo: 'couple-sweaters', size: 'A4', algorithm: 'halftone', mode: 'duotone', theme: 'Desert Sunset',
@@ -85,6 +90,41 @@ export const SHOWCASE: ShowcaseSpec[] = [
       title: 'Summer \'24', subtitle: 'Jelena & Maja, Budva', year: '2024', director: 'Best friends', font: 'Unbounded', titleSize: 104 },
     { id: 'buba', photo: 'car-beetle', size: '13x18cm', algorithm: 'threshold', mode: 'monochrome', mono: { dark: '#1F4F5A', light: '#F3EEE4' },
       title: 'Buba', subtitle: 'My first car', year: '1972', director: 'Volkswagen', titleSize: 120 },
+    // Travel & adventure: varied layouts — no footer, title only, image only
+    { id: 'manarola', photo: 'tr-manarola', size: '50x70cm', algorithm: 'bayer-4', mode: 'quadtone', theme: 'Desert Sunset',
+      title: '', year: '', director: '', hide: IMAGE_ONLY, padding: 'L' },
+    { id: 'shinjuku', photo: 'tr-shinjuku', size: '40x60cm', algorithm: 'halftone', mode: 'tritone', theme: 'Midnight Coral',
+      title: 'Shinjuku', subtitle: 'Tokyo, 2 a.m.', year: '2024', director: 'Japan', font: 'Unbounded', titleSize: 110, hide: ['footer'] },
+    { id: 'tokyo-rain', photo: 'tr-tokyo-rain', size: '12x18in', algorithm: 'atkinson', mode: 'quadtone', theme: 'Ultraviolet Cream',
+      title: '', year: '', director: '', hide: IMAGE_ONLY, imagePadding: 'none' },
+    { id: 'lanterns', photo: 'tr-lanterns', size: 'A3', algorithm: 'floyd-steinberg', mode: 'tritone', theme: 'Electric Sunset',
+      title: 'Lanterns', year: '2023', director: 'Kyoto', order: ['title', 'image', 'footer'], font: 'Playfair Display', titleSize: 104, hide: ['header'] },
+    { id: 'london', photo: 'tr-london-bus', size: '30x40cm', algorithm: 'lines', mode: 'duotone', theme: 'Graphite Rose',
+      title: 'London', subtitle: 'Number 11 to Liverpool Street', year: '2022', director: 'United Kingdom', titleSize: 110, hide: ['footer'] },
+    { id: 'eiffel', photo: 'tr-eiffel', size: 'A4', algorithm: 'threshold', mode: 'monochrome', mono: { dark: '#1F2A44', light: '#F3EEE4' },
+      title: 'Bonjour', year: '', director: '', font: 'Syne', titleSize: 130, align: 'center', order: ['image', 'title'], hide: ['header', 'footer'] },
+    { id: 'peak', photo: 'tr-hiker-peak', size: '50x70cm', algorithm: 'stucki', mode: 'quadtone', theme: 'Warm Analog Film',
+      title: 'Made it', subtitle: 'Triglav summit, 2,864 m', year: '2024', director: 'Solo hike', order: ['header', 'title', 'image'], titleSize: 120, hide: ['footer'] },
+    { id: 'trail-dog', photo: 'tr-hike-dog', size: '8x10in', algorithm: 'bayer-8', mode: 'tritone', theme: 'Forest Dusk',
+      title: '', year: '', director: '', hide: IMAGE_ONLY },
+    { id: 'lake-rock', photo: 'tr-lake-rock', size: '40x50cm', algorithm: 'diagonal', mode: 'duotone', theme: 'Ice & Steel',
+      title: 'Bohinj', subtitle: 'Cold water, warm coffee', year: '2023', director: 'Slovenia', align: 'right', titleSize: 104, hide: ['footer'] },
+    { id: 'milky-way', photo: 'tr-milkyway', size: '61x91cm', algorithm: 'atkinson', mode: 'tritone', theme: 'Blueprint Tech',
+      title: '', year: '', director: '', hide: IMAGE_ONLY, imagePadding: 'none' },
+    { id: 'road-trip', photo: 'tr-car-girls', size: '20x30cm', algorithm: 'noise', mode: 'quadtone', theme: 'Desert Sunset',
+      title: 'Road trip', subtitle: 'No plan, full tank', year: '2025', director: 'Ivana & Tea', font: 'Unbounded', titleSize: 104, order: ['header', 'image', 'title'], hide: ['footer'] },
+    { id: 'beach-run', photo: 'tr-beach-run', size: '18x24in', algorithm: 'halftone', mode: 'duotone', theme: 'Electric Sunset',
+      title: 'Last day of summer', year: '', director: '', font: 'Playfair Display', titleSize: 88, order: ['image', 'title'], hide: ['header', 'footer'] },
+    { id: 'firepit', photo: 'tr-firepit', size: 'A4', algorithm: 'jarvis', mode: 'quadtone', theme: 'Warm Analog Film',
+      title: '', year: '', director: '', hide: IMAGE_ONLY, padding: 'S' },
+    { id: 'northbound', photo: 'tr-coast-aerial', size: '50x70cm', algorithm: 'bayer-2', mode: 'quadtone', theme: 'Ice & Steel',
+      title: 'Northbound', subtitle: 'Norwegian coast', year: '2022', director: 'From above', order: ['title', 'image'], align: 'center', titleSize: 96, hide: ['header', 'footer'] },
+    { id: 'desert-road', photo: 'tr-desert-road', size: '24x36in', algorithm: 'threshold', mode: 'monochrome', mono: { dark: '#B5361B', light: '#F6EBDD' },
+      title: '', year: '', director: '', hide: IMAGE_ONLY, padding: 'L' },
+    { id: 'gap-year', photo: 'tr-road-woman', size: '30x40cm', algorithm: 'sierra', mode: 'tritone', theme: 'Desert Sunset',
+      title: 'Gap year', subtitle: 'First stop, downtown', year: '2019', director: 'Ema', font: 'Syne', titleSize: 120, hide: ['footer'] },
+    { id: 'canal-days', photo: 'tr-bridge-town', size: '13x18cm', algorithm: 'burkes', mode: 'duotone', theme: 'Midnight Coral',
+      title: 'Canal days', year: '', director: '', titleSize: 110, align: 'left', order: ['image', 'title'], hide: ['header', 'footer'] },
     // One photo, many looks (landing "same photo" section)
     { id: 'kiki-halftone', photo: 'cat-white', size: '30x40cm', algorithm: 'halftone', mode: 'duotone', theme: 'Ice & Steel',
       title: 'Kiki', subtitle: 'Halftone', year: '2018', director: 'Calico', titleSize: 120 },
@@ -144,6 +184,10 @@ function buildOptions(spec: ShowcaseSpec): DitherOptions {
         textColor: ink, titleColor: ink, subtitleColor: ink, directorTextColor: ink,
         listColor: ink, descriptionColor: ink, yearColor: ink,
         imagePadding: spec.imagePadding ?? 'same-as-poster',
+        paddingSize: spec.padding ?? o.poster.paddingSize,
+        showHeader: !spec.hide?.includes('header'),
+        showTitle: !spec.hide?.includes('title'),
+        showFooter: !spec.hide?.includes('footer'),
         resolution: 'low',
     };
     return o;

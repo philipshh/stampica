@@ -10,11 +10,11 @@ import { SIZE_FAMILIES, sizesInFamily } from '../lib/posterSizes';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
-// Real-photo showcase posters (rendered by /dev/posters) and the original
-// movie posters, interleaved so the marquee shows both directions.
-const SHOWCASE = ['ana-marko', 'luna', 'hram', 'mila-luka', 'wildflowers', 'kiki', 'durmitor', 'bella', 'max', 'zemun', 'sava', 'baby', 'petrovic', 'pobednik', 'alps', 'deda', 'knez', 'jelena-maja', 'rex', 'louise', 'buba']
-  .map(id => `/showcase/${id}.jpg`);
-const MOVIE_POSTERS = Array.from({ length: 11 }, (_, i) => `/carousel/poster-${i + 1}.png`);
+// Showcase posters rendered from Unsplash photos by /dev/posters
+const PEOPLE = ['ana-marko', 'luna', 'hram', 'mila-luka', 'wildflowers', 'kiki', 'durmitor', 'bella', 'max', 'zemun', 'sava', 'baby', 'petrovic', 'pobednik', 'alps', 'deda', 'knez', 'jelena-maja', 'rex', 'louise', 'buba'];
+const TRAVEL = ['shinjuku', 'manarola', 'peak', 'tokyo-rain', 'road-trip', 'eiffel', 'lake-rock', 'milky-way', 'london', 'beach-run',
+  'lanterns', 'trail-dog', 'northbound', 'desert-road', 'gap-year', 'firepit', 'canal-days'];
+const SHOWCASE = [...PEOPLE, ...TRAVEL].map(id => `/showcase/${id}.jpg`);
 // Effect names stay untranslated: they match the labels in the editor
 const LOOKS: { id: string; label?: string; big?: boolean }[] = [
   { id: 'kiki-ascii', big: true },
@@ -23,7 +23,10 @@ const LOOKS: { id: string; label?: string; big?: boolean }[] = [
   { id: 'kiki-lines', label: 'Lines' },
   { id: 'kiki-film', label: 'Atkinson' },
 ];
-const CAROUSEL_IMAGES: string[] = SHOWCASE.flatMap((src, i) => (MOVIE_POSTERS[i] ? [src, MOVIE_POSTERS[i]] : [src]));
+// Marquee alternates people and travel posters so neither bunches up
+const CAROUSEL_IMAGES: string[] = PEOPLE.flatMap((id, i) => [id, TRAVEL[i]].filter(Boolean))
+  .concat(TRAVEL.slice(PEOPLE.length))
+  .map(id => `/showcase/${id}.jpg`);
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function Landing() {
