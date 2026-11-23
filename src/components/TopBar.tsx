@@ -72,7 +72,7 @@ export function TopBar() {
   return (
     <header className="sticky top-0 h-16 md:h-[72px] flex-shrink-0 flex items-center justify-between pl-4 pr-3 md:px-5 bg-paper/90 backdrop-blur border-b border-line z-50 pt-[env(safe-area-inset-top)] box-content">
       <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-        <img src="/logo.png" alt="Stampica" className="h-9 w-auto object-contain brightness-0" />
+        <img src="/logo.png" alt="Stampica" className="h-9 w-auto object-contain" />
       </Link>
 
       <div className="flex items-center gap-1">

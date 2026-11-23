@@ -147,6 +147,34 @@ export const loadCart = async (): Promise<unknown[]> => {
     });
 };
 
+// --- Editor draft ---
+// The design in progress (settings + photo), so a reload or an accidental
+// pull-to-refresh doesn't lose work. Kept next to the cart record.
+
+export interface EditorDraft {
+    options: unknown;
+    image: File | null;
+    savedAt: number;
+}
+
+export const saveDraft = async (draft: EditorDraft): Promise<void> => {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const request = db.transaction(STORE_CART, 'readwrite').objectStore(STORE_CART).put({ id: 'draft', ...draft });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const loadDraft = async (): Promise<EditorDraft | null> => {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const request = db.transaction(STORE_CART, 'readonly').objectStore(STORE_CART).get('draft');
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error);
+    });
+};
+
 // --- Image Processing Utilities ---
 
 export const compressImage = async (file: File | Blob, options: { maxWidth?: number, quality?: number, type?: string } = {}): Promise<Blob> => {

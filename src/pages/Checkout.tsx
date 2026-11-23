@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowLeft, Loader2, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
@@ -14,7 +14,7 @@ import { API_BASE } from '../lib/api';
 export function Checkout() {
   const navigate = useNavigate();
   const { user, token } = useAuth();
-  const { t } = useT();
+  const { t, lang } = useT();
   const { items, ready } = useCart();
   const [viewIdx, setViewIdx] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -119,7 +119,7 @@ export function Checkout() {
             <div className="bg-surface rounded-2xl border border-line p-5 space-y-3 mb-5">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutDesigns', { count: items.length })}</span>
-                <span>{items.length} × {formatPrice(DIGITAL_PRICE_CENTS)}</span>
+                <span>{items.length} × {formatPrice(DIGITAL_PRICE_CENTS, lang)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutSizes')}</span>
@@ -127,8 +127,9 @@ export function Checkout() {
               </div>
               <div className="flex justify-between items-baseline pt-3 border-t border-line">
                 <span className="font-semibold">{t('total')}</span>
-                <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total)}</span>
+                <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total, lang)}</span>
               </div>
+              {lang === 'sr' && <p className="text-xs text-ink-faint">{t('priceApproxNote', { usd: formatPrice(total) })}</p>}
             </div>
 
             {!user ? (
@@ -148,11 +149,14 @@ export function Checkout() {
                   {busy ? <Loader2 size={18} className="animate-spin" /> : <Lock size={16} />}
                   {busy
                     ? (progress ? t('checkoutUploading', { done: progress[0], total: progress[1] }) : t('checkoutPreparing'))
-                    : t('payAndDownload', { total: formatPrice(total) })}
+                    : t('payAndDownload', { total: formatPrice(total, lang) })}
                 </button>
                 {error && <p className="mt-3 text-sm text-vermilion text-center">{error}</p>}
                 <p className="mt-4 text-xs text-ink-faint text-center leading-relaxed">
                   {t('checkoutNote', { email: user.email })}
+                </p>
+                <p className="mt-2 text-xs text-ink-faint text-center leading-relaxed">
+                  {t('checkoutRights')} <Link to="/terms" className="underline hover:text-ink">{t('terms')}</Link>
                 </p>
                 {testMode && (
                   <div className="mt-4 rounded-xl border border-vermilion/40 p-3 text-xs text-ink-soft leading-relaxed">

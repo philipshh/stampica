@@ -121,7 +121,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
-            {advanced && <SectionCard title={t('sectionLayoutOrder')}>
+            <SectionCard title={t('sectionLayoutOrder')}>
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext items={sortable} strategy={verticalListSortingStrategy}>
                         <div className="space-y-1.5">
@@ -151,7 +151,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         {t('btnReset')}
                     </button>
                 </div>
-            </SectionCard>}
+            </SectionCard>
 
             <SectionCard title={t('sectionPosterSize')}>
                 {showAllSizes ? (

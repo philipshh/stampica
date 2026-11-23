@@ -8,7 +8,7 @@ import { DitherCanvas } from './components/DitherCanvas';
 import { PosterCanvas } from './components/PosterCanvas';
 import { Controls } from './components/Controls';
 import { DitherOptions, WorkerResponse, WorkerErrorResponse, Slot, StoredDitherOptions } from './lib/dither';
-import { PosterProject } from './lib/storage';
+import { PosterProject, saveDraft, loadDraft } from './lib/storage';
 import { computePaletteFromColorMode, interpolateColors, rgbToHex } from './lib/colorUtils';
 import { exportPoster, copyPosterToClipboard, exportPosterPreviewBlob } from './lib/posterExport';
 import { useImageDimensions } from './hooks/useImageDimensions';
@@ -86,6 +86,42 @@ function App() {
         });
         ro.observe(el);
         return () => ro.disconnect();
+    }, []);
+
+    // Restore the design in progress, then keep it saved as the user works
+    const [draftReady, setDraftReady] = useState(false);
+    useEffect(() => {
+        loadDraft()
+            .then(draft => {
+                if (!draft) return;
+                const restored = draft.options as DitherOptions;
+                // Blob URLs die with the page; rebuild them from the stored files
+                restored.grid = {
+                    ...restored.grid,
+                    images: restored.grid.images.map(slot => (slot.file ? { ...slot, src: URL.createObjectURL(slot.file) } : slot)),
+                };
+                setOptions(restored);
+                if (draft.image) setImageFile(draft.image);
+            })
+            .catch(err => console.warn('[draft] restore failed', err))
+            .finally(() => setDraftReady(true));
+    }, []);
+
+    useEffect(() => {
+        if (!draftReady) return;
+        const id = setTimeout(() => {
+            saveDraft({ options, image: imageFile, savedAt: Date.now() }).catch(err => console.warn('[draft] save failed', err));
+        }, 600);
+        return () => clearTimeout(id);
+    }, [options, imageFile, draftReady]);
+
+    // No pull-to-refresh / overscroll bounce while editing (iOS 16+, Android Chrome)
+    useEffect(() => {
+        const html = document.documentElement;
+        const prev = [html.style.overscrollBehaviorY, document.body.style.overscrollBehaviorY];
+        html.style.overscrollBehaviorY = 'none';
+        document.body.style.overscrollBehaviorY = 'none';
+        return () => { [html.style.overscrollBehaviorY, document.body.style.overscrollBehaviorY] = prev; };
     }, []);
 
     // Sync palette when color mode or custom colors change
@@ -401,11 +437,11 @@ function App() {
                 <div ref={canvasWrapperRef} className="basis-[40%] flex-none md:flex-1 md:basis-auto min-h-0 relative overflow-hidden">
 
                     {/* Floating zoom controls — top left */}
-                    <div className="absolute top-3 left-3 z-20 hidden md:flex items-center gap-1 bg-surface border border-line rounded-full px-2 py-1.5 shadow-card select-none">
+                    <div className="absolute top-2 left-2 md:top-3 md:left-3 z-20 flex items-center gap-1 bg-surface border border-line rounded-full px-1.5 md:px-2 py-1 md:py-1.5 shadow-card select-none">
                         <button
                             onClick={handleZoomOut}
                             disabled={zoom === 'fit' || zoom <= 0.25}
-                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-line/50 disabled:opacity-30 text-sm font-bold text-ink transition-colors cursor-pointer disabled:cursor-default"
+                            className="w-9 h-9 md:w-6 md:h-6 flex items-center justify-center rounded-full hover:bg-line/50 disabled:opacity-30 text-base md:text-sm font-bold text-ink transition-colors cursor-pointer disabled:cursor-default"
                             title="Zoom out"
                         >
                             −
@@ -416,7 +452,7 @@ function App() {
                         <button
                             onClick={handleZoomIn}
                             disabled={typeof zoom === 'number' && zoom >= 3}
-                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-line/50 disabled:opacity-30 text-sm font-bold text-ink transition-colors cursor-pointer disabled:cursor-default"
+                            className="w-9 h-9 md:w-6 md:h-6 flex items-center justify-center rounded-full hover:bg-line/50 disabled:opacity-30 text-base md:text-sm font-bold text-ink transition-colors cursor-pointer disabled:cursor-default"
                             title="Zoom in"
                         >
                             +
@@ -426,7 +462,7 @@ function App() {
                                 <div className="w-px h-3 bg-line mx-0.5" />
                                 <button
                                     onClick={() => setZoom('fit')}
-                                    className="text-xs font-medium px-2 py-0.5 rounded-full text-ink-soft hover:text-ink hover:bg-line/50 transition-colors cursor-pointer"
+                                    className="text-xs font-medium px-2 py-2 md:py-0.5 rounded-full text-ink-soft hover:text-ink hover:bg-line/50 transition-colors cursor-pointer"
                                     title="Fit to screen"
                                 >
                                     Fit

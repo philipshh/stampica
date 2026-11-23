@@ -11,7 +11,7 @@ const MAX_ITEMS = 20;
 
 export function Cart() {
   const { items, ready, removeItem } = useCart();
-  const { t } = useT();
+  const { t, lang } = useT();
   const navigate = useNavigate();
   const total = items.length * DIGITAL_PRICE_CENTS;
 
@@ -50,7 +50,7 @@ export function Cart() {
                 ? <FramedPoster src={item.previewBlobUrl} eager />
                 : <div className="aspect-[1/1.41] bg-surface border border-line" />}
               <figcaption className="mt-3 flex items-center justify-between text-sm">
-                <span className="font-semibold">{formatPrice(DIGITAL_PRICE_CENTS)}</span>
+                <span className="font-semibold">{formatPrice(DIGITAL_PRICE_CENTS, lang)}</span>
                 <button onClick={() => removeItem(item.id)} aria-label={t('removeItem')} className="text-ink-faint hover:text-vermilion transition-colors p-1">
                   <Trash2 size={15} />
                 </button>
@@ -62,8 +62,9 @@ export function Cart() {
         <div className="bg-surface border border-line rounded-2xl p-5 md:sticky md:top-24">
           <div className="flex justify-between items-baseline">
             <span className="font-semibold">{t('total')}</span>
-            <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total)}</span>
+            <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total, lang)}</span>
           </div>
+          {lang === 'sr' && <p className="mt-1 text-xs text-ink-faint">{t('priceApproxNote', { usd: formatPrice(total) })}</p>}
           {items.length > MAX_ITEMS && <p className="mt-2 text-xs text-vermilion">{t('cartTooMany', { max: MAX_ITEMS })}</p>}
           <button
             onClick={() => navigate('/checkout')}

@@ -31,7 +31,7 @@ const CAROUSEL_IMAGES: string[] = PEOPLE.flatMap((id, i) => [id, TRAVEL[i]].filt
 // ── Component ─────────────────────────────────────────────────────────────────
 export function Landing() {
   const { user } = useAuth();
-  const { t } = useT();
+  const { t, lang } = useT();
   // A different trio of showcase posters on every visit
   const [featured] = useState(() => [...SHOWCASE].sort(() => Math.random() - 0.5).slice(0, 3));
 
@@ -239,9 +239,10 @@ export function Landing() {
               {t('pricingDigitalText')}
             </p>
             <p className="mt-8 flex items-baseline gap-2">
-              <span className="font-display font-extrabold text-6xl tracking-[-0.03em]">{formatPrice(DIGITAL_PRICE_CENTS)}</span>
+              <span className="font-display font-extrabold text-6xl tracking-[-0.03em]">{formatPrice(DIGITAL_PRICE_CENTS, lang)}</span>
               <span className="text-ink-soft">{t('pricingPerDesign')}</span>
             </p>
+            {lang === 'sr' && <p className="mt-2 text-sm text-ink-faint">{t('priceApproxNote', { usd: formatPrice(DIGITAL_PRICE_CENTS) })}</p>}
           </div>
 
           <div className="no-scrollbar flex sm:grid sm:grid-cols-3 gap-x-8 sm:gap-y-12 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 -mx-6 px-6 sm:mx-0 sm:px-0 pb-2">
