@@ -30,7 +30,7 @@ const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 text
 const sizeBtn = (active: boolean) =>
     `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
-export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange, advanced = false }) => {
+export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
     const { t } = useT();
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
@@ -99,7 +99,8 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                 </Field>
             </SectionCard>
 
-            {advanced && <SectionCard title={t('sectionCastCredits')}>
+            {/* Only when the list is shown on the poster (toggled in Layout) */}
+            {p.listSection.enabled && <SectionCard title={t('sectionCastCredits')}>
                 <Field label={
                     <span className="flex items-center justify-between">
                         <span>{t('fieldListItems')}</span>

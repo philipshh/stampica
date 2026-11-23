@@ -51,8 +51,9 @@ export const Controls: React.FC<ControlsProps> = ({
         <div className="w-full md:w-80 bg-paper flex flex-col h-full text-xs md:border-r border-line">
             {/* Tabs */}
             <div className="px-3 pt-3 pb-2 flex-shrink-0">
-                <div className="grid grid-cols-4 bg-line/50 rounded-lg p-1 gap-1">
-                    {(['adjust', 'design', 'layout', 'saved'] as const).map(tab => (
+                {/* 'saved' (drafts) is hidden for now: the cart already keeps designs until checkout */}
+                <div className="grid grid-cols-3 bg-line/50 rounded-lg p-1 gap-1">
+                    {(['adjust', 'design', 'layout'] as const).map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -62,6 +63,20 @@ export const Controls: React.FC<ControlsProps> = ({
                         </button>
                     ))}
                 </div>
+                {/* Advanced toggle — pinned under the tabs so it's always in reach */}
+                {activeTab !== 'saved' && (
+                    <button
+                        onClick={toggleAdvanced}
+                        role="switch"
+                        aria-checked={advanced}
+                        className="w-full mt-2 flex items-center justify-between px-1 py-1.5 text-ink-faint hover:text-ink transition-colors"
+                    >
+                        <span className="text-[10px] uppercase tracking-[0.14em] font-semibold">{t('advancedControls')}</span>
+                        <span className={`relative w-8 h-[18px] rounded-full transition-colors ${advanced ? 'bg-ink' : 'bg-line'}`}>
+                            <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-surface shadow transition-all ${advanced ? 'left-[18px]' : 'left-[2px]'}`} />
+                        </span>
+                    </button>
+                )}
             </div>
 
             {/* Scrollable content */}
@@ -84,18 +99,6 @@ export const Controls: React.FC<ControlsProps> = ({
                     />
                 )}
 
-                {/* Advanced toggle — applies to design / layout / effects tabs */}
-                {activeTab !== 'saved' && (
-                    <button
-                        onClick={toggleAdvanced}
-                        className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-dashed border-line text-ink-faint hover:text-ink hover:border-ink/30 transition-colors"
-                    >
-                        <span className="text-[10px] uppercase tracking-[0.14em] font-semibold">{t('advancedControls')}</span>
-                        <span className={`relative w-8 h-[18px] rounded-full transition-colors ${advanced ? 'bg-ink' : 'bg-line'}`}>
-                            <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-surface shadow transition-all ${advanced ? 'left-[18px]' : 'left-[2px]'}`} />
-                        </span>
-                    </button>
-                )}
             </div>
 
             {/* Footer Actions — Desktop */}

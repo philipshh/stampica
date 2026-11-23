@@ -201,9 +201,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
             <SectionCard title={t('sectEffects')}>
                 <EffectsGallery options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
-                {options.algorithm !== 'none' && (
-                    <SliderField label={t('labelThreshold')} value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
-                )}
                 {options.algorithm === 'ascii' && (
                     <Field label={t('fieldCharacters')}>
                         <input
@@ -217,6 +214,18 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     </Field>
                 )}
             </SectionCard>
+
+            {/* Tuning sits right under the effect it tunes */}
+            {(options.algorithm !== 'none' || advanced) && (
+                <SectionCard title={t('sectEffectTuning')}>
+                    {options.algorithm !== 'none' && (
+                        <SliderField label={t('labelThreshold')} value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
+                    )}
+                    {advanced && (
+                        <SliderField label={t('labelPointSize')} value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
+                    )}
+                </SectionCard>
+            )}
 
             <SectionCard title={t('sectColors')}>
                 <Field label={t('fieldColorMode')}>
@@ -305,12 +314,6 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     </>
                 )}
             </SectionCard>
-
-            {advanced && (
-                <SectionCard title={t('sectEffectTuning')}>
-                    <SliderField label={t('labelPointSize')} value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
-                </SectionCard>
-            )}
 
             {advanced && (
                 <SectionCard title={t('sectImageAdjust')}>

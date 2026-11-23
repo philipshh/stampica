@@ -54,15 +54,15 @@ export function MyOrders() {
             {orders.map(o => (
               <li key={o.id}>
                 <Link to={`/downloads/${o.id}`} className="flex items-center gap-4 bg-surface border border-line rounded-2xl p-4 hover:border-ink/30 transition-colors">
-                  <div className="flex -space-x-7 shrink-0">
-                    {o.previewUrls.slice(0, 3).map((u, i) => (
-                      <img key={i} src={u} alt="" className="w-11 sm:w-14 h-auto border-[3px] border-ink bg-white shadow-card" style={{ zIndex: 10 - i }} />
-                    ))}
-                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{t('checkoutDesigns', { count: o.itemCount })}</p>
                     <p className="text-sm text-ink-faint">{date(o.paidAt)}</p>
                     <p className="text-xs text-ink-faint truncate">#{o.orderNumber}</p>
+                  </div>
+                  <div className="flex -space-x-7 shrink-0">
+                    {o.previewUrls.slice(0, 3).map((u, i) => (
+                      <img key={i} src={u} alt="" className="w-11 sm:w-14 h-auto border-[3px] border-ink bg-white shadow-card" style={{ zIndex: 10 - i }} />
+                    ))}
                   </div>
                   <span className="text-sm font-semibold whitespace-nowrap" aria-hidden="true"><span className="hidden sm:inline">{t('dlDownload')} </span>→</span>
                 </Link>

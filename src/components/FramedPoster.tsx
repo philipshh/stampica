@@ -10,15 +10,15 @@ interface FramedPosterProps {
     eager?: boolean;
 }
 
-/** A poster in a thin black frame with a white mat, as if hung on a wall. */
+/**
+ * A poster in a thin black frame, as if hung on a wall. No mat: the print runs
+ * edge to edge so paper effects (glue, folds, crumples) reach the frame.
+ */
 export function FramedPoster({ src, alt = '', className = '', style, weight = 'thin', eager = false }: FramedPosterProps) {
     const frame = weight === 'thin' ? 'p-[5px]' : 'p-2';
-    const mat = weight === 'thin' ? 'p-2' : 'p-3 md:p-4';
     return (
         <div className={`bg-ink ${frame} shadow-sheet ${className}`} style={style}>
-            <div className={`bg-white ${mat}`}>
-                <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} draggable={false} className="block w-full h-auto" />
-            </div>
+            <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} draggable={false} className="block w-full h-auto bg-white" />
         </div>
     );
 }

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
-import { POSTER_SIZES, SIZE_FAMILIES, sizesInFamily } from '../lib/posterSizes';
+import { SIZE_FAMILIES, sizesInFamily } from '../lib/posterSizes';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
 
@@ -233,7 +233,7 @@ export function Landing() {
               {t('pricingDigitalTitle')}
             </h2>
             <p className="mt-5 text-ink-soft text-base md:text-lg leading-relaxed max-w-[42ch]">
-              {t('pricingDigitalText', { count: POSTER_SIZES.length })}
+              {t('pricingDigitalText')}
             </p>
             <p className="mt-8 flex items-baseline gap-2">
               <span className="font-display font-extrabold text-6xl tracking-[-0.03em]">{formatPrice(DIGITAL_PRICE_CENTS)}</span>

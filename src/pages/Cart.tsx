@@ -4,7 +4,6 @@ import { useCart } from '../contexts/CartContext';
 import { useT } from '../contexts/LanguageContext';
 import { FramedPoster } from '../components/FramedPoster';
 import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
-import { POSTER_SIZES } from '../lib/posterSizes';
 
 // Digital cart: one entry per design. Every design unlocks all sizes, so there
 // are no size, frame or quantity choices here.
@@ -33,7 +32,7 @@ export function Cart() {
 
   return (
     <div className="min-h-full bg-paper text-ink px-4 py-8 md:p-10">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-3 mb-2">
           <button onClick={() => navigate(-1)} aria-label={t('backToEditor')} className="text-ink-faint hover:text-ink transition-colors p-1">
             <ArrowLeft size={20} />
@@ -41,9 +40,10 @@ export function Cart() {
           <h1 className="font-display font-extrabold text-3xl md:text-4xl tracking-[-0.02em]">{t('yourCart')}</h1>
           <span className="text-sm text-ink-faint">{items.length} {items.length === 1 ? t('item') : t('items')}</span>
         </div>
-        <p className="text-sm text-ink-soft mb-8 ml-10">{t('cartAllSizesNote', { count: POSTER_SIZES.length })}</p>
+        <p className="text-sm text-ink-soft mb-8 ml-10">{t('cartAllSizesNote')}</p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 mb-10">
+        <div className="grid md:grid-cols-[1fr_320px] gap-8 md:gap-10 items-start">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
           {items.map(item => (
             <figure key={item.id}>
               {item.previewBlobUrl
@@ -59,7 +59,7 @@ export function Cart() {
           ))}
         </div>
 
-        <div className="max-w-md ml-auto bg-surface border border-line rounded-2xl p-5">
+        <div className="bg-surface border border-line rounded-2xl p-5 md:sticky md:top-24">
           <div className="flex justify-between items-baseline">
             <span className="font-semibold">{t('total')}</span>
             <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total)}</span>
@@ -72,6 +72,7 @@ export function Cart() {
           >
             {t('proceedToCheckout')}
           </button>
+        </div>
         </div>
       </div>
     </div>

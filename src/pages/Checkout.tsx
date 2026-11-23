@@ -8,7 +8,6 @@ import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { FramedPoster } from '../components/FramedPoster';
 import { Lightbox } from '../components/Lightbox';
 import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
-import { POSTER_SIZES } from '../lib/posterSizes';
 import { startDigitalCheckout } from '../lib/digitalCheckout';
 import { API_BASE } from '../lib/api';
 
@@ -57,7 +56,7 @@ export function Checkout() {
       <div className="flex flex-col md:flex-row">
 
         {/* Left — the order as a little gallery wall; tap a poster to see it up close */}
-        <div className="order-2 md:order-1 md:w-1/2 bg-surface border-t md:border-t-0 md:border-r border-line flex-shrink-0">
+        <div className="order-2 md:order-1 md:w-1/2 md:min-h-[calc(100dvh-72px)] bg-surface border-t md:border-t-0 md:border-r border-line flex-shrink-0">
           <div className="p-6 md:p-10">
             <div className="flex items-baseline justify-between mb-6">
               <h2 className="font-display font-extrabold text-2xl tracking-[-0.02em]">
@@ -124,7 +123,7 @@ export function Checkout() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutSizes')}</span>
-                <span>{t('checkoutAllSizes', { count: POSTER_SIZES.length })}</span>
+                <span>{t('checkoutAllSizes')}</span>
               </div>
               <div className="flex justify-between items-baseline pt-3 border-t border-line">
                 <span className="font-semibold">{t('total')}</span>
