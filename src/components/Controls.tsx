@@ -77,7 +77,7 @@ export const Controls: React.FC<ControlsProps> = ({
             </div>
 
             {/* Scrollable content */}
-            <div key={activeTab} className="flex-1 min-h-0 overflow-y-auto p-3 pt-1 space-y-3 custom-scrollbar animate-in fade-in duration-150">
+            <div key={activeTab} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-3 space-y-3 custom-scrollbar animate-in fade-in duration-150">
                 {activeTab === 'design' && (
                     <DesignControls options={options} onOptionsChange={onOptionsChange} advanced={advanced} onUploadClick={onUploadClick} hasImage={!!imageFile} />
                 )}
@@ -131,15 +131,9 @@ export const Controls: React.FC<ControlsProps> = ({
             </div>
 
             {/* Footer Actions — Mobile */}
+            {isAdmin && (
             <div className="flex md:hidden gap-2 border-t border-line flex-shrink-0 bg-paper px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-                <button
-                    onClick={onOrder}
-                    className="press flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-ink text-paper text-sm font-semibold"
-                >
-                    <ShoppingCart className="w-4 h-4" />
-                    {t('addToCart')}
-                </button>
-                {isAdmin && (
+                {(
                     <>
                         <div className="w-px bg-line" />
                         <button
@@ -160,6 +154,7 @@ export const Controls: React.FC<ControlsProps> = ({
                     </>
                 )}
             </div>
+            )}
         </div>
     );
 };

@@ -32,8 +32,8 @@ function Layout({ children }: { children: React.ReactNode }) {
 // Editor fills exactly the visible screen (dvh excludes mobile browser bars); no footer
 function EditorLayout() {
   return (
-    <div className="flex flex-col h-dvh overflow-hidden">
-      <TopBar />
+    <div className="fixed inset-0 flex flex-col overflow-hidden overscroll-none">
+      <div className="hidden md:block"><TopBar /></div>
       <App />
     </div>
   );

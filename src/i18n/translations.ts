@@ -13,6 +13,7 @@ const translations = {
     landingSubtitle: 'Your people, places and dates, styled like a classic film poster. Download it in any size.',
     create: 'Create',
     orders: 'Orders',
+    home: 'Home',
 
     // Landing sections
     howItWorksTitle: 'How it works',
@@ -242,6 +243,7 @@ const translations = {
     landingSubtitle: 'Tvoji ljudi, mesta i datumi, u stilu klasičnog filmskog postera. Preuzmi u bilo kojoj veličini.',
     create: 'Kreiraj',
     orders: 'Porudžbine',
+    home: 'Početna',
 
     // Landing sections
     howItWorksTitle: 'Kako funkcioniše',

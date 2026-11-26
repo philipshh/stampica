@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, X } from 'lucide-react';
+import { ShoppingCart, X, ArrowLeft } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useCart } from './contexts/CartContext';
 import { useT } from './contexts/LanguageContext';
@@ -26,7 +26,7 @@ const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 function App() {
 
     const { user } = useAuth();
-    const { addItem } = useCart();
+    const { addItem, items: cartItems } = useCart();
     const { t, lang } = useT();
     const [showCartModal, setShowCartModal] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -392,7 +392,29 @@ function App() {
     }
 
     return (
-        <div className="flex w-full flex-1 bg-paper text-ink overflow-hidden font-sans md:flex-row flex-col">
+        <div className="flex w-full flex-1 min-h-0 bg-paper text-ink overflow-hidden font-sans md:flex-row flex-col">
+
+        {/* Phones: one slim editor bar replaces the site header and the bottom Add to cart bar */}
+        <div className="md:hidden flex-shrink-0 flex items-center gap-2 pl-1 pr-2 h-12 box-content pt-[env(safe-area-inset-top)] bg-paper border-b border-line">
+            <Link to="/" aria-label={t('home')} className="press w-11 h-11 flex items-center justify-center rounded-full text-ink">
+                <ArrowLeft size={20} />
+            </Link>
+            <div className="flex-1" />
+            <Link to="/cart" aria-label={t('viewCart')} className="press relative w-11 h-11 flex items-center justify-center rounded-full text-ink">
+                <ShoppingCart size={20} />
+                {cartItems.length > 0 && (
+                    <span className="absolute top-1 right-0.5 min-w-4 h-4 px-1 flex items-center justify-center bg-vermilion text-paper text-[9px] font-bold rounded-full leading-none">
+                        {cartItems.length > 9 ? '9+' : cartItems.length}
+                    </span>
+                )}
+            </Link>
+            <button
+                onClick={handleOrderPoster}
+                className="press h-9 px-4 flex items-center gap-1.5 rounded-full bg-ink text-paper text-sm font-semibold"
+            >
+                {t('addToCart')}
+            </button>
+        </div>
 
         {/* Add-to-cart modal */}
         {showCartModal && (
@@ -449,7 +471,7 @@ function App() {
             {/* Main content */}
             <main className="flex-1 flex flex-col relative min-w-0 bg-canvas workspace-grid overflow-hidden">
                 {/* Canvas area */}
-                <div ref={canvasWrapperRef} className="basis-[40%] flex-none md:flex-1 md:basis-auto min-h-0 relative overflow-hidden">
+                <div ref={canvasWrapperRef} className="basis-[46%] flex-none md:flex-1 md:basis-auto min-h-0 relative overflow-hidden">
 
                     {/* Floating zoom controls — top left */}
                     <div className="absolute top-2 left-2 md:top-3 md:left-3 z-20 flex items-center gap-1 bg-surface border border-line rounded-full px-1.5 md:px-2 py-1 md:py-1.5 shadow-card select-none">
