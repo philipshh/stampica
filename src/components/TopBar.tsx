@@ -6,7 +6,8 @@ import { useT } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from './GoogleLoginButton';
 
-export function TopBar() {
+/** bottomNav: on phones the links live in BottomNav and the header hides while scrolling down. */
+export function TopBar({ bottomNav = false }: { bottomNav?: boolean }) {
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useT();
   const { items } = useCart();
@@ -26,6 +27,24 @@ export function TopBar() {
   }, [showDropdown]);
 
   useEffect(() => { setShowDropdown(false); }, [location.pathname]);
+
+  // Phones: hide the header while scrolling down, bring it back on any scroll up
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    if (!bottomNav) return;
+    let last = window.scrollY;
+    function onScroll() {
+      const y = window.scrollY;
+      if (Math.abs(y - last) < 6) return;
+      setHidden(y > last && y > 80);
+      last = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [bottomNav]);
+  useEffect(() => { setHidden(false); }, [location.pathname]);
+  // Links that move to the bottom bar on phones
+  const phoneHidden = bottomNav ? 'hidden md:flex' : 'flex';
 
   function navLink(to: string, label: string) {
     const active = location.pathname === to;
@@ -70,7 +89,7 @@ export function TopBar() {
     .toUpperCase() ?? '';
 
   return (
-    <header className="sticky top-0 h-16 md:h-[72px] flex-shrink-0 flex items-center justify-between pl-4 pr-3 md:px-5 bg-paper/90 backdrop-blur border-b border-line z-50 pt-[env(safe-area-inset-top)] box-content">
+    <header className={`sticky top-0 transition-transform duration-300 md:!translate-y-0 ${hidden && !showDropdown ? '-translate-y-full' : 'translate-y-0'} h-16 md:h-[72px] flex-shrink-0 flex items-center justify-between pl-4 pr-3 md:px-5 bg-paper/90 backdrop-blur border-b border-line z-50 pt-[env(safe-area-inset-top)] box-content`}>
       <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
         <img src="/logo.png" alt="Stampica" className="h-9 w-auto object-contain" />
       </Link>
@@ -81,16 +100,16 @@ export function TopBar() {
         {user && navLink('/orders', t('orders'))}
 
         {/* Mobile icon nav */}
-        {iconLink('/create', <Pencil size={17} />, t('create'))}
-        {user && iconLink('/orders', <Package size={17} />, t('orders'))}
+        {!bottomNav && iconLink('/create', <Pencil size={17} />, t('create'))}
+        {!bottomNav && user && iconLink('/orders', <Package size={17} />, t('orders'))}
 
-        <div className="w-px h-4 bg-line mx-1 md:mx-2" />
+        <div className={`w-px h-4 bg-line mx-1 md:mx-2 ${bottomNav ? 'hidden md:block' : ''}`} />
 
         {/* Cart icon */}
         <Link
           to="/cart"
           aria-label={t('viewCart')}
-          className={`relative flex flex-col items-center justify-center gap-0.5 w-12 h-12 md:w-9 md:h-9 rounded-lg transition-colors ${location.pathname === '/cart' ? 'bg-ink text-paper md:bg-transparent md:text-ink' : 'text-ink-soft hover:text-ink hover:bg-line/50'}`}
+          className={`relative ${phoneHidden} flex-col items-center justify-center gap-0.5 w-12 h-12 md:w-9 md:h-9 rounded-lg transition-colors ${location.pathname === '/cart' ? 'bg-ink text-paper md:bg-transparent md:text-ink' : 'text-ink-soft hover:text-ink hover:bg-line/50'}`}
         >
           <ShoppingCart size={18} />
           <span className="md:hidden text-[10px] font-medium leading-none">{t('cartShort')}</span>
@@ -104,13 +123,13 @@ export function TopBar() {
         {/* Language toggle */}
         <button
           onClick={() => setLang(lang === 'en' ? 'sr' : 'en')}
-          className="text-xs font-semibold w-11 h-11 md:w-auto md:h-auto md:px-2 md:py-1 rounded-lg text-ink-faint hover:text-ink hover:bg-line/50 transition-colors"
+          className={`${bottomNav ? 'hidden md:block' : ''} text-xs font-semibold w-11 h-11 md:w-auto md:h-auto md:px-2 md:py-1 rounded-lg text-ink-faint hover:text-ink hover:bg-line/50 transition-colors`}
           aria-label={lang === 'en' ? 'Srpski' : 'English'}
         >
           {lang === 'en' ? 'SR' : 'EN'}
         </button>
 
-        <div className="w-px h-4 bg-line mx-1" />
+        <div className={`w-px h-4 bg-line mx-1 ${bottomNav ? 'hidden md:block' : ''}`} />
 
         {user ? (
           <div ref={dropdownRef} className="relative">

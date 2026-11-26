@@ -38,3 +38,28 @@ export function dodoProductId(launch: boolean): string {
   }
   return regularId;
 }
+
+/**
+ * "5 poster designs" bundle products, priced at 4 designs, so the Dodo page reads
+ * "5 designs × 1" instead of a confusing "quantity 4". DODO_BUNDLE_PRODUCT_ID is the
+ * launch bundle, DODO_REGULAR_BUNDLE_PRODUCT_ID the regular one. Returns null when
+ * not configured; checkout then falls back to charging single designs.
+ */
+export function dodoBundleProductId(launch: boolean): string | null {
+  const launchId = process.env.DODO_BUNDLE_PRODUCT_ID || null;
+  if (launch) return launchId;
+  return process.env.DODO_REGULAR_BUNDLE_PRODUCT_ID || launchId;
+}
+
+/** Cart lines for n designs: whole bundles of 5, plus the remaining single designs. */
+export function dodoCart(designs: number, launch: boolean, bundleSize: number, paid: number) {
+  const single = dodoProductId(launch);
+  const bundle = dodoBundleProductId(launch);
+  if (!bundle) return [{ product_id: single, quantity: paid }];
+  const bundles = Math.floor(designs / bundleSize);
+  const rest = designs % bundleSize;
+  return [
+    ...(bundles > 0 ? [{ product_id: bundle, quantity: bundles }] : []),
+    ...(rest > 0 ? [{ product_id: single, quantity: rest }] : []),
+  ];
+}

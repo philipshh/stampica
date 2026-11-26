@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { sql } from './db.js';
 import { presignUpload, presignDownload, deleteObjects } from './storage.js';
 import { requireUser } from './auth.js';
-import { getDodo, dodoEnvironment, dodoProductId } from './dodo.js';
+import { getDodo, dodoEnvironment, dodoCart } from './dodo.js';
 import { sendDownloadEmail } from './email.js';
-import { isLaunch, paidCount, unitPriceCents } from '../../shared/pricing.js';
+import { BUNDLE_SIZE, isLaunch, paidCount, unitPriceCents } from '../../shared/pricing.js';
 import type { ApiRequest, ApiResponse } from './types.js';
 
 const MAX_ITEMS = 20;                     // Dodo carts hold at most 20 lines
@@ -103,9 +103,8 @@ export async function createDigitalCheckout(req: ApiRequest, res: ApiResponse) {
       RETURNING id` as { id: string }[];
 
     const session = await getDodo().checkoutSessions.create({
-      // One line with a quantity: the fixed card fee is charged once per order.
-      // Buy 5, pay 4: the quantity is the number of designs actually charged.
-      product_cart: [{ product_id: dodoProductId(isLaunch(now)), quantity: paidCount(items.length) }],
+      // Buy 5, pay 4: whole bundles of 5 (priced as 4) plus single designs for the rest.
+      product_cart: dodoCart(items.length, isLaunch(now), BUNDLE_SIZE, paidCount(items.length)),
       customer: { email: user.email, name: user.name },
       return_url: `${appOrigin(req)}/downloads/${order.id}`,
       metadata: { order_id: order.id, order_number: number, app_url: appOrigin(req) },
