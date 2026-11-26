@@ -23,11 +23,11 @@ export function SectionCard({ title, children, defaultOpen = true, spacing = 'md
     <div className="bg-surface rounded-xl border border-line overflow-hidden">
       <button
         onClick={toggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-line/30 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 min-h-12 md:min-h-0 hover:bg-line/30 transition-colors"
       >
         <h3 className="text-[10px] font-semibold text-ink-faint uppercase tracking-[0.14em]">{title}</h3>
         <ChevronDown
-          size={13}
+          size={16}
           className={`text-ink-faint transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>

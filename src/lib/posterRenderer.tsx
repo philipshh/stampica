@@ -1,5 +1,6 @@
 import { DitherOptions } from './dither';
 import { getPosterSize, getPixelSize } from './posterSizes';
+import { SHOW_PAPER_TEXTURE } from './features';
 
 export const getPosterDimensions = (options: DitherOptions, aspectRatio: string, resolution: 'high' | 'low' = 'high'): { width: number; height: number } => {
     let size;
@@ -782,7 +783,7 @@ export async function drawPosterToCanvas(
     }
 
     // Apply paper texture overlay if selected and opacity > 0 (render last so it's above content)
-    if (options.paperTexture !== 'none' && options.paperTextureOpacity > 0) {
+    if (SHOW_PAPER_TEXTURE && ['folded', 'glue', 'photocopy'].includes(options.paperTexture) && options.paperTextureOpacity > 0) {
         try {
             const textureImg = new Image();
             textureImg.crossOrigin = 'anonymous';

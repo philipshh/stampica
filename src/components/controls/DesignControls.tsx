@@ -13,7 +13,6 @@ const selectAll = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) 
 interface DesignControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
-    advanced?: boolean;
     onUploadClick?: () => void;
     hasImage?: boolean;
 }
@@ -30,7 +29,7 @@ function Field({ label, children }: { label: React.ReactNode; children: React.Re
 const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 transition-colors";
 
 const sizeBtn = (active: boolean) =>
-    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
+    `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
 export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange, onUploadClick, hasImage }) => {
     const { t } = useT();
@@ -63,7 +62,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         <div className="flex gap-1">
                             {(['left', 'center', 'right'] as const).map(align => (
                                 <button key={align} onClick={() => set({ titleAlignment: align })}
-                                    className={`p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
+                                    className={`p-2.5 md:p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
                                     {align === 'left' && <AlignLeft className="w-3 h-3" />}
                                     {align === 'center' && <AlignCenter className="w-3 h-3" />}
                                     {align === 'right' && <AlignRight className="w-3 h-3" />}
@@ -78,7 +77,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <button key={size} onClick={() => set({ titleFontSize: size })} className={sizeBtn(p.titleFontSize === size)}>{size}</button>
                         ))}
                         <input type="number" value={p.titleFontSize} onChange={e => set({ titleFontSize: parseInt(e.target.value) || 48 })}
-                            className="w-12 py-1.5 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
+                            className="w-12 py-1.5 min-h-11 md:min-h-0 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
                     </div>
                 </Field>
 
@@ -90,7 +89,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <button key={size} onClick={() => set({ subtitleFontSize: size })} className={sizeBtn(p.subtitleFontSize === size)}>{size}</button>
                         ))}
                         <input type="number" value={p.subtitleFontSize} onChange={e => set({ subtitleFontSize: parseInt(e.target.value) || 16 })}
-                            className="w-12 py-1.5 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
+                            className="w-12 py-1.5 min-h-11 md:min-h-0 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
                     </div>
                 </Field>
 
@@ -132,7 +131,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <div className="flex gap-1">
                                 {(['left', 'center', 'right'] as const).map(align => (
                                     <button key={align} onClick={() => set({ listSection: { ...p.listSection, alignment: align } })}
-                                        className={`p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
+                                        className={`p-2.5 md:p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
                                         {align === 'left' && <AlignLeft className="w-3 h-3" />}
                                         {align === 'center' && <AlignCenter className="w-3 h-3" />}
                                         {align === 'right' && <AlignRight className="w-3 h-3" />}

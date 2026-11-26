@@ -15,6 +15,7 @@ import { useImageDimensions } from './hooks/useImageDimensions';
 import { useDitherWorker } from './hooks/useDitherWorker';
 import { getPosterSize } from './lib/posterSizes';
 import { DEFAULT_OPTIONS } from './lib/defaultOptions';
+import { loadScaledImageData } from './lib/canvasMemory';
 import translations from './i18n/translations';
 import { usePasteHandler } from './hooks/usePasteHandler';
 
@@ -184,21 +185,9 @@ function App() {
         const processImage = (file: File, opts: DitherOptions): Promise<ImageData> => {
             return new Promise((resolve) => {
                 const jobId = Math.random().toString(36).substring(7);
-                const url = URL.createObjectURL(file);
-                const img = new Image();
-                img.src = url;
-                img.onload = () => {
-                    const scale = opts.previewResolution / Math.max(img.width, img.height);
-                    const previewWidth = Math.round(img.width * scale);
-                    const previewHeight = Math.round(img.height * scale);
-
-                    const canvas = document.createElement('canvas');
-                    canvas.width = previewWidth;
-                    canvas.height = previewHeight;
-                    const ctx = canvas.getContext('2d')!;
-                    ctx.drawImage(img, 0, 0, previewWidth, previewHeight);
-                    const imageData = ctx.getImageData(0, 0, previewWidth, previewHeight);
-                    URL.revokeObjectURL(url);
+                loadScaledImageData(file, opts.previewResolution).then((source) => {
+                    // The worker may modify what it receives, so send a copy of the cached pixels
+                    const imageData = new ImageData(new Uint8ClampedArray(source.data), source.width, source.height);
 
                     const handleResponse = (e: MessageEvent<WorkerResponse | WorkerErrorResponse>) => {
                         if ('imageData' in e.data && e.data.jobId === jobId) {
@@ -208,7 +197,7 @@ function App() {
                     };
                     workerRef.current?.addEventListener('message', handleResponse);
                     workerRef.current?.postMessage({ imageData, options: opts, jobId });
-                };
+                }).catch(err => console.warn('[preview] image load failed', err));
             });
         };
 

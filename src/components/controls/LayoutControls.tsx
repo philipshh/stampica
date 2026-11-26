@@ -14,7 +14,6 @@ interface LayoutControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
     imageDimensions: { width: number; height: number } | null;
-    advanced?: boolean;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -27,13 +26,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const segBtn = (active: boolean) =>
-    `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
+    `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
 // The sizes most people print at; the rest sit behind "Show all sizes"
 const POPULAR_SIZE_IDS = ['A4', 'A3', 'A2', '30x40cm', '50x70cm', '18x24in'];
 
 const sizeBtn = (active: boolean) =>
-    `py-1.5 rounded-lg border transition-colors text-[10px] whitespace-nowrap ${active ? 'bg-ink text-paper border-transparent font-semibold' : 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'}`;
+    `py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] whitespace-nowrap ${active ? 'bg-ink text-paper border-transparent font-semibold' : 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'}`;
 
 function SortableRow({ id, label, enabled, onToggle }: { id: string; label: string; enabled: boolean; onToggle: () => void }) {
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -62,7 +61,7 @@ function SortableRow({ id, label, enabled, onToggle }: { id: string; label: stri
     );
 }
 
-export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange, advanced = false }) => {
+export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptionsChange }) => {
     const { t } = useT();
     const [showAllSizes, setShowAllSizes] = useState(false);
 
@@ -140,13 +139,13 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 <div className="grid grid-cols-2 gap-2">
                     <button
                         onClick={() => set({ layoutOrder: [...p.layoutOrder].sort(() => Math.random() - 0.5) })}
-                        className="py-2 bg-ink/5 text-ink text-xs rounded-lg hover:bg-ink/10 transition-colors flex items-center justify-center gap-1.5"
+                        className="py-2 min-h-11 md:min-h-0 bg-ink/5 text-ink text-xs rounded-lg hover:bg-ink/10 transition-colors flex items-center justify-center gap-1.5"
                     >
                         <Dices className="w-3.5 h-3.5" /> {t('btnShuffle')}
                     </button>
                     <button
                         onClick={() => set({ layoutOrder: ['header', 'image', 'title', 'list', 'footer'] })}
-                        className="py-2 rounded-lg border border-line text-ink-faint hover:border-ink/40 hover:text-ink transition-colors text-xs"
+                        className="py-2 min-h-11 md:min-h-0 rounded-lg border border-line text-ink-faint hover:border-ink/40 hover:text-ink transition-colors text-xs"
                     >
                         {t('btnReset')}
                     </button>
@@ -192,7 +191,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                 <button
                     onClick={() => setShowAllSizes(v => !v)}
                     aria-expanded={showAllSizes}
-                    className="w-full flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold text-ink-soft hover:text-ink transition-colors"
+                    className="w-full flex items-center justify-center gap-1 py-3 md:py-1.5 text-[11px] font-semibold text-ink-soft hover:text-ink transition-colors"
                 >
                     {showAllSizes ? t('showFewerSizes') : t('showAllSizes')}
                     <ChevronDown className={`w-3 h-3 transition-transform ${showAllSizes ? 'rotate-180' : ''}`} />
@@ -204,7 +203,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['S', 'M', 'L'] as const).map(size => (
                             <button key={size} onClick={() => set({ paddingSize: size })}
-                                className={`py-1.5 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {size}
                             </button>
                         ))}
@@ -218,17 +217,17 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         ))}
                         <input type="number" value={p.gap}
                             onChange={e => set({ gap: parseInt(e.target.value) || 0 })}
-                            className="w-12 py-1.5 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
+                            className="w-12 py-1.5 min-h-11 md:min-h-0 bg-surface border border-line text-ink text-[10px] text-center focus:outline-none focus:border-ink/40 rounded-lg" />
                     </div>
                 </Field>
             </SectionCard>
 
-            {advanced && <SectionCard title={t('sectionImage')}>
+            {<SectionCard title={t('sectionImage')}>
                 <Field label={t('fieldImagePadding')}>
                     <div className="grid grid-cols-2 gap-1.5">
                         {(['none', 'same-as-poster'] as const).map(v => (
                             <button key={v} onClick={() => set({ imagePadding: v })}
-                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {v === 'none' ? 'None' : 'Same'}
                             </button>
                         ))}
@@ -239,7 +238,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['fit', 'fill', 'original'] as const).map(v => (
                             <button key={v} onClick={() => set({ imageScale: v })}
-                                className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {v}
                             </button>
                         ))}
@@ -251,7 +250,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="grid grid-cols-3 gap-1">
                             {(['left', 'center', 'right'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignX: v })}
-                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignX === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                    className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignX === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                     {v.charAt(0)}
                                 </button>
                             ))}
@@ -261,7 +260,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="grid grid-cols-3 gap-1">
                             {(['top', 'center', 'bottom'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignY: v })}
-                                    className={`py-1.5 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignY === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                    className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignY === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                     {v.charAt(0)}
                                 </button>
                             ))}

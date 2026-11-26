@@ -35,21 +35,14 @@ export const Controls: React.FC<ControlsProps> = ({
 }) => {
     const { t } = useT();
     const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'saved'>('adjust');
-    const [advanced, setAdvanced] = React.useState(() => localStorage.getItem('stampicaAdvanced') === 'true');
-
-    const toggleAdvanced = () => {
-        setAdvanced(v => {
-            localStorage.setItem('stampicaAdvanced', String(!v));
-            return !v;
-        });
-    };
 
     return (
         <div className="w-full md:w-80 bg-paper flex flex-col h-full text-xs md:border-r border-line">
             {/* Tabs */}
             <div className="px-3 pt-3 pb-2 flex-shrink-0">
                 {/* 'saved' (drafts) is hidden for now: the cart already keeps designs until checkout */}
-                <div className="grid grid-cols-3 bg-line/50 rounded-lg p-1 gap-1">
+                <div className="flex gap-2 items-stretch">
+                <div className="flex-1 grid grid-cols-3 bg-line/50 rounded-lg p-1 gap-1">
                     {(['adjust', 'design', 'layout'] as const).map(tab => (
                         <button
                             key={tab}
@@ -60,32 +53,19 @@ export const Controls: React.FC<ControlsProps> = ({
                         </button>
                     ))}
                 </div>
-                {/* Advanced toggle — pinned under the tabs so it's always in reach */}
-                {activeTab !== 'saved' && (
-                    <button
-                        onClick={toggleAdvanced}
-                        role="switch"
-                        aria-checked={advanced}
-                        className="w-full mt-2 flex items-center justify-between px-1 py-1.5 text-ink-faint hover:text-ink transition-colors"
-                    >
-                        <span className="text-[10px] uppercase tracking-[0.14em] font-semibold">{t('advancedControls')}</span>
-                        <span className={`relative w-8 h-[18px] rounded-full transition-colors ${advanced ? 'bg-ink' : 'bg-line'}`}>
-                            <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-surface shadow transition-all ${advanced ? 'left-[18px]' : 'left-[2px]'}`} />
-                        </span>
-                    </button>
-                )}
+                </div>
             </div>
 
             {/* Scrollable content */}
             <div key={activeTab} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-3 space-y-3 custom-scrollbar animate-in fade-in duration-150">
                 {activeTab === 'design' && (
-                    <DesignControls options={options} onOptionsChange={onOptionsChange} advanced={advanced} onUploadClick={onUploadClick} hasImage={!!imageFile} />
+                    <DesignControls options={options} onOptionsChange={onOptionsChange} onUploadClick={onUploadClick} hasImage={!!imageFile} />
                 )}
                 {activeTab === 'layout' && (
-                    <LayoutControls options={options} onOptionsChange={onOptionsChange} imageDimensions={imageDimensions} advanced={advanced} />
+                    <LayoutControls options={options} onOptionsChange={onOptionsChange} imageDimensions={imageDimensions} />
                 )}
                 {activeTab === 'adjust' && (
-                    <AdjustmentControls options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} advanced={advanced} />
+                    <AdjustmentControls options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
                 )}
                 {activeTab === 'saved' && (
                     <ProjectControls

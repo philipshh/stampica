@@ -3,6 +3,7 @@ import { DitherOptions } from '../lib/dither';
 
 import { Icon } from '@iconify/react';
 import { useT } from '../contexts/LanguageContext';
+import { releaseCanvas } from '../lib/canvasMemory';
 
 
 interface PosterCanvasProps {
@@ -132,7 +133,9 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
     const [imageUrl, setImageUrl] = React.useState<string>('');
 
     React.useEffect(() => {
-        if (processedImage) {
+        if (!processedImage) return;
+        let cancelled = false;
+        {
             const canvas = document.createElement('canvas');
             canvas.width = processedImage.width;
             canvas.height = processedImage.height;
@@ -144,8 +147,17 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
             try { ctx.imageSmoothingEnabled = false; } catch (e) { }
             try { (ctx as any).imageSmoothingQuality = 'low'; } catch (e) { }
             ctx.putImageData(newImageData, 0, 0);
-            setImageUrl(canvas.toDataURL());
+            canvas.toBlob((blob) => {
+                releaseCanvas(canvas);
+                if (!blob || cancelled) return;
+                const url = URL.createObjectURL(blob);
+                setImageUrl(prev => {
+                    if (prev.startsWith('blob:')) URL.revokeObjectURL(prev);
+                    return url;
+                });
+            }, 'image/png');
         }
+        return () => { cancelled = true; };
     }, [processedImage, options.invert]);
 
     // Define sections as components
@@ -230,13 +242,14 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                                 backgroundPosition: `${imageAlignX} ${imageAlignY}`,
                                 backgroundRepeat: 'no-repeat',
                                 imageRendering: 'pixelated',
-                                minHeight: '200px'
+                                minHeight: `${200 * scale}px`
                             }}
                         />
                     ) : (
                         <button
                             onClick={onUploadTrigger}
-                            className="relative z-10 flex flex-col items-center justify-center gap-4 text-current opacity-30 hover:opacity-100 transition-opacity w-full h-full border-2 border-dashed border-current rounded-lg min-h-[200px]"
+                            className="relative z-10 flex flex-col items-center justify-center gap-4 text-current opacity-30 hover:opacity-100 transition-opacity w-full h-full border-2 border-dashed border-current rounded-lg"
+                            style={{ minHeight: `${200 * scale}px` }}
                         >
                             <span className="text-4xl">+</span>
                             <span className="uppercase tracking-widest text-xs font-bold">{t('uploadImage')}</span>

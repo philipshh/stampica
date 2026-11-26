@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DitherOptions, DitherAlgorithm, EFFECTS, EffectCategory } from '../../lib/dither';
 import DitherWorker from '../../lib/worker?worker';
+import { releaseCanvas } from '../../lib/canvasMemory';
 import { useT } from '../../contexts/LanguageContext';
 import type { TranslationKey } from '../../i18n/translations';
 
@@ -34,7 +35,9 @@ function loadSource(file: File | null): Promise<ImageData> {
             ctx.beginPath();
             ctx.arc(THUMB * 0.5, THUMB * 0.45, THUMB * 0.32, 0, Math.PI * 2);
             ctx.fill();
-            resolve(ctx.getImageData(0, 0, THUMB, THUMB));
+            const data = ctx.getImageData(0, 0, THUMB, THUMB);
+            releaseCanvas(canvas);
+            resolve(data);
             return;
         }
 
@@ -46,7 +49,10 @@ function loadSource(file: File | null): Promise<ImageData> {
             const h = img.height * scale;
             ctx.drawImage(img, (THUMB - w) / 2, (THUMB - h) / 2, w, h);
             URL.revokeObjectURL(url);
-            resolve(ctx.getImageData(0, 0, THUMB, THUMB));
+            const data = ctx.getImageData(0, 0, THUMB, THUMB);
+            releaseCanvas(canvas);
+            img.src = '';
+            resolve(data);
         };
         img.onerror = () => {
             URL.revokeObjectURL(url);
