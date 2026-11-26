@@ -7,7 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { FramedPoster } from '../components/FramedPoster';
 import { Lightbox } from '../components/Lightbox';
-import { DIGITAL_PRICE_CENTS, formatPrice } from '../../shared/pricing';
+import { freeCount, orderTotalCents, unitPriceCents, formatPrice } from '../../shared/pricing';
 import { startDigitalCheckout } from '../lib/digitalCheckout';
 import { API_BASE } from '../lib/api';
 
@@ -21,7 +21,9 @@ export function Checkout() {
   const [progress, setProgress] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wallImages = items.map(i => i.previewBlobUrl).filter(Boolean);
-  const total = items.length * DIGITAL_PRICE_CENTS;
+  const unit = unitPriceCents();
+  const free = freeCount(items.length);
+  const total = orderTotalCents(items.length);
   const [testMode, setTestMode] = useState(false);
 
   useEffect(() => {
@@ -119,8 +121,14 @@ export function Checkout() {
             <div className="bg-surface rounded-2xl border border-line p-5 space-y-3 mb-5">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutDesigns', { count: items.length })}</span>
-                <span>{items.length} × {formatPrice(DIGITAL_PRICE_CENTS, lang)}</span>
+                <span>{items.length} × {formatPrice(unit, lang)}</span>
               </div>
+              {free > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-ink-soft">{t('bundleLine')}</span>
+                  <span className="font-semibold text-vermilion">−{formatPrice(free * unit, lang)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutSizes')}</span>
                 <span>{t('checkoutAllSizes')}</span>

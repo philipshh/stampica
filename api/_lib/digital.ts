@@ -4,7 +4,7 @@ import { presignUpload, presignDownload, deleteObjects } from './storage.js';
 import { requireUser } from './auth.js';
 import { getDodo, dodoEnvironment, dodoProductId } from './dodo.js';
 import { sendDownloadEmail } from './email.js';
-import { DIGITAL_PRICE_CENTS } from '../../shared/pricing.js';
+import { isLaunch, paidCount, unitPriceCents } from '../../shared/pricing.js';
 import type { ApiRequest, ApiResponse } from './types.js';
 
 const MAX_ITEMS = 20;                     // Dodo carts hold at most 20 lines
@@ -95,15 +95,17 @@ export async function createDigitalCheckout(req: ApiRequest, res: ApiResponse) {
     }
 
     const number = orderNumber();
+    const now = Date.now();
     const [order] = await sql()`
       INSERT INTO digital_orders (user_id, order_number, livemode, items, item_count, unit_price)
       VALUES (${user.userId}, ${number}, ${dodoEnvironment() === 'live_mode'},
-              ${JSON.stringify(items)}::jsonb, ${items.length}, ${DIGITAL_PRICE_CENTS})
+              ${JSON.stringify(items)}::jsonb, ${items.length}, ${unitPriceCents(now)})
       RETURNING id` as { id: string }[];
 
     const session = await getDodo().checkoutSessions.create({
       // One line with a quantity: the fixed card fee is charged once per order.
-      product_cart: [{ product_id: dodoProductId(), quantity: items.length }],
+      // Buy 5, pay 4: the quantity is the number of designs actually charged.
+      product_cart: [{ product_id: dodoProductId(isLaunch(now)), quantity: paidCount(items.length) }],
       customer: { email: user.email, name: user.name },
       return_url: `${appOrigin(req)}/downloads/${order.id}`,
       metadata: { order_id: order.id, order_number: number, app_url: appOrigin(req) },

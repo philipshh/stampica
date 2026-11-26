@@ -22,8 +22,19 @@ export function getDodo(): DodoPayments {
   return client;
 }
 
-export function dodoProductId(): string {
-  const id = process.env.DODO_PRODUCT_ID;
-  if (!id) throw new Error('DODO_PRODUCT_ID not configured');
-  return id;
+/**
+ * DODO_PRODUCT_ID is the launch-price product; DODO_REGULAR_PRODUCT_ID is the
+ * regular-price one, used after the launch ends. If the regular product isn't
+ * configured yet we keep charging the launch price rather than failing checkout.
+ */
+export function dodoProductId(launch: boolean): string {
+  const launchId = process.env.DODO_PRODUCT_ID;
+  if (!launchId) throw new Error('DODO_PRODUCT_ID not configured');
+  if (launch) return launchId;
+  const regularId = process.env.DODO_REGULAR_PRODUCT_ID;
+  if (!regularId) {
+    console.warn('[dodo] DODO_REGULAR_PRODUCT_ID not set; charging the launch price');
+    return launchId;
+  }
+  return regularId;
 }
