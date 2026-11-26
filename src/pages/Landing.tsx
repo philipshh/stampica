@@ -3,6 +3,7 @@ import { BeforeAfter } from '../components/BeforeAfter';
 import { HowItWorksVideo } from '../components/HowItWorksVideo';
 import { FramedPoster } from '../components/FramedPoster';
 import { Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { isLaunch, unitPrice, regularPrice, formatMoney } from '../../shared/pricing';
@@ -96,6 +97,15 @@ export function Landing() {
                 </svg>
               </a>
             </div>
+            <p className="mt-4 flex flex-wrap items-baseline gap-x-1.5 text-sm text-ink-soft animate-fade-up" style={{ animationDelay: '0.45s' }}>
+              <span className="whitespace-nowrap"><span className="font-semibold text-ink">{formatMoney(unitPrice(currency), currency, lang)}</span> {t('pricingPerDesign')}</span>
+              <span className="text-ink-faint" aria-hidden="true">·</span>
+              <span className="whitespace-nowrap">{t('heroAllSizes')}</span>
+              {isLaunch() && <>
+                <span className="text-ink-faint" aria-hidden="true">·</span>
+                <span className="whitespace-nowrap">{t('heroLaunch')}</span>
+              </>}
+            </p>
           </div>
 
           {/* Gallery wall: one larger frame beside a column of two, hung straight */}
@@ -246,7 +256,14 @@ export function Landing() {
               <span className="text-ink-soft">{t('pricingPerDesign')}</span>
             </p>
             {isLaunch() && <p className="mt-2 text-sm text-ink-soft">{t('launchNote', { date: t('launchEndDate'), price: formatMoney(regularPrice(currency), currency, lang) })}</p>}
-            <p className="mt-3 inline-block rounded-full bg-ink text-paper text-sm font-semibold px-4 py-1.5">{t('bundleOffer')}</p>
+            <ul className="mt-6 max-w-sm bg-paper border border-line rounded-2xl p-5 space-y-2.5 text-sm">
+              {(['includeSizes', 'includeDownloads', 'includeQuality', 'bundleOffer'] as const).map(k => (
+                <li key={k} className={`flex gap-2.5 ${k === 'bundleOffer' ? 'font-semibold text-ink' : 'text-ink-soft'}`}>
+                  <Check size={16} className="mt-0.5 shrink-0 text-vermilion" />
+                  {t(k)}
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="no-scrollbar flex sm:grid sm:grid-cols-3 gap-x-8 sm:gap-y-12 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 -mx-6 px-6 sm:mx-0 sm:px-0 pb-2">
