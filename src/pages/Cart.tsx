@@ -3,7 +3,9 @@ import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useT } from '../contexts/LanguageContext';
 import { FramedPoster } from '../components/FramedPoster';
-import { BUNDLE_SIZE, freeCount, orderTotalCents, unitPriceCents, formatPrice } from '../../shared/pricing';
+import { BUNDLE_SIZE, freeCount, orderTotal, unitPrice, formatMoney } from '../../shared/pricing';
+import { useCurrency } from '../hooks/useCurrency';
+
 
 // Digital cart: one entry per design. Every design unlocks all sizes, so there
 // are no size, frame or quantity choices here.
@@ -13,9 +15,10 @@ export function Cart() {
   const { items, ready, removeItem } = useCart();
   const { t, lang } = useT();
   const navigate = useNavigate();
-  const unit = unitPriceCents();
+  const currency = useCurrency();
+  const unit = unitPrice(currency);
   const free = freeCount(items.length);
-  const total = orderTotalCents(items.length);
+  const total = orderTotal(items.length, currency);
   const toNextFree = BUNDLE_SIZE - (items.length % BUNDLE_SIZE);
 
   if (!ready) return <div className="min-h-[60vh] bg-paper" />;
@@ -53,7 +56,7 @@ export function Cart() {
                 ? <FramedPoster src={item.previewBlobUrl} eager />
                 : <div className="aspect-[1/1.41] bg-surface border border-line" />}
               <figcaption className="mt-3 flex items-center justify-between text-sm">
-                <span className="font-semibold">{formatPrice(unit, lang)}</span>
+                <span className="font-semibold">{formatMoney(unit, currency, lang)}</span>
                 <button onClick={() => removeItem(item.id)} aria-label={t('removeItem')} className="text-ink-faint hover:text-vermilion transition-colors p-1">
                   <Trash2 size={15} />
                 </button>
@@ -66,14 +69,13 @@ export function Cart() {
           {free > 0 && (
             <div className="flex justify-between text-sm mb-3 pb-3 border-b border-line">
               <span className="text-ink-soft">{t('bundleLine')}</span>
-              <span className="font-semibold text-vermilion">−{formatPrice(free * unit, lang)}</span>
+              <span className="font-semibold text-vermilion">−{formatMoney(free * unit, currency, lang)}</span>
             </div>
           )}
           <div className="flex justify-between items-baseline">
             <span className="font-semibold">{t('total')}</span>
-            <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total, lang)}</span>
+            <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatMoney(total, currency, lang)}</span>
           </div>
-          {lang === 'sr' && <p className="mt-1 text-xs text-ink-faint">{t('priceApproxNote', { usd: formatPrice(total) })}</p>}
           {toNextFree <= 2 && items.length < MAX_ITEMS && (
             <p className="mt-3 text-sm font-semibold text-ink">{toNextFree === 1 ? t('bundleNudgeOne') : t('bundleNudge', { count: toNextFree })}</p>
           )}

@@ -64,6 +64,8 @@ export async function support(req: ApiRequest, res: ApiResponse) {
   }
 }
 
-export function health(_req: ApiRequest, res: ApiResponse) {
-  res.status(200).json({ status: 'ok', payments: dodoEnvironment() === 'live_mode' ? 'live' : 'test', timestamp: new Date().toISOString() });
+export function health(req: ApiRequest, res: ApiResponse) {
+  // Vercel sets the visitor's country; the site uses it to show prices in the right currency
+  const country = typeof req.headers['x-vercel-ip-country'] === 'string' ? req.headers['x-vercel-ip-country'] : null;
+  res.status(200).json({ status: 'ok', payments: dodoEnvironment() === 'live_mode' ? 'live' : 'test', country, timestamp: new Date().toISOString() });
 }

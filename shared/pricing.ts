@@ -33,13 +33,47 @@ export function orderTotalCents(designs: number, now = Date.now()): number {
 }
 
 /**
- * Rough USD->RSD rate for showing Serbian visitors a dinar figure. Display only:
- * the charge is always in USD and Dodo/the bank converts it. Update now and then.
+ * Fixed prices per currency. They must match the Localized Pricing set on the
+ * Dodo products (by currency). Minor units: cents for USD/EUR, para for RSD.
  */
-export const USD_TO_RSD = 100;
+export type Currency = 'USD' | 'EUR' | 'RSD';
 
-/** Price for display. Serbian shows an approximate dinar amount, rounded to 10. */
-export function formatPrice(cents: number, lang: 'en' | 'sr' = 'en'): string {
-  if (lang === 'sr') return `≈ ${Math.round((cents / 100) * USD_TO_RSD / 10) * 10} RSD`;
-  return `$${(cents / 100).toFixed(2)}`;
+const PRICES: Record<Currency, { launch: number; regular: number }> = {
+  USD: { launch: 499, regular: 699 },
+  EUR: { launch: 499, regular: 699 },
+  RSD: { launch: 49900, regular: 69900 },
+};
+
+export function unitPrice(currency: Currency, now = Date.now()): number {
+  return isLaunch(now) ? PRICES[currency].launch : PRICES[currency].regular;
+}
+
+export function regularPrice(currency: Currency): number {
+  return PRICES[currency].regular;
+}
+
+export function orderTotal(designs: number, currency: Currency, now = Date.now()): number {
+  return paidCount(designs) * unitPrice(currency, now);
+}
+
+/** Euro area (Bulgaria joined in 2026). Everyone else outside Serbia sees USD. */
+const EURO_COUNTRIES = new Set(['AT', 'BE', 'BG', 'HR', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES']);
+
+export function currencyForCountry(country: string | null | undefined): Currency {
+  const c = (country ?? '').toUpperCase();
+  if (c === 'RS') return 'RSD';
+  if (EURO_COUNTRIES.has(c)) return 'EUR';
+  return 'USD';
+}
+
+/** Price for display in the given currency. Language only changes the formatting. */
+export function formatMoney(amount: number, currency: Currency, lang: 'en' | 'sr' = 'en'): string {
+  const major = amount / 100;
+  if (currency === 'RSD') {
+    const n = Math.round(major).toString().replace(/\B(?=(\d{3})+(?!\d))/g, lang === 'sr' ? '.' : ',');
+    return lang === 'sr' ? `${n} din` : `${n} RSD`;
+  }
+  const n = lang === 'sr' ? major.toFixed(2).replace('.', ',') : major.toFixed(2);
+  if (currency === 'EUR') return lang === 'sr' ? `${n} €` : `€${n}`;
+  return lang === 'sr' ? `${n} $` : `$${n}`;
 }

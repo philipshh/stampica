@@ -7,7 +7,9 @@ import { useCart } from '../contexts/CartContext';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { FramedPoster } from '../components/FramedPoster';
 import { Lightbox } from '../components/Lightbox';
-import { freeCount, orderTotalCents, unitPriceCents, formatPrice } from '../../shared/pricing';
+import { freeCount, orderTotal, unitPrice, formatMoney } from '../../shared/pricing';
+import { useCurrency } from '../hooks/useCurrency';
+
 import { startDigitalCheckout } from '../lib/digitalCheckout';
 import { API_BASE } from '../lib/api';
 
@@ -21,9 +23,10 @@ export function Checkout() {
   const [progress, setProgress] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wallImages = items.map(i => i.previewBlobUrl).filter(Boolean);
-  const unit = unitPriceCents();
+  const currency = useCurrency();
+  const unit = unitPrice(currency);
   const free = freeCount(items.length);
-  const total = orderTotalCents(items.length);
+  const total = orderTotal(items.length, currency);
   const [testMode, setTestMode] = useState(false);
 
   useEffect(() => {
@@ -121,12 +124,12 @@ export function Checkout() {
             <div className="bg-surface rounded-2xl border border-line p-5 space-y-3 mb-5">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-soft">{t('checkoutDesigns', { count: items.length })}</span>
-                <span>{items.length} × {formatPrice(unit, lang)}</span>
+                <span>{items.length} × {formatMoney(unit, currency, lang)}</span>
               </div>
               {free > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-ink-soft">{t('bundleLine')}</span>
-                  <span className="font-semibold text-vermilion">−{formatPrice(free * unit, lang)}</span>
+                  <span className="font-semibold text-vermilion">−{formatMoney(free * unit, currency, lang)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
@@ -135,9 +138,8 @@ export function Checkout() {
               </div>
               <div className="flex justify-between items-baseline pt-3 border-t border-line">
                 <span className="font-semibold">{t('total')}</span>
-                <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatPrice(total, lang)}</span>
+                <span className="font-display font-extrabold text-3xl tracking-[-0.02em]">{formatMoney(total, currency, lang)}</span>
               </div>
-              {lang === 'sr' && <p className="text-xs text-ink-faint">{t('priceApproxNote', { usd: formatPrice(total) })}</p>}
             </div>
 
             {!user ? (
@@ -157,7 +159,7 @@ export function Checkout() {
                   {busy ? <Loader2 size={18} className="animate-spin" /> : <Lock size={16} />}
                   {busy
                     ? (progress ? t('checkoutUploading', { done: progress[0], total: progress[1] }) : t('checkoutPreparing'))
-                    : t('payAndDownload', { total: formatPrice(total, lang) })}
+                    : t('payAndDownload', { total: formatMoney(total, currency, lang) })}
                 </button>
                 {error && <p className="mt-3 text-sm text-vermilion text-center">{error}</p>}
                 <p className="mt-4 text-xs text-ink-faint text-center leading-relaxed">

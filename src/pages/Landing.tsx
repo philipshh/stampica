@@ -5,7 +5,9 @@ import { FramedPoster } from '../components/FramedPoster';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
-import { REGULAR_PRICE_CENTS, isLaunch, unitPriceCents, formatPrice } from '../../shared/pricing';
+import { isLaunch, unitPrice, regularPrice, formatMoney } from '../../shared/pricing';
+import { useCurrency } from '../hooks/useCurrency';
+
 import { SIZE_FAMILIES, sizesInFamily } from '../lib/posterSizes';
 
 const INSTAGRAM_URL = 'https://instagram.com/stampica_studio';
@@ -32,6 +34,7 @@ const CAROUSEL_IMAGES: string[] = PEOPLE.flatMap((id, i) => [id, TRAVEL[i]].filt
 export function Landing() {
   const { user } = useAuth();
   const { t, lang } = useT();
+  const currency = useCurrency();
   // A different trio of showcase posters on every visit
   const [featured] = useState(() => [...SHOWCASE].sort(() => Math.random() - 0.5).slice(0, 3));
 
@@ -239,12 +242,11 @@ export function Landing() {
               {t('pricingDigitalText')}
             </p>
             <p className="mt-8 flex items-baseline gap-2">
-              <span className="font-display font-extrabold text-6xl tracking-[-0.03em]">{formatPrice(unitPriceCents(), lang)}</span>
+              <span className="font-display font-extrabold text-6xl tracking-[-0.03em]">{formatMoney(unitPrice(currency), currency, lang)}</span>
               <span className="text-ink-soft">{t('pricingPerDesign')}</span>
             </p>
-            {isLaunch() && <p className="mt-2 text-sm text-ink-soft">{t('launchNote', { date: t('launchEndDate'), price: formatPrice(REGULAR_PRICE_CENTS, lang) })}</p>}
+            {isLaunch() && <p className="mt-2 text-sm text-ink-soft">{t('launchNote', { date: t('launchEndDate'), price: formatMoney(regularPrice(currency), currency, lang) })}</p>}
             <p className="mt-3 inline-block rounded-full bg-ink text-paper text-sm font-semibold px-4 py-1.5">{t('bundleOffer')}</p>
-            {lang === 'sr' && <p className="mt-2 text-sm text-ink-faint">{t('priceApproxNote', { usd: formatPrice(unitPriceCents()) })}</p>}
           </div>
 
           <div className="no-scrollbar flex sm:grid sm:grid-cols-3 gap-x-8 sm:gap-y-12 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 -mx-6 px-6 sm:mx-0 sm:px-0 pb-2">
