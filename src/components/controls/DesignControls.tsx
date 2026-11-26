@@ -17,16 +17,17 @@ interface DesignControlsProps {
     hasImage?: boolean;
 }
 
-function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label: React.ReactNode; hint?: string; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
             <label className="text-xs text-ink-faint block">{label}</label>
             {children}
+            {hint && <p className="text-[11px] leading-snug text-ink-faint">{hint}</p>}
         </div>
     );
 }
 
-const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 transition-colors";
+const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 min-h-11 md:min-h-0 text-xs rounded-lg focus:outline-none focus:border-ink/40 transition-colors";
 
 const sizeBtn = (active: boolean) =>
     `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
@@ -51,7 +52,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
             )}
             <SectionCard title={t('sectionTextContent')}>
                 {/* Director */}
-                <Field label={t('fieldDirector')}>
+                <Field label={t('fieldDirector')} hint={t('hintDirector')}>
                     <input type="text" value={p.director} onFocus={selectAll} onChange={e => set({ director: e.target.value })} className={inputClass} />
                 </Field>
 
@@ -117,7 +118,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                     <span className="flex items-center justify-between">
                         <span>{t('fieldListItems')}</span>
                         <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 bg-surface rounded-lg border border-line px-1.5 h-6">
+                            <div className="flex items-center gap-1 bg-surface rounded-lg border border-line px-3 md:px-1.5 h-11 md:h-6">
                                 <span className="text-[9px] text-ink-faint uppercase">{t('colsShort')}</span>
                                 <select value={p.listSection.columns || 1}
                                     onChange={e => set({ listSection: { ...p.listSection, columns: Number(e.target.value) as 1 | 2 | 3 | 4 } })}

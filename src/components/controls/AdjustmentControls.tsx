@@ -13,11 +13,12 @@ interface AdjustmentControlsProps {
     imageFile?: File | null;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
             <label className="text-xs text-ink-faint block">{label}</label>
             {children}
+            {hint && <p className="text-[11px] leading-snug text-ink-faint">{hint}</p>}
         </div>
     );
 }
@@ -31,7 +32,8 @@ const SliderField: React.FC<{
     onChange: (val: number) => void;
     suffix?: string;
     defaultValue?: number;
-}> = ({ label, value, min, max, step, onChange, suffix = '', defaultValue }) => {
+    hint?: string;
+}> = ({ label, value, min, max, step, onChange, suffix = '', defaultValue, hint }) => {
     const canReset = defaultValue !== undefined && value !== defaultValue;
     return (
         <div className="space-y-1.5">
@@ -59,6 +61,7 @@ const SliderField: React.FC<{
                     <Plus className="w-2.5 h-2.5" />
                 </button>
             </div>
+            {hint && <p className="text-[11px] leading-snug text-ink-faint">{hint}</p>}
         </div>
     );
 };
@@ -106,7 +109,7 @@ const ThemeSelect: React.FC<{
     return (
         <div className="relative w-full">
             <button ref={triggerRef} onClick={open}
-                className="w-full bg-surface border border-line text-ink py-2 px-3 text-xs rounded-lg flex items-center justify-between hover:border-ink/40 transition-colors">
+                className="w-full bg-surface border border-line text-ink py-2 px-3 min-h-11 md:min-h-0 text-xs rounded-lg flex items-center justify-between hover:border-ink/40 transition-colors">
                 <div className="flex items-center gap-2 overflow-hidden">
                     {selectedTheme && (
                         <div className="flex -space-x-1 flex-shrink-0">
@@ -189,27 +192,27 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
         `py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-ink text-paper border-transparent font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
     const colorModes = [
-        { id: 'monochrome', label: 'Mono' }, { id: 'duotone', label: 'Duo' },
-        { id: 'tritone', label: 'Trio' }, { id: 'quadtone', label: 'Quad' }, { id: 'rgb', label: 'RGB' }
+        { id: 'monochrome', label: '1' }, { id: 'duotone', label: '2' },
+        { id: 'tritone', label: '3' }, { id: 'quadtone', label: '4' }, { id: 'rgb', label: t('colorsAll') }
     ];
 
     const hasPalette = options.colorMode === 'duotone' || options.colorMode === 'tritone' || options.colorMode === 'quadtone';
 
-    const colorSwatch = "w-full h-8 bg-transparent cursor-pointer border border-line rounded-lg p-0.5";
+    const colorSwatch = "w-full h-11 md:h-8 bg-transparent cursor-pointer border border-line rounded-lg p-0.5";
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-200">
             <SectionCard title={t('sectEffects')}>
                 <EffectsGallery options={options} onOptionsChange={onOptionsChange} imageFile={imageFile} />
                 {options.algorithm === 'ascii' && (
-                    <Field label={t('fieldCharacters')}>
+                    <Field label={t('fieldCharacters')} hint={t('hintCharacters')}>
                         <input
                             type="text"
                             value={options.asciiText ?? ''}
                             maxLength={40}
                             onChange={e => update('asciiText', e.target.value)}
                             placeholder={t('charsPlaceholder')}
-                            className="w-full bg-surface border border-line text-ink px-3 py-2 text-xs rounded-lg focus:outline-none focus:border-ink/40 placeholder:text-ink-faint"
+                            className="w-full bg-surface border border-line text-ink px-3 py-2 min-h-11 md:min-h-0 text-xs rounded-lg focus:outline-none focus:border-ink/40 placeholder:text-ink-faint"
                         />
                     </Field>
                 )}
@@ -218,8 +221,8 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
             {/* Tuning sits right under the effect it tunes */}
             {options.algorithm !== 'none' && (
                 <SectionCard title={t('sectEffectTuning')}>
-                    <SliderField label={t('labelThreshold')} value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} />
-                    <SliderField label={t('labelPointSize')} value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} />
+                    <SliderField label={t('labelThreshold')} value={options.threshold} min={0} max={255} step={1} defaultValue={128} onChange={v => update('threshold', v)} hint={t('hintThreshold')} />
+                    <SliderField label={t('labelPointSize')} value={options.pointSize} min={1} max={16} step={1} defaultValue={2} onChange={v => update('pointSize', v)} hint={t('hintPointSize')} />
                 </SectionCard>
             )}
 
@@ -238,7 +241,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     <>
                         <div className="flex items-center justify-between mb-1">
                             <span className="text-xs text-ink-faint">{t('fieldThemePreset')}</span>
-                            <button onClick={savePreset} className="text-ink-faint hover:text-ink transition-colors" title={t('savePreset')}>
+                            <button onClick={savePreset} className="-m-3 p-3 md:m-0 md:p-0 text-ink-faint hover:text-ink transition-colors" title={t('savePreset')} aria-label={t('savePreset')}>
                                 <Save className="w-3.5 h-3.5" />
                             </button>
                         </div>
@@ -297,7 +300,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                                         else if (preset.mode === 'tritone') onOptionsChange({ ...options, colorMode: 'tritone', tritoneColors: preset.colors as any });
                                         else if (preset.mode === 'quadtone') onOptionsChange({ ...options, colorMode: 'quadtone', quadtoneColors: preset.colors as any });
                                     }}
-                                    className="w-full bg-surface border border-line text-ink py-2 px-3 text-xs rounded-lg appearance-none focus:outline-none focus:border-ink/40"
+                                    className="w-full bg-surface border border-line text-ink py-2 px-3 min-h-11 md:min-h-0 text-xs rounded-lg appearance-none focus:outline-none focus:border-ink/40"
                                     value="">
                                     <option value="" disabled>{t('savedPresets')}</option>
                                     {presets.filter(p => p.mode === options.colorMode).map(preset => (
@@ -315,7 +318,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                 <SectionCard title={t('sectImageAdjust')} defaultOpen={false}>
                     <SliderField label={t('labelBrightness')} value={options.brightness} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('brightness', v)} />
                     <SliderField label={t('labelContrast')} value={options.contrast} min={-100} max={100} step={1} defaultValue={0} onChange={v => update('contrast', v)} />
-                    <SliderField label={t('labelGamma')} value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={v => update('gamma', v)} />
+                    <SliderField label={t('labelGamma')} value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={v => update('gamma', v)} hint={t('hintGamma')} />
                     <div className="grid grid-cols-2 gap-2">
                         <button onClick={() => update('invert', !options.invert)}
                             className={`py-2 min-h-11 md:min-h-0 rounded-lg border transition-colors text-xs uppercase ${options.invert ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
@@ -333,7 +336,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                 <SectionCard title={t('sectPaperTexture')} defaultOpen={false}>
                     <div className="relative">
                         <select value={options.paperTexture} onChange={e => update('paperTexture', e.target.value as any)}
-                            className="w-full bg-surface border border-line text-ink py-2 px-3 text-xs rounded-lg appearance-none focus:outline-none focus:border-ink/40">
+                            className="w-full bg-surface border border-line text-ink py-2 px-3 min-h-11 md:min-h-0 text-xs rounded-lg appearance-none focus:outline-none focus:border-ink/40">
                             <option value="none">{t('texNone')}</option>
                             <option value="folded">{t('texFolded')}</option>
                             <option value="glue">{t('texGlued')}</option>

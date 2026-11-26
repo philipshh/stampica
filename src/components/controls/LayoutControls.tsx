@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DitherOptions } from '../../lib/dither';
 import { SIZE_FAMILIES, sizesInFamily, getPosterSize, POSTER_SIZES } from '../../lib/posterSizes';
-import { GripVertical, Eye, EyeOff, Dices, ChevronDown } from 'lucide-react';
+import { GripVertical, Eye, EyeOff, Dices, ChevronDown, AlignHorizontalJustifyStart, AlignHorizontalJustifyCenter, AlignHorizontalJustifyEnd, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from 'lucide-react';
 import {
     DndContext, closestCenter, PointerSensor, TouchSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent,
 } from '@dnd-kit/core';
@@ -16,11 +16,12 @@ interface LayoutControlsProps {
     imageDimensions: { width: number; height: number } | null;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
             <label className="text-xs text-ink-faint block">{label}</label>
             {children}
+            {hint && <p className="text-[11px] leading-snug text-ink-faint">{hint}</p>}
         </div>
     );
 }
@@ -40,22 +41,22 @@ function SortableRow({ id, label, enabled, onToggle }: { id: string; label: stri
         <div
             ref={setNodeRef}
             style={{ transform: CSS.Transform.toString(transform), transition }}
-            className={`relative flex items-center gap-1 pr-1 bg-surface border border-line rounded-lg ${isDragging ? 'z-10 shadow-card opacity-90' : ''}`}
+            className={`relative flex items-center gap-1 pr-1 md:pl-1 bg-surface border border-line rounded-lg ${isDragging ? 'z-10 shadow-card opacity-90' : ''}`}
         >
-            {/* The handle owns the gesture, so the list still scrolls when you swipe elsewhere */}
+            {/* Only the grip drags, so swiping over the rest of the row scrolls the list */}
             <button
                 ref={setActivatorNodeRef}
                 {...attributes}
                 {...listeners}
                 aria-label={label}
-                className="flex items-center gap-2 flex-1 pl-3 py-2.5 md:py-2 cursor-grab active:cursor-grabbing text-left"
+                className="flex items-center justify-center w-12 md:w-8 self-stretch min-h-14 md:min-h-9 cursor-grab active:cursor-grabbing"
                 style={{ touchAction: 'none' }}
             >
-                <GripVertical className="w-3.5 h-3.5 text-ink-faint flex-shrink-0" />
-                <span className="flex-1 text-xs text-ink">{label}</span>
+                <GripVertical className="w-5 h-5 md:w-3.5 md:h-3.5 text-ink-faint flex-shrink-0" />
             </button>
-            <button onClick={onToggle} aria-pressed={enabled} className="w-9 h-9 md:w-7 md:h-7 flex items-center justify-center text-ink-faint hover:text-ink transition-colors">
-                {enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            <span className="flex-1 text-sm md:text-xs text-ink select-none">{label}</span>
+            <button onClick={onToggle} aria-pressed={enabled} className="w-12 h-12 md:w-7 md:h-7 flex items-center justify-center text-ink-faint hover:text-ink transition-colors">
+                {enabled ? <Eye className="w-5 h-5 md:w-3.5 md:h-3.5" /> : <EyeOff className="w-5 h-5 md:w-3.5 md:h-3.5" />}
             </button>
         </div>
     );
@@ -199,7 +200,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
             </SectionCard>
 
             <SectionCard title={t('sectionSpacing')}>
-                <Field label={t('fieldPosterPadding')}>
+                <Field label={t('fieldPosterPadding')} hint={t('hintPosterPadding')}>
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['S', 'M', 'L'] as const).map(size => (
                             <button key={size} onClick={() => set({ paddingSize: size })}
@@ -228,7 +229,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         {(['none', 'same-as-poster'] as const).map(v => (
                             <button key={v} onClick={() => set({ imagePadding: v })}
                                 className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
-                                {v === 'none' ? 'None' : 'Same'}
+                                {v === 'none' ? t('optFullBleed') : t('optWithMargin')}
                             </button>
                         ))}
                     </div>
@@ -239,7 +240,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         {(['fit', 'fill', 'original'] as const).map(v => (
                             <button key={v} onClick={() => set({ imageScale: v })}
                                 className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
-                                {v}
+                                {v === 'fill' ? t('optFill') : v === 'fit' ? t('optFit') : t('optOriginal')}
                             </button>
                         ))}
                     </div>
@@ -249,9 +250,9 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <Field label={t('fieldAlignX')}>
                         <div className="grid grid-cols-3 gap-1">
                             {(['left', 'center', 'right'] as const).map(v => (
-                                <button key={v} onClick={() => set({ imageAlignX: v })}
-                                    className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignX === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
-                                    {v.charAt(0)}
+                                <button key={v} onClick={() => set({ imageAlignX: v })} aria-label={v} title={v}
+                                    className={`py-1.5 min-h-11 md:min-h-0 flex items-center justify-center rounded-lg border transition-colors ${p.imageAlignX === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                    {v === 'left' ? <AlignHorizontalJustifyStart className="w-3.5 h-3.5" /> : v === 'center' ? <AlignHorizontalJustifyCenter className="w-3.5 h-3.5" /> : <AlignHorizontalJustifyEnd className="w-3.5 h-3.5" />}
                                 </button>
                             ))}
                         </div>
@@ -259,9 +260,9 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <Field label={t('fieldAlignY')}>
                         <div className="grid grid-cols-3 gap-1">
                             {(['top', 'center', 'bottom'] as const).map(v => (
-                                <button key={v} onClick={() => set({ imageAlignY: v })}
-                                    className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageAlignY === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
-                                    {v.charAt(0)}
+                                <button key={v} onClick={() => set({ imageAlignY: v })} aria-label={v} title={v}
+                                    className={`py-1.5 min-h-11 md:min-h-0 flex items-center justify-center rounded-lg border transition-colors ${p.imageAlignY === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                    {v === 'top' ? <AlignVerticalJustifyStart className="w-3.5 h-3.5" /> : v === 'center' ? <AlignVerticalJustifyCenter className="w-3.5 h-3.5" /> : <AlignVerticalJustifyEnd className="w-3.5 h-3.5" />}
                                 </button>
                             ))}
                         </div>
