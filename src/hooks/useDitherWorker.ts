@@ -20,9 +20,7 @@ export function useDitherWorker(onResult: (imageData: ImageData) => void) {
                 return;
             }
 
-            if (e.data?.imageData) {
-                onResultRef.current(e.data.imageData);
-            }
+            // Results are delivered to whoever posted the job (matched by jobId)
         };
 
         return () => { workerRef.current?.terminate(); };

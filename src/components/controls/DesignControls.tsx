@@ -30,7 +30,7 @@ function Field({ label, hint, children }: { label: React.ReactNode; hint?: strin
 const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 min-h-11 md:min-h-0 text-xs rounded-lg focus:outline-none focus:border-ink/40 transition-colors";
 
 const sizeBtn = (active: boolean) =>
-    `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
+    `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] ${active ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
 export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange, onUploadClick, hasImage }) => {
     const { t } = useT();
@@ -63,7 +63,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                         <div className="flex gap-1">
                             {(['left', 'center', 'right'] as const).map(align => (
                                 <button key={align} onClick={() => set({ titleAlignment: align })}
-                                    className={`p-2.5 md:p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
+                                    className={`p-2.5 md:p-1 rounded transition-colors ${p.titleAlignment === align ? 'text-vermilion bg-vermilion/10 ring-1 ring-vermilion' : 'text-ink-faint hover:text-ink'}`}>
                                     {align === 'left' && <AlignLeft className="w-3 h-3" />}
                                     {align === 'center' && <AlignCenter className="w-3 h-3" />}
                                     {align === 'right' && <AlignRight className="w-3 h-3" />}
@@ -132,7 +132,7 @@ export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptio
                             <div className="flex gap-1">
                                 {(['left', 'center', 'right'] as const).map(align => (
                                     <button key={align} onClick={() => set({ listSection: { ...p.listSection, alignment: align } })}
-                                        className={`p-2.5 md:p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-paper bg-ink' : 'text-ink-faint hover:text-ink'}`}>
+                                        className={`p-2.5 md:p-1 rounded transition-colors ${p.listSection.alignment === align ? 'text-vermilion bg-vermilion/10 ring-1 ring-vermilion' : 'text-ink-faint hover:text-ink'}`}>
                                         {align === 'left' && <AlignLeft className="w-3 h-3" />}
                                         {align === 'center' && <AlignCenter className="w-3 h-3" />}
                                         {align === 'right' && <AlignRight className="w-3 h-3" />}

@@ -127,37 +127,38 @@ export const EffectsGallery: React.FC<EffectsGalleryProps> = ({ options, onOptio
         options.asciiText,
     ]);
 
+    // One worker for the gallery's lifetime; each batch is tagged so stale results are ignored
+    const workerRef = useRef<Worker | null>(null);
+    const batchRef = useRef(0);
+    useEffect(() => {
+        const worker = new DitherWorker();
+        worker.onmessage = (e: MessageEvent<{ imageData?: ImageData; jobId?: string; error?: string }>) => {
+            const { imageData, jobId } = e.data;
+            if (!imageData || !jobId) return;
+            const [batch, effectId] = jobId.split(':');
+            if (Number(batch) !== batchRef.current) return;
+            setPreviews((prev) => ({ ...prev, [effectId]: imageData }));
+        };
+        workerRef.current = worker;
+        return () => { worker.terminate(); workerRef.current = null; };
+    }, []);
+
     useEffect(() => {
         let cancelled = false;
-        let worker: Worker | null = null;
-
+        // Wait for sliders to settle so thumbnails don't compete with the main preview
         const timer = setTimeout(async () => {
             const source = await loadSource(sourceFile);
-            if (cancelled) return;
-
-            worker = new DitherWorker();
-            worker.onmessage = (e: MessageEvent<{ imageData?: ImageData; jobId?: string; error?: string }>) => {
-                if (cancelled) return;
-                const { imageData, jobId } = e.data;
-                if (imageData && jobId) {
-                    setPreviews((prev) => ({ ...prev, [jobId]: imageData }));
-                }
-            };
-
+            if (cancelled || !workerRef.current) return;
+            const batch = ++batchRef.current;
             for (const effect of EFFECTS) {
-                const thumbOptions: DitherOptions = {
-                    ...options,
-                    algorithm: effect.id,
-                    pointSize: 1,
-                };
-                worker.postMessage({ imageData: source, options: thumbOptions, jobId: effect.id });
+                const thumbOptions: DitherOptions = { ...options, algorithm: effect.id, pointSize: 1 };
+                workerRef.current.postMessage({ imageData: source, options: thumbOptions, jobId: `${batch}:${effect.id}` });
             }
-        }, 250);
+        }, 450);
 
         return () => {
             cancelled = true;
             clearTimeout(timer);
-            if (worker) worker.terminate();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [settingsKey]);

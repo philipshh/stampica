@@ -129,36 +129,18 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
         }
     });
 
-    // We need to render the ImageData to a canvas first to use it as an image source
-    const [imageUrl, setImageUrl] = React.useState<string>('');
-
+    // Draw the processed pixels straight into an on-screen canvas. Encoding them to a
+    // PNG and decoding it again cost hundreds of ms per change on phones.
+    const imageCanvasRef = React.useRef<HTMLCanvasElement>(null);
     React.useEffect(() => {
-        if (!processedImage) return;
-        let cancelled = false;
-        {
-            const canvas = document.createElement('canvas');
-            canvas.width = processedImage.width;
-            canvas.height = processedImage.height;
-            const ctx = canvas.getContext('2d')!;
-
-            const newImageData = new ImageData(new Uint8ClampedArray(processedImage.data), processedImage.width, processedImage.height);
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.globalAlpha = 1;
-            try { ctx.imageSmoothingEnabled = false; } catch (e) { }
-            try { (ctx as any).imageSmoothingQuality = 'low'; } catch (e) { }
-            ctx.putImageData(newImageData, 0, 0);
-            canvas.toBlob((blob) => {
-                releaseCanvas(canvas);
-                if (!blob || cancelled) return;
-                const url = URL.createObjectURL(blob);
-                setImageUrl(prev => {
-                    if (prev.startsWith('blob:')) URL.revokeObjectURL(prev);
-                    return url;
-                });
-            }, 'image/png');
-        }
-        return () => { cancelled = true; };
-    }, [processedImage, options.invert]);
+        const canvas = imageCanvasRef.current;
+        if (!canvas || !processedImage) return;
+        if (canvas.width !== processedImage.width) canvas.width = processedImage.width;
+        if (canvas.height !== processedImage.height) canvas.height = processedImage.height;
+        canvas.getContext('2d')!.putImageData(processedImage, 0, 0);
+    }, [processedImage]);
+    // Free the canvas memory when the poster goes away (iOS caps total canvas memory)
+    React.useEffect(() => () => releaseCanvas(imageCanvasRef.current), []);
 
     // Define sections as components
     const sections = {
@@ -234,17 +216,17 @@ export const PosterCanvas = forwardRef<HTMLDivElement, PosterCanvasProps>(({ pro
                 {/* Image Layer */}
                 {options.imageMode === 'single' ? (
                     processedImage ? (
-                        <div
-                            className="w-full h-full relative z-10"
-                            style={{
-                                backgroundImage: `url(${imageUrl})`,
-                                backgroundSize: imageScale === 'fill' ? 'cover' : imageScale === 'original' ? 'auto' : 'contain',
-                                backgroundPosition: `${imageAlignX} ${imageAlignY}`,
-                                backgroundRepeat: 'no-repeat',
-                                imageRendering: 'pixelated',
-                                minHeight: `${200 * scale}px`
-                            }}
-                        />
+                        <div className="w-full h-full relative z-10" style={{ minHeight: `${200 * scale}px` }}>
+                            <canvas
+                                ref={imageCanvasRef}
+                                className="absolute inset-0 w-full h-full"
+                                style={{
+                                    objectFit: imageScale === 'fill' ? 'cover' : imageScale === 'original' ? 'none' : 'contain',
+                                    objectPosition: `${imageAlignX} ${imageAlignY}`,
+                                    imageRendering: 'pixelated',
+                                }}
+                            />
+                        </div>
                     ) : (
                         <button
                             onClick={onUploadTrigger}

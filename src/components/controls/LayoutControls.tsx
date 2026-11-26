@@ -27,13 +27,13 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 const segBtn = (active: boolean) =>
-    `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
+    `flex-1 py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
 // The sizes most people print at; the rest sit behind "Show all sizes"
 const POPULAR_SIZE_IDS = ['A4', 'A3', 'A2', '30x40cm', '50x70cm', '18x24in'];
 
 const sizeBtn = (active: boolean) =>
-    `py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] whitespace-nowrap ${active ? 'bg-ink text-paper border-transparent font-semibold' : 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'}`;
+    `py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] whitespace-nowrap ${active ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'}`;
 
 function SortableRow({ id, label, enabled, onToggle }: { id: string; label: string; enabled: boolean; onToggle: () => void }) {
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -204,7 +204,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['S', 'M', 'L'] as const).map(size => (
                             <button key={size} onClick={() => set({ paddingSize: size })}
-                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-xs uppercase ${p.paddingSize === size ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {size}
                             </button>
                         ))}
@@ -228,7 +228,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-2 gap-1.5">
                         {(['none', 'same-as-poster'] as const).map(v => (
                             <button key={v} onClick={() => set({ imagePadding: v })}
-                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imagePadding === v ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {v === 'none' ? t('optFullBleed') : t('optWithMargin')}
                             </button>
                         ))}
@@ -239,7 +239,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                     <div className="grid grid-cols-3 gap-1.5">
                         {(['fit', 'fill', 'original'] as const).map(v => (
                             <button key={v} onClick={() => set({ imageScale: v })}
-                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                className={`py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${p.imageScale === v ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                 {v === 'fill' ? t('optFill') : v === 'fit' ? t('optFit') : t('optOriginal')}
                             </button>
                         ))}
@@ -251,7 +251,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="grid grid-cols-3 gap-1">
                             {(['left', 'center', 'right'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignX: v })} aria-label={v} title={v}
-                                    className={`py-1.5 min-h-11 md:min-h-0 flex items-center justify-center rounded-lg border transition-colors ${p.imageAlignX === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                    className={`py-1.5 min-h-11 md:min-h-0 flex items-center justify-center rounded-lg border transition-colors ${p.imageAlignX === v ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                     {v === 'left' ? <AlignHorizontalJustifyStart className="w-3.5 h-3.5" /> : v === 'center' ? <AlignHorizontalJustifyCenter className="w-3.5 h-3.5" /> : <AlignHorizontalJustifyEnd className="w-3.5 h-3.5" />}
                                 </button>
                             ))}
@@ -261,7 +261,7 @@ export const LayoutControls: React.FC<LayoutControlsProps> = ({ options, onOptio
                         <div className="grid grid-cols-3 gap-1">
                             {(['top', 'center', 'bottom'] as const).map(v => (
                                 <button key={v} onClick={() => set({ imageAlignY: v })} aria-label={v} title={v}
-                                    className={`py-1.5 min-h-11 md:min-h-0 flex items-center justify-center rounded-lg border transition-colors ${p.imageAlignY === v ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                                    className={`py-1.5 min-h-11 md:min-h-0 flex items-center justify-center rounded-lg border transition-colors ${p.imageAlignY === v ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                                     {v === 'top' ? <AlignVerticalJustifyStart className="w-3.5 h-3.5" /> : v === 'center' ? <AlignVerticalJustifyCenter className="w-3.5 h-3.5" /> : <AlignVerticalJustifyEnd className="w-3.5 h-3.5" />}
                                 </button>
                             ))}

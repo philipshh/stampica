@@ -519,9 +519,9 @@ function finish(data: Uint8ClampedArray, width: number, height: number, original
             }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        self.postMessage({ imageData: new ImageData(upscaledData as any, originalWidth, originalHeight), jobId });
+        (self as unknown as Worker).postMessage({ imageData: new ImageData(upscaledData as any, originalWidth, originalHeight), jobId }, [upscaledData.buffer]);
     } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        self.postMessage({ imageData: new ImageData(data as any, width, height), jobId });
+        (self as unknown as Worker).postMessage({ imageData: new ImageData(data as any, width, height), jobId }, [data.buffer]);
     }
 }

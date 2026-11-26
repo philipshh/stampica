@@ -189,7 +189,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
     };
 
     const segBtn = (active: boolean) =>
-        `py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-ink text-paper border-transparent font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
+        `py-1.5 min-h-11 md:min-h-0 rounded-lg border transition-colors text-[10px] uppercase ${active ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
     const colorModes = [
         { id: 'monochrome', label: '1' }, { id: 'duotone', label: '2' },
@@ -321,7 +321,7 @@ export const AdjustmentControls: React.FC<AdjustmentControlsProps> = ({ options,
                     <SliderField label={t('labelGamma')} value={options.gamma} min={0.1} max={3} step={0.1} defaultValue={1} onChange={v => update('gamma', v)} hint={t('hintGamma')} />
                     <div className="grid grid-cols-2 gap-2">
                         <button onClick={() => update('invert', !options.invert)}
-                            className={`py-2 min-h-11 md:min-h-0 rounded-lg border transition-colors text-xs uppercase ${options.invert ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
+                            className={`py-2 min-h-11 md:min-h-0 rounded-lg border transition-colors text-xs uppercase ${options.invert ? 'bg-vermilion/10 text-ink border-vermilion ring-1 ring-vermilion font-semibold' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`}>
                             {t('btnInvert')}
                         </button>
                         <button onClick={() => onOptionsChange({ ...options, brightness: 0, contrast: 0, gamma: 1, invert: false })}

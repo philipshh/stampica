@@ -38,7 +38,18 @@ function App() {
         poster: { ...DEFAULT_OPTIONS.poster, title: t('defaultPosterTitle'), director: t('defaultPosterDirector'), description: [t('defaultPosterDesc')] },
     }));
 
+    // Only the panel that's on screen is built: a hidden second panel would also
+    // render every effect thumbnail in its own worker.
+    const [isDesktop, setIsDesktop] = useState(() => window.matchMedia('(min-width: 768px)').matches);
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 768px)');
+        const onChange = () => setIsDesktop(mq.matches);
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
+    }, []);
     const posterRef = useRef<HTMLDivElement>(null);
+    const previewBusyRef = useRef(false);
+    const previewPendingRef = useRef<{ file: File; opts: DitherOptions } | null>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout>>();
     const canvasWrapperRef = useRef<HTMLDivElement>(null);
     const innerCanvasRef = useRef<HTMLDivElement>(null);
@@ -183,21 +194,32 @@ function App() {
         if (timerRef.current) clearTimeout(timerRef.current);
 
         const processImage = (file: File, opts: DitherOptions): Promise<ImageData> => {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const jobId = Math.random().toString(36).substring(7);
                 loadScaledImageData(file, opts.previewResolution).then((source) => {
-                    // The worker may modify what it receives, so send a copy of the cached pixels
+                    const worker = workerRef.current;
+                    if (!worker) return reject(new Error('worker gone'));
+                    // Send a copy of the cached pixels and hand its memory to the worker (no second copy)
                     const imageData = new ImageData(new Uint8ClampedArray(source.data), source.width, source.height);
 
-                    const handleResponse = (e: MessageEvent<WorkerResponse | WorkerErrorResponse>) => {
-                        if ('imageData' in e.data && e.data.jobId === jobId) {
-                            resolve(e.data.imageData);
-                            workerRef.current?.removeEventListener('message', handleResponse);
-                        }
+                    const done = () => {
+                        clearTimeout(timeout);
+                        worker.removeEventListener('message', handleResponse);
+                        worker.removeEventListener('error', handleError);
                     };
-                    workerRef.current?.addEventListener('message', handleResponse);
-                    workerRef.current?.postMessage({ imageData, options: opts, jobId });
-                }).catch(err => console.warn('[preview] image load failed', err));
+                    const handleResponse = (e: MessageEvent<WorkerResponse | WorkerErrorResponse>) => {
+                        if (e.data.jobId !== jobId) return;
+                        done();
+                        if ('imageData' in e.data) resolve(e.data.imageData);
+                        else reject(new Error(e.data.error));
+                    };
+                    const handleError = () => { done(); reject(new Error('worker crashed')); };
+                    // Never leave the preview waiting forever
+                    const timeout = setTimeout(() => { done(); reject(new Error('preview timed out')); }, 30000);
+                    worker.addEventListener('message', handleResponse);
+                    worker.addEventListener('error', handleError);
+                    worker.postMessage({ imageData, options: opts, jobId }, [imageData.data.buffer]);
+                }).catch(reject);
             });
         };
 
@@ -208,8 +230,25 @@ function App() {
                     setProcessedImage(null);
                     return;
                 }
-                const result = await processImage(imageFile, options);
-                setProcessedImage(result);
+                // Latest wins: while one job runs, keep only the newest settings. Dragging a
+                // slider then skips the in-between steps instead of queueing every one.
+                const job = { file: imageFile, opts: options };
+                if (previewBusyRef.current) { previewPendingRef.current = job; return; }
+                previewBusyRef.current = true;
+                try {
+                    let next: typeof job | null = job;
+                    while (next) {
+                        previewPendingRef.current = null;
+                        try {
+                            setProcessedImage(await processImage(next.file, next.opts));
+                        } catch (err) {
+                            console.warn('[preview]', err);
+                        }
+                        next = previewPendingRef.current;
+                    }
+                } finally {
+                    previewBusyRef.current = false;
+                }
             } else {
                 const settingsHash = JSON.stringify([
                     options.algorithm, options.threshold, options.palette,
@@ -244,7 +283,7 @@ function App() {
                     return { ...prev, grid: { ...prev.grid, images: mergedImages } };
                 });
             }
-        }, 50);
+        }, options.imageMode === 'single' ? 0 : 50); // single: no wait, the busy check above skips stale steps
 
         return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }, [
@@ -443,7 +482,7 @@ function App() {
         )}
             {/* Sidebar — hidden on mobile, fixed width on desktop */}
             <aside className="hidden md:flex md:w-80 flex-shrink-0 md:z-20 bg-paper md:flex-col">
-                <Controls
+                {isDesktop && <Controls
                     options={options}
                     onOptionsChange={setOptions}
                     onExport={handleExport}
@@ -454,7 +493,7 @@ function App() {
                     imageFile={imageFile}
                     onProjectLoad={handleProjectLoad}
                     isAdmin={user?.role === 'admin'}
-                />
+                />}
             </aside>
 
             {/* Main content */}
@@ -529,7 +568,7 @@ function App() {
 
                 {/* Mobile controls take the larger share of the screen; hidden on desktop */}
                 <div className="flex-1 min-h-0 flex md:hidden bg-paper border-t border-line overflow-hidden">
-                    <Controls
+                    {!isDesktop && <Controls
                         options={options}
                         onOptionsChange={setOptions}
                         onExport={handleExport}
@@ -540,7 +579,7 @@ function App() {
                         imageFile={imageFile}
                         onProjectLoad={handleProjectLoad}
                         isAdmin={user?.role === 'admin'}
-                    />
+                    />}
                 </div>
             </main>
 
