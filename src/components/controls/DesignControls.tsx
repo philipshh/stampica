@@ -1,6 +1,6 @@
 import React from 'react';
 import { DitherOptions } from '../../lib/dither';
-import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { AlignLeft, AlignCenter, AlignRight, Upload } from 'lucide-react';
 import { SectionCard } from './SectionCard';
 import { useT } from '../../contexts/LanguageContext';
 
@@ -14,6 +14,8 @@ interface DesignControlsProps {
     options: DitherOptions;
     onOptionsChange: (options: DitherOptions) => void;
     advanced?: boolean;
+    onUploadClick?: () => void;
+    hasImage?: boolean;
 }
 
 function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
@@ -30,13 +32,24 @@ const inputClass = "w-full bg-surface border border-line text-ink px-3 py-2 text
 const sizeBtn = (active: boolean) =>
     `flex-1 py-1.5 rounded-lg border transition-colors text-[10px] ${active ? 'bg-ink text-paper border-transparent' : 'border-line text-ink-faint hover:border-ink/40 hover:text-ink'}`;
 
-export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange }) => {
+export const DesignControls: React.FC<DesignControlsProps> = ({ options, onOptionsChange, onUploadClick, hasImage }) => {
     const { t } = useT();
     const p = options.poster;
     const set = (patch: Partial<typeof p>) => onOptionsChange({ ...options, poster: { ...p, ...patch } });
 
     return (
         <div className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-200">
+            {onUploadClick && (
+                <SectionCard title={t('sectionPhoto')}>
+                    <button
+                        onClick={onUploadClick}
+                        className="press w-full h-11 flex items-center justify-center gap-2 rounded-full border border-line bg-surface text-ink text-xs font-semibold uppercase tracking-wider hover:border-ink/40 transition-colors"
+                    >
+                        <Upload className="w-3.5 h-3.5" />
+                        {hasImage ? t('changePhoto') : t('uploadPhoto')}
+                    </button>
+                </SectionCard>
+            )}
             <SectionCard title={t('sectionTextContent')}>
                 {/* Director */}
                 <Field label={t('fieldDirector')}>

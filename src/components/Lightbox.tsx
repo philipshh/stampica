@@ -68,9 +68,7 @@ export function Lightbox({ src, srcs, initialIndex = 0, alt = 'Preview', onClose
       )}
 
       <div className="bg-ink p-2 shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="bg-white p-3 md:p-4">
-          <img src={images[idx]} alt={alt} className="block max-h-[80vh] max-w-[80vw] object-contain" />
-        </div>
+        <img src={images[idx]} alt={alt} className="block max-h-[85vh] max-w-[85vw] object-contain bg-white" />
       </div>
 
       {multi && (

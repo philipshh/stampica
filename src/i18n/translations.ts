@@ -124,6 +124,7 @@ const translations = {
     cartShort: 'Cart',
     signInWithGoogle: ' with Google',
     defaultPosterTitle: 'Your poster title',
+    defaultPosterDirector: 'Stampica studio',
     defaultPosterDesc: 'Add a few words about the moment: a place, a date, a name.',
     order: 'Order',
     addToCart: 'Add to cart',
@@ -140,6 +141,9 @@ const translations = {
 
     // DesignControls section/field labels
     sectionTextContent: 'Text content',
+    sectionPhoto: 'Photo',
+    uploadPhoto: 'Upload photo',
+    changePhoto: 'Change photo',
     sectionCastCredits: 'Cast & credits',
     fieldDirector: 'Director / Studio',
     fieldTitle: 'Title',
@@ -339,6 +343,7 @@ const translations = {
     cartShort: 'Korpa',
     signInWithGoogle: ' preko Google-a',
     defaultPosterTitle: 'Naslov postera',
+    defaultPosterDirector: 'Štampica studio',
     defaultPosterDesc: 'Dodaj par reči o trenutku: mesto, datum, ime.',
     order: 'Naruči',
     addToCart: 'Dodaj u korpu',
@@ -355,6 +360,9 @@ const translations = {
 
     // DesignControls section/field labels
     sectionTextContent: 'Sadržaj teksta',
+    sectionPhoto: 'Fotografija',
+    uploadPhoto: 'Otpremi fotografiju',
+    changePhoto: 'Promeni fotografiju',
     sectionCastCredits: 'Glumci i ekipa',
     fieldDirector: 'Režiser / Studio',
     fieldTitle: 'Naslov',

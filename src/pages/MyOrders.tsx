@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useT } from '../contexts/LanguageContext';
 import { API_BASE } from '../lib/api';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
+import { PrintGuide } from '../components/PrintGuide';
 
 interface OrderSummary {
   id: string;
@@ -50,6 +51,8 @@ export function MyOrders() {
             <Link to="/create" className="inline-block bg-ink text-paper font-semibold px-6 py-3 rounded-full hover:bg-black transition-colors text-sm">{t('create')}</Link>
           </div>
         ) : (
+          <>
+          <PrintGuide className="mb-6" />
           <ul className="space-y-4">
             {orders.map(o => (
               <li key={o.id}>
@@ -69,6 +72,7 @@ export function MyOrders() {
               </li>
             ))}
           </ul>
+          </>
         )}
       </div>
     </div>

@@ -15,6 +15,7 @@ import { useImageDimensions } from './hooks/useImageDimensions';
 import { useDitherWorker } from './hooks/useDitherWorker';
 import { getPosterSize } from './lib/posterSizes';
 import { DEFAULT_OPTIONS } from './lib/defaultOptions';
+import translations from './i18n/translations';
 import { usePasteHandler } from './hooks/usePasteHandler';
 
 
@@ -25,15 +26,15 @@ const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3];
 function App() {
 
     const { user } = useAuth();
-    const { addItem, items: cartItems } = useCart();
-    const { t } = useT();
+    const { addItem } = useCart();
+    const { t, lang } = useT();
     const [showCartModal, setShowCartModal] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
     // Placeholder poster text follows the UI language
     const [options, setOptions] = useState<DitherOptions>(() => ({
         ...DEFAULT_OPTIONS,
-        poster: { ...DEFAULT_OPTIONS.poster, title: t('defaultPosterTitle'), description: [t('defaultPosterDesc')] },
+        poster: { ...DEFAULT_OPTIONS.poster, title: t('defaultPosterTitle'), director: t('defaultPosterDirector'), description: [t('defaultPosterDesc')] },
     }));
 
     const posterRef = useRef<HTMLDivElement>(null);
@@ -90,6 +91,21 @@ function App() {
 
     // Restore the design in progress, then keep it saved as the user works
     const [draftReady, setDraftReady] = useState(false);
+
+    // On language switch, swap any sample text the user hasn't edited yet
+    useEffect(() => {
+        const other = lang === 'en' ? 'sr' : 'en';
+        const tr = (l: 'en' | 'sr', k: 'defaultPosterTitle' | 'defaultPosterDirector' | 'defaultPosterDesc') => translations[l][k];
+        setOptions(prev => {
+            const p = prev.poster;
+            const title = p.title === tr(other, 'defaultPosterTitle') ? tr(lang, 'defaultPosterTitle') : p.title;
+            const director = p.director === tr(other, 'defaultPosterDirector') ? tr(lang, 'defaultPosterDirector') : p.director;
+            const description = p.description.map(d => d === tr(other, 'defaultPosterDesc') ? tr(lang, 'defaultPosterDesc') : d);
+            if (title === p.title && director === p.director && description.every((d, i) => d === p.description[i])) return prev;
+            return { ...prev, poster: { ...p, title, director, description } };
+        });
+    }, [lang, draftReady]);
+
     useEffect(() => {
         loadDraft()
             .then(draft => {
@@ -427,7 +443,6 @@ function App() {
                     imageFile={imageFile}
                     onProjectLoad={handleProjectLoad}
                     isAdmin={user?.role === 'admin'}
-                    cartCount={cartItems.length}
                 />
             </aside>
 
@@ -514,7 +529,6 @@ function App() {
                         imageFile={imageFile}
                         onProjectLoad={handleProjectLoad}
                         isAdmin={user?.role === 'admin'}
-                        cartCount={cartItems.length}
                     />
                 </div>
             </main>

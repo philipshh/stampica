@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { PrintGuide } from '../components/PrintGuide';
 import { Link, useParams } from 'react-router-dom';
 import { Download, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -200,7 +201,8 @@ export function Downloads() {
           <p className="text-ink-soft">{t('dlNotFound')}</p>
         ) : order && (
           <>
-            <p className="text-ink-soft max-w-2xl mb-10 leading-relaxed">{t('dlHint')}</p>
+            <p className="text-ink-soft max-w-2xl mb-6 leading-relaxed">{t('dlHint')}</p>
+            <PrintGuide className="mb-10" />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
               {order.items.map((item, i) => item.designData && <PosterDownload key={i} item={item} index={i} />)}
             </div>

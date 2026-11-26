@@ -5,9 +5,8 @@ import { LayoutControls } from './controls/LayoutControls';
 import { AdjustmentControls } from './controls/AdjustmentControls';
 import { ProjectControls } from './controls/ProjectControls';
 import { PosterProject } from '../lib/storage';
-import { Download, Upload, Copy, ShoppingCart } from 'lucide-react';
+import { Download, Copy, ShoppingCart } from 'lucide-react';
 import { useT } from '../contexts/LanguageContext';
-import { Link } from 'react-router-dom';
 
 interface ControlsProps {
     options: DitherOptions;
@@ -20,7 +19,6 @@ interface ControlsProps {
     imageFile: File | null;
     onProjectLoad: (project: PosterProject) => void;
     isAdmin?: boolean;
-    cartCount?: number;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -34,7 +32,6 @@ export const Controls: React.FC<ControlsProps> = ({
     imageFile,
     onProjectLoad,
     isAdmin = false,
-    cartCount = 0,
 }) => {
     const { t } = useT();
     const [activeTab, setActiveTab] = React.useState<'design' | 'layout' | 'adjust' | 'saved'>('adjust');
@@ -82,7 +79,7 @@ export const Controls: React.FC<ControlsProps> = ({
             {/* Scrollable content */}
             <div key={activeTab} className="flex-1 min-h-0 overflow-y-auto p-3 pt-1 space-y-3 custom-scrollbar animate-in fade-in duration-150">
                 {activeTab === 'design' && (
-                    <DesignControls options={options} onOptionsChange={onOptionsChange} advanced={advanced} />
+                    <DesignControls options={options} onOptionsChange={onOptionsChange} advanced={advanced} onUploadClick={onUploadClick} hasImage={!!imageFile} />
                 )}
                 {activeTab === 'layout' && (
                     <LayoutControls options={options} onOptionsChange={onOptionsChange} imageDimensions={imageDimensions} advanced={advanced} />
@@ -105,13 +102,6 @@ export const Controls: React.FC<ControlsProps> = ({
             <div className="hidden md:flex flex-col gap-2 p-3 border-t border-line bg-paper flex-shrink-0">
                 <div className="flex gap-2">
                     <button
-                        onClick={onUploadClick}
-                        className="flex-1 bg-surface border border-line text-ink font-semibold py-2.5 rounded-full hover:border-ink/40 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
-                    >
-                        <Upload className="w-3.5 h-3.5" />
-                        {t('tabUpload')}
-                    </button>
-                    <button
                         onClick={onOrder}
                         className="flex-1 bg-ink text-paper font-semibold py-2.5 rounded-full hover:bg-black transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                     >
@@ -119,17 +109,6 @@ export const Controls: React.FC<ControlsProps> = ({
                         {t('addToCart')}
                     </button>
                 </div>
-                {/* View cart — shown when cart has items */}
-                {cartCount > 0 && (
-                    <Link
-                        to="/cart"
-                        className="w-full flex items-center justify-center gap-2 py-2 rounded-full text-xs uppercase tracking-wider bg-line/60 text-ink hover:bg-line transition-colors font-semibold"
-                    >
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                        {t('viewCart')}
-                        <span className="bg-vermilion text-paper text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>
-                    </Link>
-                )}
                 {/* Admin-only actions */}
                 {isAdmin && (
                     <div className="flex gap-2">
@@ -154,15 +133,8 @@ export const Controls: React.FC<ControlsProps> = ({
             {/* Footer Actions — Mobile */}
             <div className="flex md:hidden gap-2 border-t border-line flex-shrink-0 bg-paper px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 <button
-                    onClick={onUploadClick}
-                    className="press flex-1 h-12 flex items-center justify-center gap-2 rounded-full border border-line bg-surface text-ink text-sm font-semibold"
-                >
-                    <Upload className="w-4 h-4" />
-                    {t('tabUpload')}
-                </button>
-                <button
                     onClick={onOrder}
-                    className="press flex-[1.4] h-12 flex items-center justify-center gap-2 rounded-full bg-ink text-paper text-sm font-semibold"
+                    className="press flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-ink text-paper text-sm font-semibold"
                 >
                     <ShoppingCart className="w-4 h-4" />
                     {t('addToCart')}
